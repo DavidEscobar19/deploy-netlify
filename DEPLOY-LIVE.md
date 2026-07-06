@@ -37,16 +37,20 @@ Netlify → **Site settings → Environment variables → Add a variable**
 Vuelve a desplegar. Listo: el panel "En directo" mostrará marcadores y cuotas reales,
 y se refresca solo cada 5 minutos.
 
-## 4. Segunda clave — datos deportivos reales (API-Football)
+## 4. Segunda clave — datos deportivos reales (football-data.org)
 
-El panel **"Resultados reales"** usa otra API (resultados, marcadores en vivo, calendario,
-estadísticas, goleadores). Necesita su propia clave, en otra variable de entorno.
+El panel **"Resultados reales"** usa otra API (resultados, calendario, clasificación,
+goleadores). Necesita su propia clave, en otra variable de entorno.
 
-1. Crea cuenta gratis en https://www.api-football.com (plan free: 100 consultas/día).
-2. Copia tu API key.
+> Nota: se probó primero con API-Football, pero su plan gratis no da acceso a la
+> temporada 2026 (solo temporadas viejas). football-data.org sí cubre el Mundial en
+> su plan gratis (10 consultas/min).
+
+1. Crea cuenta gratis en https://www.football-data.org/client/register.
+2. Copia tu API key (te la mandan o aparece en tu panel de cliente).
 3. Netlify → **Environment variables** → añade:
-   - Key: `API_FOOTBALL_KEY`  ·  Value: *tu clave*
-   - (Opcional) `AF_LEAGUE` (por defecto `1` = Copa del Mundo) y `AF_SEASON` (por defecto `2026`).
+   - Key: `FOOTBALL_DATA_KEY`  ·  Value: *tu clave*
+   - (Opcional) `FD_COMPETITION` (por defecto `WC` = Copa del Mundo) y `FD_SEASON` (por defecto `2026`).
 4. Redespliega (o `git push`).
 
 Comprobar: abre `https://TU-SITIO/.netlify/functions/football` → JSON con `"ok": true` y `response` con partidos.

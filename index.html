@@ -397,7 +397,7 @@ nav.bott{display:none}
 <div id="app">
 
 <nav class="side">
-  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>WCAI</b><span class="ver" id="verChip">V25</span></div>
+  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>WCAI</b><span class="ver" id="verChip">V26</span></div>
   <a href="#inicio" data-p="inicio" class="on"><svg class="i" viewBox="0 0 24 24"><use href="#ic-home"/></svg>Inicio</a>
   <a href="#partidos" data-p="partidos"><svg class="i" viewBox="0 0 24 24"><use href="#ic-ball"/></svg>Partidos</a>
   <a href="#analisis" data-p="analisis"><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Análisis</a>
@@ -742,7 +742,7 @@ nav.bott{display:none}
 
 <script>
 "use strict";
-var VERSION="V25";
+var VERSION="V26";
 /* PIN: disuasión del lado del cliente (el código llega al navegador, no es seguridad real).
    Guardamos solo un hash del PIN y limitamos los intentos para frenar el tanteo casual. */
 function hpin(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);}return (h>>>0).toString(16);}
@@ -1228,7 +1228,7 @@ function renderReal(flag){
   if(flag==="nokey"){
    el.style.display="";
    el.innerHTML='<h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-trophy"/></svg>Resultados reales<span class="tag">sin configurar</span></h3>'+
-    '<div style="font-size:.84rem;color:var(--tx2);line-height:1.6">Conexión de estadísticas desplegada; falta la clave. Añade <b>API_FOOTBALL_KEY</b> en Netlify → Environment variables y vuelve a publicar.</div>';
+    '<div style="font-size:.84rem;color:var(--tx2);line-height:1.6">Conexión de estadísticas desplegada; falta la clave. Añade <b>FOOTBALL_DATA_KEY</b> en Netlify → Environment variables y vuelve a publicar.</div>';
   }else el.style.display="none";
   return;
  }
@@ -1248,8 +1248,8 @@ function renderReal(flag){
  if(!h){el.style.display="none";return;}
  var fecha=new Date(FB.updated||Date.now()),hh=("0"+fecha.getHours()).slice(-2)+":"+("0"+fecha.getMinutes()).slice(-2);
  el.style.display="";
- el.innerHTML='<h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-trophy"/></svg>Resultados reales · en directo<span class="tag">API-Football · '+hh+'</span></h3>'+h+
-  '<div class="src" style="margin-top:10px">Marcadores y calendario reales, se actualizan solos. Fuente: API-Football.</div>';
+ el.innerHTML='<h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-trophy"/></svg>Resultados reales · en directo<span class="tag">football-data.org · '+hh+'</span></h3>'+h+
+  '<div class="src" style="margin-top:10px">Marcadores y calendario reales, se actualizan solos. Fuente: football-data.org.</div>';
 }
 
 function agendaOrden(){return OCTAVOS.concat(CUARTOS_PROX).slice().sort(function(a,b){return a.ts-b.ts;});}
