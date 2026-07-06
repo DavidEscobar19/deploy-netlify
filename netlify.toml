@@ -1,0 +1,9 @@
+# Configuración de Netlify — habilita las funciones serverless.
+[build]
+  publish = "."
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# Las cabeceras de seguridad siguen viniendo del archivo _headers.

@@ -1,0 +1,2457 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests">
+<title>WCAI · Mundial 2026</title>
+<script>/* anti-clickjacking: si nos cargan dentro de un iframe, rompemos el marco */
+try{if(window.top!==window.self){window.top.location=window.self.location;}}catch(e){document.documentElement.style.display="none";}</script>
+<style>
+:root{
+  --bg:#08090f; --bg2:#0d0f1a; --panel:#10121f; --card:#141828; --card2:#1a1f33; --hover:#1e2440;
+  --border:#222948; --border2:#2d3660;
+  --tx:#eceef6; --tx2:#9aa3c0; --tx3:#5f6890;
+  --vio:#7c5cff; --vio2:#a78bfa; --vioD:#4c3a99;
+  --green:#22c55e; --greenD:rgba(34,197,94,.12);
+  --red:#ef4444; --redD:rgba(239,68,68,.12);
+  --amber:#f5a623; --amberD:rgba(245,166,35,.12);
+  --r:14px; --r2:10px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{font-size:15px;scroll-behavior:smooth}
+body{background:var(--bg);color:var(--tx);font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;min-height:100vh;
+ background-image:radial-gradient(ellipse 60% 40% at 70% -10%,rgba(124,92,255,.09),transparent),radial-gradient(ellipse 40% 30% at 10% 110%,rgba(124,92,255,.05),transparent)}
+button{font-family:inherit;cursor:pointer}
+input,textarea,select{font-family:inherit}
+::selection{background:rgba(124,92,255,.4)}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:6px}
+::-webkit-scrollbar-track{background:transparent}
+svg.i{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes growW{from{width:0}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes blink{0%,80%,100%{transform:scale(.7);opacity:.4}40%{transform:scale(1);opacity:1}}
+
+/* ============ PIN GATE ============ */
+#gate{position:fixed;inset:0;background:var(--bg);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;
+ background-image:radial-gradient(ellipse 50% 40% at 50% 0%,rgba(124,92,255,.14),transparent)}
+.gateBox{width:100%;max-width:380px;background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:38px 34px;text-align:center;animation:fadeUp .5s ease}
+.gLogo{display:inline-flex;align-items:center;gap:11px;margin-bottom:8px}
+.gMark{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--vio),#5230d6);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 24px rgba(124,92,255,.35)}
+.gMark svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:2}
+.gLogo b{font-size:1.35rem;letter-spacing:.3px}
+.gLogo b em{font-style:normal;color:var(--vio2)}
+#gate p{color:var(--tx2);font-size:.85rem;margin:6px 0 26px;line-height:1.5}
+#pinIn{background:var(--bg2);border:1px solid var(--border);color:var(--tx);font-size:1.5rem;letter-spacing:.55em;text-align:center;width:100%;padding:13px 0 13px 14px;border-radius:12px;outline:none;transition:border .2s,box-shadow .2s}
+#pinIn:focus{border-color:var(--vio);box-shadow:0 0 0 3px rgba(124,92,255,.18)}
+#gateErr{color:var(--red);font-size:.8rem;min-height:1.4em;margin-top:9px}
+#gateBtn{width:100%;margin-top:8px;background:linear-gradient(135deg,var(--vio),#5b3fe0);color:#fff;border:none;padding:13px;border-radius:12px;font-size:.95rem;font-weight:600;letter-spacing:.02em;transition:filter .2s,transform .1s}
+#gateBtn:hover{filter:brightness(1.12)}
+#gateBtn:active{transform:scale(.98)}
+
+/* ============ LAYOUT ============ */
+#app{display:none}
+nav.side{width:224px;background:var(--bg2);border-right:1px solid var(--border);padding:20px 12px;position:fixed;top:0;bottom:0;left:0;overflow-y:auto;z-index:50;display:flex;flex-direction:column}
+.sLogo{display:flex;align-items:center;gap:10px;padding:2px 8px 20px}
+.sMark{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--vio),#5230d6);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(124,92,255,.3)}
+.sMark svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2}
+.sLogo b{font-size:1.1rem}
+.sLogo .ver{font-size:.62rem;background:rgba(124,92,255,.14);color:var(--vio2);border:1px solid var(--vioD);padding:2px 8px;border-radius:20px;margin-left:auto;font-weight:600}
+nav.side a{display:flex;align-items:center;gap:11px;color:var(--tx2);text-decoration:none;padding:10px 12px;border-radius:11px;font-size:.87rem;font-weight:500;margin-bottom:3px;transition:background .18s,color .18s;position:relative}
+nav.side a:hover{background:var(--card);color:var(--tx)}
+nav.side a.on{background:linear-gradient(90deg,rgba(124,92,255,.18),rgba(124,92,255,.05));color:#fff}
+nav.side a.on::before{content:"";position:absolute;left:-12px;top:8px;bottom:8px;width:3px;border-radius:3px;background:var(--vio)}
+nav.side .sep{font-size:.62rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.1em;padding:16px 12px 8px}
+.sFoot{margin-top:auto;padding:14px 10px 4px;font-size:.68rem;color:var(--tx3);line-height:1.6;border-top:1px solid var(--border)}
+main{margin-left:224px;padding:26px 32px 100px;max-width:1240px}
+
+/* topbar */
+.topbar{display:flex;align-items:center;gap:16px;margin-bottom:24px;animation:fadeUp .4s ease}
+.topbar .hi{font-size:1.28rem;font-weight:700}
+.topbar .hi span{color:var(--tx2);font-weight:400;font-size:.85rem;display:block;margin-top:3px}
+.saldoChip{margin-left:auto;background:var(--card);border:1px solid var(--border);border-radius:13px;padding:9px 18px;text-align:right}
+.saldoChip .lb{font-size:.62rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.08em}
+.saldoChip .v{font-size:1.12rem;font-weight:700;color:#fff}
+
+h2.pageT{font-size:1.32rem;font-weight:700;margin-bottom:4px}
+.pageSub{color:var(--tx2);font-size:.85rem;margin-bottom:22px}
+section.page{display:none}
+section.page.on{display:block;animation:fadeUp .35s ease}
+
+/* ============ COMPONENTS ============ */
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g32{grid-template-columns:1.6fr 1fr}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;transition:border .2s}
+.card.hl{border-color:var(--border2)}
+.card h3{font-size:.92rem;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:9px}
+.card h3 svg.i{color:var(--vio2)}
+.card h3 .tag{margin-left:auto;font-size:.64rem;font-weight:500;color:var(--tx3);text-transform:none}
+.kpi{font-size:1.55rem;font-weight:700;letter-spacing:-.01em}
+.kpi.small{font-size:1.18rem}
+.kLb{font-size:.64rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.08em;margin-top:3px}
+.pos{color:var(--green)}.neg{color:var(--red)}.mut{color:var(--tx2)}.vio{color:var(--vio2)}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:.68rem;font-weight:600;padding:3px 10px;border-radius:20px;border:1px solid var(--border);color:var(--tx2)}
+.chip.v{background:rgba(124,92,255,.12);border-color:var(--vioD);color:var(--vio2)}
+.chip.g{background:var(--greenD);border-color:rgba(34,197,94,.35);color:var(--green)}
+.chip.r{background:var(--redD);border-color:rgba(239,68,68,.35);color:var(--red)}
+.chip.a{background:var(--amberD);border-color:rgba(245,166,35,.35);color:var(--amber)}
+.btn{display:inline-flex;align-items:center;gap:7px;background:linear-gradient(135deg,var(--vio),#5b3fe0);color:#fff;border:none;padding:9px 18px;border-radius:10px;font-size:.84rem;font-weight:600;transition:filter .2s,transform .1s}
+.btn:hover{filter:brightness(1.12)}
+.btn:active{transform:scale(.98)}
+.btn.sec{background:var(--card2);color:var(--tx);border:1px solid var(--border)}
+.btn.sec:hover{background:var(--hover);filter:none}
+.btn.ghost{background:transparent;border:1px solid var(--border);color:var(--tx2)}
+.btn.ghost:hover{color:var(--tx);border-color:var(--border2);filter:none}
+.btn.danger{background:transparent;border:1px solid rgba(239,68,68,.4);color:var(--red)}
+.btn.danger:hover{background:var(--redD);filter:none}
+.btn.sm{padding:5px 12px;font-size:.72rem}
+.btn.full{width:100%;justify-content:center}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th{text-align:left;color:var(--tx3);font-weight:600;font-size:.66rem;text-transform:uppercase;letter-spacing:.07em;padding:7px 9px;border-bottom:1px solid var(--border)}
+td{padding:10px 9px;border-bottom:1px solid rgba(34,41,72,.55)}
+tr:last-child td{border-bottom:none}
+tbody tr{transition:background .15s}
+tbody tr:hover{background:rgba(124,92,255,.04)}
+.bar{height:7px;border-radius:6px;background:var(--card2);overflow:hidden;display:flex}
+.bar i{display:block;height:100%;animation:growW .8s ease}
+.src{font-size:.68rem;color:var(--tx3);margin-top:10px;line-height:1.55}
+.note{font-size:.77rem;color:var(--tx2);background:var(--amberD);border:1px solid rgba(245,166,35,.28);border-radius:var(--r2);padding:11px 14px;line-height:1.6;margin-top:14px}
+.note b{color:var(--amber)}
+.note.v{background:rgba(124,92,255,.07);border-color:var(--vioD)}
+.note.v b{color:var(--vio2)}
+input.field,textarea.field,select.field{background:var(--bg2);border:1px solid var(--border);color:var(--tx);padding:10px 13px;border-radius:10px;font-size:.87rem;outline:none;width:100%;transition:border .2s,box-shadow .2s}
+input.field:focus,textarea.field:focus,select.field:focus{border-color:var(--vio);box-shadow:0 0 0 3px rgba(124,92,255,.14)}
+select.field{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%239aa3c0' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;padding-right:32px}
+label.fl{display:block;font-size:.66rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.07em;margin:12px 0 6px;font-weight:600}
+.empty{color:var(--tx3);font-size:.86rem;text-align:center;padding:30px 10px}
+.tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.tabs button{background:transparent;border:1px solid var(--border);color:var(--tx2);padding:6px 15px;border-radius:20px;font-size:.77rem;font-weight:500;transition:all .18s}
+.tabs button:hover{color:var(--tx);border-color:var(--border2)}
+.tabs button.on{background:var(--vio);border-color:var(--vio);color:#fff}
+input[type=range]{width:100%;accent-color:var(--vio);height:26px}
+input[type=checkbox].sw{appearance:none;width:38px;height:21px;border-radius:20px;background:var(--card2);border:1px solid var(--border);position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+input[type=checkbox].sw::after{content:"";position:absolute;top:2px;left:2px;width:15px;height:15px;border-radius:50%;background:var(--tx3);transition:all .2s}
+input[type=checkbox].sw:checked{background:var(--vio);border-color:var(--vio)}
+input[type=checkbox].sw:checked::after{left:19px;background:#fff}
+
+/* countdown */
+.count{display:flex;gap:9px;margin:14px 0}
+.count div{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:9px 0;text-align:center;flex:1}
+.count b{font-size:1.3rem;display:block;font-variant-numeric:tabular-nums}
+.count span{font-size:.6rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em}
+
+/* matches */
+.vsRow{display:flex;align-items:center;gap:14px;margin:6px 0 4px}
+.vsRow .tm{flex:1;text-align:center}
+.vsRow .tm .n{font-size:1.05rem;font-weight:700}
+.vsRow .tm .c{font-size:.64rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+.vsRow .vs{font-size:.7rem;color:var(--tx3);font-weight:700;background:var(--card2);border:1px solid var(--border);border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center}
+.oddsRow{display:flex;gap:8px;margin-top:12px}
+.oddsRow .o{flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:8px 4px;text-align:center;transition:border .2s}
+.oddsRow .o:hover{border-color:var(--vioD)}
+.oddsRow .o .l{font-size:.6rem;color:var(--tx3);text-transform:uppercase}
+.oddsRow .o .v{font-size:.98rem;font-weight:700;margin-top:2px}
+.match{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;margin-bottom:11px;cursor:pointer;transition:border .2s,transform .15s}
+.match:hover{border-color:var(--border2);transform:translateY(-1px)}
+.match .row{display:flex;align-items:center;gap:11px}
+.match .tms{flex:1;font-weight:600;font-size:.95rem}
+.match .meta{color:var(--tx3);font-size:.73rem;margin-top:5px}
+.match .arrow{color:var(--tx3);transition:transform .2s}
+
+/* modal */
+#modalBg{position:fixed;inset:0;background:rgba(4,5,10,.75);backdrop-filter:blur(4px);z-index:150;display:none;align-items:flex-start;justify-content:center;padding:6vh 16px;overflow-y:auto}
+#modalBg.on{display:flex}
+#modal{width:100%;max-width:640px;background:var(--panel);border:1px solid var(--border2);border-radius:18px;padding:24px;animation:fadeUp .3s ease}
+#modal .mHd{display:flex;align-items:flex-start;gap:10px;margin-bottom:6px}
+#modal .mHd .x{margin-left:auto;background:var(--card2);border:1px solid var(--border);color:var(--tx2);width:30px;height:30px;border-radius:9px;font-size:.95rem;line-height:1}
+#modal .mHd .x:hover{color:var(--tx)}
+.mTabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin:14px 0 16px}
+.mTabs button{background:none;border:none;color:var(--tx3);font-size:.8rem;font-weight:600;padding:9px 14px;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .15s}
+.mTabs button:hover{color:var(--tx2)}
+.mTabs button.on{color:var(--vio2);border-bottom-color:var(--vio)}
+.mBody{font-size:.86rem;color:var(--tx2);line-height:1.7;min-height:120px}
+.mBody b{color:var(--tx)}
+.kv{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid rgba(34,41,72,.5);font-size:.84rem}
+.kv:last-child{border-bottom:none}
+.kv .k{color:var(--tx3);width:130px;flex-shrink:0}
+.probRow{margin:10px 0}
+.probRow .pl{display:flex;justify-content:space-between;font-size:.78rem;color:var(--tx2);margin-bottom:5px}
+.probRow .pl b{color:var(--tx)}
+
+/* bracket */
+.brk{display:flex;gap:16px;overflow-x:auto;padding-bottom:10px}
+.brkCol{min-width:216px;flex-shrink:0}
+.brkCol h4{font-size:.68rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.09em;margin-bottom:12px;text-align:center;font-weight:600}
+.brkM{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:11px 14px;margin-bottom:11px;font-size:.84rem;transition:border .2s}
+.brkM:hover{border-color:var(--border2)}
+.brkM .t{display:flex;justify-content:space-between;padding:3px 0}
+.brkM .t.win{font-weight:700}
+.brkM .t.win .s{color:var(--green)}
+.brkM .t .s{color:var(--tx2);font-variant-numeric:tabular-nums}
+.brkM .when{font-size:.66rem;color:var(--tx3);margin-top:6px;text-transform:uppercase;letter-spacing:.04em}
+
+/* chat */
+.chatWrap{display:flex;flex-direction:column;height:560px}
+#chatLog{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:11px;padding:4px 4px 14px}
+.msg{max-width:80%;padding:11px 15px;border-radius:15px;font-size:.87rem;line-height:1.6;white-space:pre-wrap;animation:fadeUp .25s ease}
+.msg.u{align-self:flex-end;background:linear-gradient(135deg,var(--vio),#5b3fe0);color:#fff;border-bottom-right-radius:5px}
+.msg.b{align-self:flex-start;background:var(--card2);border:1px solid var(--border);border-bottom-left-radius:5px}
+.typing{align-self:flex-start;background:var(--card2);border:1px solid var(--border);border-radius:15px;border-bottom-left-radius:5px;padding:13px 16px;display:flex;gap:5px}
+.typing i{width:6px;height:6px;border-radius:50%;background:var(--tx2);animation:blink 1.2s infinite}
+.typing i:nth-child(2){animation-delay:.2s}
+.typing i:nth-child(3){animation-delay:.4s}
+#chatForm{display:flex;gap:9px;margin-top:12px}
+#chatForm input{flex:1}
+#chatForm button{padding:0 16px}
+.sugg{display:flex;flex-wrap:wrap;gap:6px;margin-top:11px}
+.sugg button{background:var(--card2);border:1px solid var(--border);color:var(--tx2);font-size:.72rem;padding:6px 13px;border-radius:20px;transition:all .18s}
+.sugg button:hover{color:var(--vio2);border-color:var(--vioD)}
+.botHd{display:flex;align-items:center;gap:10px;padding-bottom:14px;border-bottom:1px solid var(--border);margin-bottom:14px}
+.botAv{width:36px;height:36px;border-radius:11px;background:linear-gradient(135deg,var(--vio),#5230d6);display:flex;align-items:center;justify-content:center}
+.botAv svg{width:19px;height:19px;stroke:#fff;fill:none;stroke-width:1.8}
+.botHd .st{font-size:.68rem;color:var(--green);display:flex;align-items:center;gap:5px}
+.botHd .st::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+
+/* bets */
+.bet{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:15px 18px;margin-bottom:11px;transition:border .2s}
+.bet:hover{border-color:var(--border2)}
+.bet .hd{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.bet .hd b{font-size:.9rem}
+.bet .sels{margin-top:10px;display:flex;flex-direction:column;gap:6px}
+.sel{display:flex;align-items:center;gap:9px;font-size:.84rem;color:var(--tx2);cursor:pointer;user-select:none;padding:3px 5px;border-radius:8px;transition:background .15s}
+.sel:hover{background:rgba(124,92,255,.06)}
+.sel .st{width:18px;height:18px;border-radius:50%;border:2px solid var(--tx3);display:inline-flex;align-items:center;justify-content:center;font-size:.62rem;flex-shrink:0;transition:all .15s}
+.sel.ok{color:var(--tx)}
+.sel.ok .st{border-color:var(--green);background:var(--green);color:#06130a}
+.sel.ko{color:var(--tx3);text-decoration:line-through}
+.sel.ko .st{border-color:var(--red);background:var(--red);color:#fff;text-decoration:none}
+.bet .ft{display:flex;gap:16px;margin-top:12px;font-size:.78rem;color:var(--tx2);flex-wrap:wrap;align-items:center}
+.bet .ft b{color:var(--tx)}
+
+/* sim */
+.simOut{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin-top:18px}
+.simOut .box{background:var(--bg2);border:1px solid var(--border);border-radius:12px;text-align:center;padding:15px 8px}
+.simOut .box .lb{font-size:.62rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px}
+.mcGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-top:18px}
+.mcGrid .box{background:var(--bg2);border:1px solid var(--border);border-radius:12px;text-align:center;padding:14px 6px}
+.mcGrid .box .lb{font-size:.6rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+.mcGrid .box .v{font-size:1.05rem;font-weight:700}
+#histo{margin-top:16px}
+
+/* feed / alerts */
+.feed{display:flex;flex-direction:column;gap:9px}
+.feed .it{display:flex;gap:12px;align-items:flex-start;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:13px 16px;font-size:.84rem;line-height:1.55;transition:border .2s}
+.feed .it:hover{border-color:var(--border2)}
+.feed .it svg.i{color:var(--vio2);margin-top:2px}
+.alertRow{display:flex;align-items:center;gap:13px;padding:14px 4px;border-bottom:1px solid rgba(34,41,72,.55)}
+.alertRow:last-child{border-bottom:none}
+.alertRow svg.i{color:var(--vio2)}
+.alertRow .tt{flex:1}
+.alertRow .tt b{font-size:.88rem;display:block}
+.alertRow .tt span{font-size:.74rem;color:var(--tx3)}
+
+svg text{font-family:inherit}
+.topbar{transition:opacity .12s linear}
+.updBar{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;z-index:120;background:var(--panel);border:1px solid var(--vio);border-radius:14px;padding:13px 18px;display:flex;align-items:center;gap:14px;box-shadow:0 18px 50px -12px rgba(124,92,255,.45);animation:fadeUp .35s ease;max-width:92vw}
+.updBar .tt{font-size:.84rem;line-height:1.45}
+.updBar .tt b{color:var(--vio2)}
+@media(max-width:900px){.updBar{bottom:76px}}
+
+/* ---- V15: pulido profesional ---- */
+.gSub{color:var(--tx2);font-size:.8rem;margin-top:2px;letter-spacing:.04em}
+.gLock{display:inline-flex;align-items:center;gap:6px;font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--vio2);background:rgba(124,92,255,.1);border:1px solid var(--vioD);border-radius:20px;padding:5px 13px;margin-top:16px}
+.gFoot{font-size:.66rem;color:var(--tx3);margin-top:16px}
+.topbar{position:sticky;top:0;z-index:45;background:rgba(8,9,15,.72);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);margin:-26px -32px 24px;padding:16px 32px;border-bottom:1px solid rgba(34,41,72,.6)}
+.card{box-shadow:0 1px 0 rgba(255,255,255,.02) inset}
+.card.hl{box-shadow:0 0 0 1px rgba(124,92,255,.14),0 14px 40px -18px rgba(124,92,255,.25)}
+.match:hover{box-shadow:0 12px 32px -16px rgba(0,0,0,.6)}
+.btn:hover{box-shadow:0 6px 20px -6px rgba(124,92,255,.5)}
+.btn.ghost:hover,.btn.sec:hover,.btn.danger:hover{box-shadow:none}
+:focus-visible{outline:2px solid var(--vio);outline-offset:2px;border-radius:6px}
+.live{display:inline-flex;align-items:center;gap:6px;font-size:.62rem;color:#ff7b7b;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.live::before{content:"";width:7px;height:7px;border-radius:50%;background:#ff5c5c;animation:pulse 1.5s infinite}
+.brkM{position:relative}
+.brkM.vivo{border-color:var(--vio);box-shadow:0 0 0 1px rgba(124,92,255,.25),0 10px 28px -12px rgba(124,92,255,.35)}
+.brkM.res{border-color:rgba(34,197,94,.28)}
+.brkM .t{align-items:center;gap:8px}
+.brkM .t .s{font-weight:700;min-width:16px;text-align:right}
+.brkM .t.win .s{color:var(--green)}
+.brkM .t.out{opacity:.42}
+.brkM.gf{background:linear-gradient(135deg,rgba(124,92,255,.12),rgba(245,166,35,.08));border-color:rgba(245,166,35,.35)}
+.chk{display:flex;gap:11px;align-items:flex-start;padding:10px 0;border-bottom:1px solid rgba(34,41,72,.5);font-size:.84rem;color:var(--tx2);line-height:1.55}
+.chk:last-child{border-bottom:none}
+.chk .n{width:22px;height:22px;border-radius:7px;background:rgba(124,92,255,.14);border:1px solid var(--vioD);color:var(--vio2);font-size:.72rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.cmp{margin:9px 0}
+.cmp .l{display:flex;justify-content:space-between;font-size:.74rem;color:var(--tx2);margin-bottom:4px}
+.cmp .l b{color:var(--tx)}
+.duo{display:flex;flex-direction:column;gap:3px}
+.duo .bar{height:6px}
+.alertRow .chipT{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--tx3);background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:2px 7px}
+.kBox{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:13px 14px}
+.kBox .lb{font-size:.6rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}
+.kBox .v{font-size:1.02rem;font-weight:700}
+.g6{display:grid;grid-template-columns:repeat(6,1fr);gap:11px}
+@media(max-width:1100px){.g6{grid-template-columns:repeat(3,1fr)}}
+
+/* mobile */
+nav.bott{display:none}
+@media(max-width:900px){
+  nav.side{display:none}
+  main{margin-left:0;padding:18px 15px 100px}
+  .g2,.g3,.g32{grid-template-columns:1fr}
+  .simOut{grid-template-columns:1fr 1fr 1fr}
+  .mcGrid{grid-template-columns:1fr 1fr}
+  nav.bott{display:flex;position:fixed;bottom:0;left:0;right:0;background:rgba(13,15,26,.92);backdrop-filter:blur(12px);border-top:1px solid var(--border);z-index:60;overflow-x:auto}
+  nav.bott a{flex:1;min-width:60px;text-align:center;padding:10px 2px 11px;color:var(--tx3);text-decoration:none;font-size:.56rem;font-weight:600;letter-spacing:.02em}
+  nav.bott a svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.8;display:block;margin:0 auto 3px}
+  nav.bott a.on{color:var(--vio2)}
+  .chatWrap{height:480px}
+  .topbar{flex-wrap:nowrap;align-items:center;margin:-18px -15px 18px;padding:14px 15px;background:rgba(8,9,15,.72);transition:padding .28s ease,background .28s ease,box-shadow .28s ease,backdrop-filter .28s ease}
+  .topbar .hi{transition:font-size .28s ease;min-width:0}
+  .topbar .hi span{transition:opacity .22s ease,max-height .28s ease,margin-top .28s ease;overflow:hidden;max-height:2.2em}
+  .topbar .saldoChip{transition:padding .28s ease;flex-shrink:0}
+  .topbar.scrolled{padding:7px 15px;background:rgba(8,9,15,.94);backdrop-filter:blur(24px) saturate(140%);-webkit-backdrop-filter:blur(24px) saturate(140%);box-shadow:0 10px 26px -14px rgba(0,0,0,.75)}
+  .topbar.scrolled .hi{font-size:1rem}
+  .topbar.scrolled .hi span{opacity:0;max-height:0;margin-top:0}
+  .topbar.scrolled .saldoChip{padding:6px 13px}
+  .topbar.scrolled .saldoChip .lb{font-size:.55rem}
+  .topbar.scrolled .saldoChip .v{font-size:.98rem}
+}
+
+/* ---- V21: toasts, revisión de apuesta, efectos ---- */
+.toastWrap{position:fixed;left:50%;transform:translateX(-50%);bottom:26px;z-index:200;display:flex;flex-direction:column;gap:10px;align-items:center;pointer-events:none}
+.toast{background:var(--panel);border:1px solid var(--border);border-left:3px solid var(--vio);border-radius:12px;padding:12px 16px;font-size:.86rem;color:var(--tx);box-shadow:0 18px 50px -12px rgba(0,0,0,.65);animation:toastIn .32s cubic-bezier(.2,.8,.2,1);max-width:90vw;pointer-events:auto;transition:opacity .4s,transform .4s}
+.toast.ok{border-left-color:var(--green)}
+.toast.warn{border-left-color:var(--amber)}
+.toast.err{border-left-color:var(--red)}
+@keyframes toastIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@media(max-width:900px){.toastWrap{bottom:90px}}
+#revBg{position:fixed;inset:0;background:rgba(4,5,10,.78);backdrop-filter:blur(5px);z-index:170;display:none;align-items:flex-start;justify-content:center;padding:8vh 16px;overflow-y:auto}
+#revBg.on{display:flex}
+.revBox .rw{display:flex;gap:11px;align-items:flex-start;padding:11px 0;border-bottom:1px solid rgba(34,41,72,.5);font-size:.86rem;color:var(--tx2);line-height:1.55}
+.revBox .rw:last-child{border-bottom:none}
+.revBox .rw .ic{width:24px;height:24px;flex-shrink:0;border-radius:7px;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.revBox .rw.warn .ic{background:var(--amberD);color:var(--amber)}
+.revBox .rw.stop .ic{background:var(--redD);color:var(--red)}
+.revBox .rw b{color:var(--tx)}
+.revBox .rw svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
+/* count-up y reveal */
+.kpi{transition:color .3s ease}
+.reveal{opacity:0;transform:translateY(10px)}
+.reveal.in{opacity:1;transform:none;transition:opacity .5s ease,transform .5s cubic-bezier(.2,.8,.2,1)}
+.btn{transition:box-shadow .2s ease,transform .08s ease,filter .2s ease}
+.btn:active{transform:scale(.97)}
+.page{animation:pageIn .32s ease}
+@keyframes pageIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.page,.toast,.reveal{animation:none!important;transition:none!important;opacity:1!important;transform:none!important}}
+</style>
+</head>
+<body>
+
+<!-- ============ SVG ICON DEFS ============ -->
+<svg width="0" height="0" style="position:absolute">
+ <defs>
+  <g id="ic-logo"><path d="M6 3h12l3 5-9 13L3 8z"/><path d="M3 8h18M9.5 8L12 21l2.5-13"/></g>
+  <g id="ic-home"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9.5 21v-6h5v6"/></g>
+  <g id="ic-ball"><circle cx="12" cy="12" r="9"/><path d="M12 3a13.5 13.5 0 0 1 0 18M12 3a13.5 13.5 0 0 0 0 18M3.5 9.5h17M3.5 14.5h17"/></g>
+  <g id="ic-chart"><path d="M3 21h18"/><path d="M6 17v-5M11 17V6M16 17v-8M21 17V9"/></g>
+  <g id="ic-target"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/></g>
+  <g id="ic-trophy"><path d="M8 21h8M12 17v4M7 4h10v6a5 5 0 0 1-10 0z"/><path d="M7 6H4a3 3 0 0 0 3 5M17 6h3a3 3 0 0 1-3 5"/></g>
+  <g id="ic-slider"><path d="M4 21v-6M4 9V3M12 21v-9M12 6V3M20 21v-4M20 11V3"/><path d="M1.5 15h5M9.5 8h5M17.5 17h5"/></g>
+  <g id="ic-wallet"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10h18M16.5 14.5h.01"/></g>
+  <g id="ic-list"><path d="M8.5 6.5h12M8.5 12h12M8.5 17.5h12"/><path d="M3.5 6.5h.01M3.5 12h.01M3.5 17.5h.01"/></g>
+  <g id="ic-bot"><rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 7V4M8.5 12.5h.01M15.5 12.5h.01M9 16h6"/></g>
+  <g id="ic-cal"><rect x="3" y="4.5" width="18" height="17" rx="2.5"/><path d="M16 2.5v4M8 2.5v4M3 10.5h18"/></g>
+  <g id="ic-bell"><path d="M18 8.5a6 6 0 1 0-12 0c0 6.5-2.5 8-2.5 8h17s-2.5-1.5-2.5-8"/><path d="M10.2 20a2 2 0 0 0 3.6 0"/></g>
+  <g id="ic-clock"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></g>
+  <g id="ic-check"><circle cx="12" cy="12" r="9"/><path d="m8.5 12.2 2.4 2.4 4.8-5"/></g>
+  <g id="ic-warn"><path d="M12 3 2.5 20h19z"/><path d="M12 9.5v4.5M12 17.2h.01"/></g>
+  <g id="ic-send"><path d="M21 3 10.5 13.5M21 3l-7 18-3.5-7.5L3 10z"/></g>
+  <g id="ic-shield"><path d="M12 3 4.5 6v6c0 5 3.5 8 7.5 9.5 4-1.5 7.5-4.5 7.5-9.5V6z"/></g>
+  <g id="ic-stack"><path d="M12 3 3 8l9 5 9-5z"/><path d="m3 12.5 9 5 9-5M3 17l9 5 9-5"/></g>
+ </defs>
+</svg>
+
+<!-- ============ PIN ============ -->
+<div id="gate">
+ <div class="gateBox">
+  <div class="gLogo"><span class="gMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>WCAI</b></div>
+  <div class="gSub">Panel de análisis · Mundial 2026</div>
+  <div class="gLock"><svg class="i" viewBox="0 0 24 24" style="width:13px;height:13px"><use href="#ic-shield"/></svg>Acceso restringido</div>
+  <p>Datos verificados, estadísticas y seguimiento personal.<br>Introduce tu PIN para continuar.</p>
+  <input id="pinIn" type="password" inputmode="numeric" maxlength="4" placeholder="····" autocomplete="off">
+  <div id="gateErr"></div>
+  <button id="gateBtn" onclick="checkPin()">Acceder al panel</button>
+  <div class="gFoot">Sesión local en este dispositivo</div>
+ </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="app">
+
+<nav class="side">
+  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>WCAI</b><span class="ver" id="verChip">V23</span></div>
+  <a href="#inicio" data-p="inicio" class="on"><svg class="i" viewBox="0 0 24 24"><use href="#ic-home"/></svg>Inicio</a>
+  <a href="#partidos" data-p="partidos"><svg class="i" viewBox="0 0 24 24"><use href="#ic-ball"/></svg>Partidos</a>
+  <a href="#analisis" data-p="analisis"><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Análisis</a>
+  <a href="#valor" data-p="valor"><svg class="i" viewBox="0 0 24 24"><use href="#ic-target"/></svg>Datos y cuotas</a>
+  <a href="#combinadas" data-p="combinadas"><svg class="i" viewBox="0 0 24 24"><use href="#ic-stack"/></svg>Combinadas</a>
+  <a href="#cuadro" data-p="cuadro"><svg class="i" viewBox="0 0 24 24"><use href="#ic-trophy"/></svg>Cuadro</a>
+  <div class="sep">Mi gestión</div>
+  <a href="#simulador" data-p="simulador"><svg class="i" viewBox="0 0 24 24"><use href="#ic-slider"/></svg>Simulador</a>
+  <a href="#bankroll" data-p="bankroll"><svg class="i" viewBox="0 0 24 24"><use href="#ic-wallet"/></svg>Bankroll</a>
+  <a href="#apuestas" data-p="apuestas"><svg class="i" viewBox="0 0 24 24"><use href="#ic-list"/></svg>Mis apuestas</a>
+  <div class="sep">Herramientas</div>
+  <a href="#asistente" data-p="asistente"><svg class="i" viewBox="0 0 24 24"><use href="#ic-bot"/></svg>Asistente</a>
+  <a href="#calendario" data-p="calendario"><svg class="i" viewBox="0 0 24 24"><use href="#ic-cal"/></svg>Calendario</a>
+  <a href="#alertas" data-p="alertas"><svg class="i" viewBox="0 0 24 24"><use href="#ic-bell"/></svg>Alertas</a>
+  <div class="sFoot">Datos verificados con fuente y fecha. Sin recomendaciones de apuesta: la decisión es siempre tuya.</div>
+</nav>
+
+<nav class="bott">
+  <a href="#inicio" data-p="inicio" class="on"><svg viewBox="0 0 24 24"><use href="#ic-home"/></svg>Inicio</a>
+  <a href="#partidos" data-p="partidos"><svg viewBox="0 0 24 24"><use href="#ic-ball"/></svg>Partidos</a>
+  <a href="#valor" data-p="valor"><svg viewBox="0 0 24 24"><use href="#ic-target"/></svg>Cuotas</a>
+  <a href="#combinadas" data-p="combinadas"><svg viewBox="0 0 24 24"><use href="#ic-stack"/></svg>Combi</a>
+  <a href="#cuadro" data-p="cuadro"><svg viewBox="0 0 24 24"><use href="#ic-trophy"/></svg>Cuadro</a>
+  <a href="#apuestas" data-p="apuestas"><svg viewBox="0 0 24 24"><use href="#ic-list"/></svg>Apuestas</a>
+  <a href="#asistente" data-p="asistente"><svg viewBox="0 0 24 24"><use href="#ic-bot"/></svg>Bot</a>
+  <a href="#bankroll" data-p="bankroll"><svg viewBox="0 0 24 24"><use href="#ic-wallet"/></svg>Bank</a>
+</nav>
+
+<main>
+
+<div class="topbar">
+  <div class="hi">Bienvenido de nuevo, David<span id="hoyFecha"></span></div>
+  <div class="saldoChip"><div class="lb">Saldo disponible</div><div class="v" id="saldoTop">—</div></div>
+</div>
+
+<!-- ---------- INICIO ---------- -->
+<section class="page on" id="p-inicio">
+  <div class="card" id="liveCard" style="display:none;margin-bottom:16px"></div>
+  <div class="grid g32">
+    <div class="card hl" id="destCard"></div>
+    <div class="card">
+      <h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Resumen de rendimiento<span class="tag">local</span></h3>
+      <div id="resumenHome"></div>
+    </div>
+  </div>
+  <div style="height:16px"></div>
+  <div class="grid g2">
+    <div class="card">
+      <h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-cal"/></svg>Próximos partidos</h3>
+      <div id="proxHome"></div>
+    </div>
+    <div class="card">
+      <h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-trophy"/></svg>Bota de Oro<span class="tag">actualizado 5 jul</span></h3>
+      <div id="botaHome"></div>
+    </div>
+  </div>
+  <div style="height:16px"></div>
+  <div class="card">
+    <h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-bell"/></svg>Avisos</h3>
+    <div class="feed" id="feedAvisos"></div>
+  </div>
+</section>
+
+<!-- ---------- PARTIDOS ---------- -->
+<section class="page" id="p-partidos">
+  <h2 class="pageT">Partidos</h2>
+  <div class="pageSub">Fase final del Mundial 2026 — pulsa un partido para abrir su análisis</div>
+  <div class="tabs" id="tabsPart">
+    <button class="on" data-f="todos">Todos</button>
+    <button data-f="jugados">Finalizados</button>
+    <button data-f="pendientes">Por jugar</button>
+  </div>
+  <div id="listaPartidos"></div>
+</section>
+
+<!-- ---------- ANALISIS ---------- -->
+<section class="page" id="p-analisis">
+  <h2 class="pageT">Análisis</h2>
+  <div class="pageSub">Rankings y probabilidades del modelo — solo datos verificados</div>
+  <div class="grid g2">
+    <div class="card">
+      <h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-trophy"/></svg>Bota de Oro<span class="tag">pulsa un jugador: análisis a favor / en contra</span></h3>
+      <div id="tblGoles"></div>
+      <div class="src">Desempate: 1.º asistencias, 2.º minutos jugados.</div>
+    </div>
+    <div class="card">
+      <h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Máximos asistentes</h3>
+      <div id="tblAsis"></div>
+      <div style="height:18px"></div>
+      <h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-warn"/></svg>Rachas y datos calientes</h3>
+      <div id="rachasBox" style="font-size:.83rem;color:var(--tx2);line-height:1.7"></div>
+    </div>
+  </div>
+  <div style="height:16px"></div>
+  <div class="card">
+    <h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Ranking estadístico<span class="tag">pulsa una columna para ordenar · medias por partido</span></h3>
+    <div id="rankBox"></div>
+    <div class="src">Recuento oficial por partido (SportRadar). Muestras de 1 a 5 partidos por equipo: pregunta al asistente por el tamaño de muestra de cada uno. CÓR córners a favor · C.C. concedidos · T.PTA tiros a puerta · AMAR amarillas · POS posesión.</div>
+  </div>
+  <div style="height:16px"></div>
+  <div class="card">
+    <h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-target"/></svg>Duelos de octavos — forma y bajas</h3>
+    <div id="duelosBox"></div>
+    <div class="src">Bajas y dudas según partes médicos y prensa a 5 de julio. Revisa siempre las alineaciones oficiales, que se confirman una hora antes.</div>
+  </div>
+</section>
+
+<!-- ---------- VALOR ---------- -->
+<section class="page" id="p-valor">
+  <h2 class="pageT">Datos y cuotas del partido</h2>
+  <div class="pageSub">La previa completa del partido destacado: mercados verificados, modelo, onces, bajas e historial</div>
+  <div id="valorBox"></div>
+  <div class="note v"><b>Este panel no elige por ti.</b> Muestra cuotas verificadas con fuente y fecha, su probabilidad implícita (incluye el margen de la casa) y lo que dice el modelo. La conclusión es siempre tuya. A largo plazo el balance apostando suele ser negativo; las combinadas multiplican el margen de la casa.</div>
+</section>
+
+<!-- ---------- COMBINADAS ---------- -->
+<section class="page" id="p-combinadas">
+  <h2 class="pageT">Laboratorio de combinadas</h2>
+  <div class="pageSub">Brasil – Noruega · construidas solo con los 9 mercados verificados — el azar decide, los números no mienten</div>
+  <div class="card hl">
+    <h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-stack"/></svg>Las que el mercado señala como más probables<span class="tag">ordenadas por prob. conjunta</span></h3>
+    <div id="combiTop"></div>
+    <div class="src">Cuota teórica = multiplicación de las cuotas medias verificadas (3-4 jul). La probabilidad conjunta multiplica las implícitas, que ya incluyen el margen de la casa — y al combinar, ese margen se acumula. Mercados del mismo partido están correlacionados: una casa real las cotiza como «crea tu apuesta», con precio distinto. Esto no es una recomendación: es el mapa de lo que pagas y lo que implica.</div>
+  </div>
+  <div style="height:16px"></div>
+  <div class="card">
+    <h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-slider"/></svg>Constructor — monta la tuya</h3>
+    <div id="combiLegs"></div>
+    <div id="combiOut" style="margin-top:14px"></div>
+  </div>
+  <div class="note"><b>Recuerda por qué existe esta pestaña y no una de «apuestas recomendadas»:</b> acertar 5 de 6 selecciones pagó −20&nbsp;€. Cada selección extra sube el premio pero multiplica el margen de la casa y baja la probabilidad real. Si aun así combinas, que sea con los ojos abiertos: pocas selecciones, dentro de tu límite de stake, y sabiendo el número exacto al que juegas.</div>
+</section>
+
+<!-- ---------- CUADRO ---------- -->
+<section class="page" id="p-cuadro">
+  <h2 class="pageT">Cuadro final</h2>
+  <div class="pageSub">De octavos a la final — desliza en horizontal</div>
+  <div class="brk" id="bracket"></div>
+</section>
+
+<!-- ---------- SIMULADOR ---------- -->
+<section class="page" id="p-simulador">
+  <h2 class="pageT">Simulador</h2>
+  <div class="pageSub">Herramienta educativa: qué implica una cuota, tu punto de equilibrio y si un precio tiene valor</div>
+  <div class="grid g2">
+    <div class="card">
+      <h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-slider"/></svg>Apuesta única</h3>
+      <label class="fl">Importe — <b id="simMontoLb" class="vio">10 €</b></label>
+      <input type="range" id="simMonto" min="1" max="200" value="10" step="1">
+      <label class="fl">Cuota</label>
+      <input class="field" type="number" id="simCuota" value="2.00" min="1.01" step="0.05" style="max-width:150px">
+      <div class="simOut">
+        <div class="box"><div class="lb">Retorno</div><div class="kpi small" id="simRet">20,00 €</div></div>
+        <div class="box"><div class="lb">Beneficio</div><div class="kpi small pos" id="simBen">+10,00 €</div></div>
+        <div class="box"><div class="lb">Prob. implícita</div><div class="kpi small" id="simProb">50,0 %</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-target"/></svg>Tu punto de equilibrio<span class="tag">con tu histórico real</span></h3>
+      <div id="breakeven"></div>
+    </div>
+  </div>
+  <div style="height:16px"></div>
+  <div class="card hl">
+    <h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-target"/></svg>¿Merece la pena esta cuota?<span class="tag">valor esperado · la probabilidad la pones tú</span></h3>
+    <div class="grid g3" style="gap:10px">
+      <div style="grid-column:1/-1"><label class="fl">Mercado (opcional — precarga una cuota de hoy)</label><select class="field" id="valMkt" style="width:100%"></select></div>
+      <div><label class="fl">Cuota</label><input class="field" type="number" id="valCuota" value="2.00" min="1.01" step="0.05"></div>
+      <div><label class="fl">Tu banca (€)</label><input class="field" type="number" id="valBank" value="50" min="5" step="5"></div>
+      <div><label class="fl">Límite disciplina (%)</label><input class="field" type="number" id="valLim" value="5" min="1" max="100" step="1"></div>
+      <div style="grid-column:1/-1"><label class="fl">Tu probabilidad de que ocurra — <b id="valPLb" class="vio">50 %</b></label><input type="range" id="valP" min="1" max="99" value="50" step="1"></div>
+    </div>
+    <div id="valVeredicto" style="margin-top:16px"></div>
+    <div class="simOut" id="valOut" style="margin-top:12px"></div>
+    <div id="valBar" style="margin-top:14px"></div>
+    <div id="valStake" style="margin-top:14px"></div>
+    <div class="note" style="margin-top:14px"><b>Cómo se lee:</b> la <b>probabilidad implícita</b> es lo que la cuota da por hecho — e incluye el margen de la casa, por eso las de un partido suman más de 100&nbsp;%. Si tu probabilidad estimada supera a la implícita, la cuota te ofrece valor; si no, la casa te cobra de más. <b>Esto no elige por ti:</b> parte de una probabilidad que estimas tú, y si te equivocas al estimarla, el cálculo se equivoca contigo. El stake Kelly es orientación de gestión —se usa fraccionado justo porque nadie clava sus probabilidades— y aquí va además capado a tu límite de disciplina.</div>
+  </div>
+</section>
+
+<!-- ---------- BANKROLL ---------- -->
+<section class="page" id="p-bankroll">
+  <h2 class="pageT">Gestión de bankroll</h2>
+  <div class="pageSub">Tus números reales — datos locales de este dispositivo</div>
+  <div class="grid g3" id="bankKpis"></div>
+  <div style="height:16px"></div>
+  <div class="grid g2">
+    <div class="card">
+      <h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Evolución del balance</h3>
+      <div id="chartBal"></div>
+    </div>
+    <div class="card">
+      <h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-wallet"/></svg>Distribución del dinero apostado</h3>
+      <div id="chartDonut"></div>
+    </div>
+  </div>
+  <div style="height:16px"></div>
+  <div class="card">
+    <h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Radiografía de tus apuestas<span class="tag">solo resueltas</span></h3>
+    <div class="g6" id="bankExtra"></div>
+    <div id="bankDesglose" style="margin-top:12px"></div>
+  </div>
+  <div style="height:16px"></div>
+  <div class="grid g2">
+    <div class="card">
+      <h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-shield"/></svg>Disciplina de stake</h3>
+      <label class="fl">Límite por apuesta — <b id="limPctLb" class="vio">5 %</b> de la banca</label>
+      <input type="range" id="limPct" min="1" max="20" value="5" step="1" onchange="saveLim()" oninput="previewLim()">
+      <div id="limInfo" style="font-size:.85rem;color:var(--tx2);margin-top:10px;line-height:1.6"></div>
+      <div class="note v"><b>Regla simple que protege la banca:</b> si una apuesta supera tu límite, el registro te avisará antes de guardarla. Los profesionales de la gestión rara vez pasan del 1-5&nbsp;% por apuesta.</div>
+    </div>
+    <div class="card">
+      <h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-wallet"/></svg>Ajustes</h3>
+      <label class="fl">Bankroll inicial (€)</label>
+      <div style="display:flex;gap:9px;max-width:330px">
+        <input class="field" type="number" id="bankIni" min="0" step="5">
+        <button class="btn" onclick="saveBank()">Guardar</button>
+      </div>
+      <div class="note">Aviso honesto: a largo plazo el balance apostando suele ser negativo. Este panel sirve para ver la realidad de tus números, no para animarte a apostar más.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ---------- MIS APUESTAS ---------- -->
+<section class="page" id="p-apuestas">
+  <h2 class="pageT">Mis apuestas</h2>
+  <div class="pageSub">Simples y combinadas — toca cada selección para marcarla: pendiente, acierto, fallo</div>
+  <div class="card">
+    <h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-list"/></svg>Nueva apuesta</h3>
+    <label class="fl">Partido</label>
+    <input class="field" id="nbPartido" placeholder="Ej.: BRA – NOR" style="max-width:280px">
+    <label class="fl">Selecciones (separa combinadas con « + » con espacios, «•», «;» o salto de línea)</label>
+    <textarea class="field" id="nbDesc" rows="2" placeholder="Ej.: Más de 8,5 córners + Ambos marcan"></textarea>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <div style="flex:1;min-width:120px"><label class="fl">Cuota total</label><input class="field" type="number" id="nbCuota" step="0.01" min="1.01" placeholder="2.50"></div>
+      <div style="flex:1;min-width:120px"><label class="fl">Importe (€)</label><input class="field" type="number" id="nbStake" step="0.5" min="0.5" placeholder="10"></div>
+      <div style="align-self:flex-end;padding-bottom:1px"><button class="btn" onclick="addBet()">Registrar</button></div>
+    </div>
+  </div>
+  <div style="height:16px"></div>
+  <div class="tabs" id="tabsBets">
+    <button class="on" data-f="todas">Todas</button>
+    <button data-f="pendiente">Abiertas</button>
+    <button data-f="ganada">Ganadas</button>
+    <button data-f="perdida">Perdidas</button>
+  </div>
+  <div id="listaBets"></div>
+  <div style="display:flex;gap:9px;margin-top:16px;flex-wrap:wrap">
+    <button class="btn ghost sm" onclick="exportBets()">Exportar copia (JSON)</button>
+    <button class="btn ghost sm" onclick="importBets()">Importar copia</button>
+  </div>
+</section>
+
+<!-- ---------- ASISTENTE ---------- -->
+<section class="page" id="p-asistente">
+  <h2 class="pageT">Asistente WCAI</h2>
+  <div class="pageSub">Motor local — responde solo con los datos verificados de esta plataforma</div>
+  <div class="card">
+    <div class="botHd">
+      <span class="botAv"><svg viewBox="0 0 24 24"><use href="#ic-bot"/></svg></span>
+      <div><b style="font-size:.92rem">Asistente WCAI</b><div class="st">En línea · sin conexión externa</div></div>
+    </div>
+    <div class="chatWrap">
+      <div id="chatLog"></div>
+      <form id="chatForm" onsubmit="return sendChat(event)">
+        <input class="field" id="chatIn" placeholder="Escribe tu pregunta…" autocomplete="off">
+        <button class="btn" type="submit" aria-label="Enviar"><svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px"><use href="#ic-send"/></svg></button>
+      </form>
+      <div class="sugg">
+        <button onclick="quickChat('¿Cuándo juega España?')">¿Cuándo juega España?</button>
+        <button onclick="quickChat('Resultados de octavos')">Resultados</button>
+        <button onclick="quickChat('¿Quién va ganando la Bota de Oro?')">Bota de Oro</button>
+        <button onclick="quickChat('cuotas de hoy')">Cuotas de hoy</button>
+        <button onclick="quickChat('¿Cómo va mi balance?')">Mi balance</button>
+        <button onclick="quickChat('Simula 20 a cuota 2.5')">Simula 20 € a 2,5</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ---------- CALENDARIO ---------- -->
+<section class="page" id="p-calendario">
+  <h2 class="pageT">Calendario</h2>
+  <div class="pageSub">Agenda de la fase final — horarios en España peninsular</div>
+  <div class="tabs" id="tabsCal">
+    <button class="on" data-f="todas">Todo</button>
+    <button data-f="Octavos">Octavos</button>
+    <button data-f="Cuartos">Cuartos</button>
+  </div>
+  <div class="card"><div id="agenda"></div></div>
+</section>
+
+<!-- ---------- ALERTAS ---------- -->
+<section class="page" id="p-alertas">
+  <h2 class="pageT">Alertas</h2>
+  <div class="pageSub">Configura qué avisos quieres ver en Inicio — esta web es estática: los avisos se muestran dentro de la app, no hay notificaciones push</div>
+  <div class="card" id="alertConf"></div>
+  <div style="height:16px"></div>
+  <div class="card">
+    <h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-bell"/></svg>Avisos activos</h3>
+    <div class="feed" id="feedAlertas"></div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<!-- ---------- MODAL ---------- -->
+<div id="modalBg" onclick="if(event.target===this)closeModal()">
+  <div id="modal">
+    <div class="mHd">
+      <div style="flex:1">
+        <div id="mTitle" style="font-size:1.1rem;font-weight:700"></div>
+        <div id="mSub" style="font-size:.76rem;color:var(--tx3);margin-top:4px"></div>
+      </div>
+      <button class="x" onclick="closeModal()">✕</button>
+    </div>
+    <div class="mTabs" id="mTabs"></div>
+    <div class="mBody" id="mBody"></div>
+  </div>
+</div>
+
+<!-- ---------- REVISIÓN ANTES DE APOSTAR ---------- -->
+<div id="revBg" onclick="if(event.target===this)cerrarRev()">
+  <div id="modal" style="max-width:520px">
+    <div class="mHd">
+      <div style="flex:1">
+        <div style="font-size:1.1rem;font-weight:700">Un vistazo antes de registrar</div>
+        <div style="font-size:.76rem;color:var(--tx3);margin-top:4px" id="revSub"></div>
+      </div>
+      <button class="x" onclick="cerrarRev()">✕</button>
+    </div>
+    <div class="revBox" id="revList" style="margin-top:6px"></div>
+    <div style="display:flex;gap:10px;margin-top:18px;flex-wrap:wrap">
+      <button class="btn sec" style="flex:1" onclick="cerrarRev()">Corregir</button>
+      <button class="btn" style="flex:1" onclick="confirmarRev()">Registrar igualmente</button>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+var VERSION="V23";
+/* PIN: disuasión del lado del cliente (el código llega al navegador, no es seguridad real).
+   Guardamos solo un hash del PIN y limitamos los intentos para frenar el tanteo casual. */
+function hpin(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);}return (h>>>0).toString(16);}
+var PIN_HASH=hpin("2026");
+var pinTries=0,pinLockUntil=0;
+
+/* ================= DATOS (act. 5 jul 2026 — SportRadar + prensa verificada) ================= */
+var FLAGS={CAN:"🇨🇦",MAR:"🇲🇦",PAR:"🇵🇾",FRA:"🇫🇷",BRA:"🇧🇷",NOR:"🇳🇴",MEX:"🇲🇽",ENG:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",POR:"🇵🇹",ESP:"🇪🇸",USA:"🇺🇸",BEL:"🇧🇪",ARG:"🇦🇷",EGY:"🇪🇬",SUI:"🇨🇭",COL:"🇨🇴",ECU:"🇪🇨",COD:"🇨🇩",SEN:"🇸🇳",BIH:"🇧🇦",AUT:"🇦🇹",CRO:"🇭🇷",DZA:"🇩🇿",AUS:"🇦🇺",CPV:"🇨🇻",GHA:"🇬🇭",SWE:"🇸🇪",CIV:"🇨🇮",JPN:"🇯🇵"};
+var NOM={CAN:"Canadá",MAR:"Marruecos",PAR:"Paraguay",FRA:"Francia",BRA:"Brasil",NOR:"Noruega",MEX:"México",ENG:"Inglaterra",POR:"Portugal",ESP:"España",USA:"EE. UU.",BEL:"Bélgica",ARG:"Argentina",EGY:"Egipto",SUI:"Suiza",COL:"Colombia",ECU:"Ecuador",COD:"Congo RD",SEN:"Senegal",BIH:"Bosnia",AUT:"Austria",CRO:"Croacia",DZA:"Argelia",AUS:"Australia",CPV:"Cabo Verde",GHA:"Ghana",SWE:"Suecia",CIV:"C. Marfil",JPN:"Japón"};
+
+var OCTAVOS=[
+ {home:"BRA",away:"NOR",dt:"Dom 5 jul · 22:00",ts:Date.UTC(2026,6,5,20,0),prob:[53.3,25.4,21.3],sede:"MetLife Stadium, Nueva Jersey"},
+ {home:"MEX",away:"ENG",dt:"Lun 6 jul · 02:00",ts:Date.UTC(2026,6,6,0,0),prob:[30.4,29.8,39.8],sede:"Estadio Azteca, CDMX"},
+ {home:"POR",away:"ESP",dt:"Lun 6 jul · 21:00",ts:Date.UTC(2026,6,6,19,0),prob:[23.5,26.3,50.2],sede:"AT&T Stadium, Dallas"},
+ {home:"USA",away:"BEL",dt:"Mar 7 jul · 02:00",ts:Date.UTC(2026,6,7,0,0),prob:[36.0,28.1,35.9],sede:"Lumen Field, Seattle"},
+ {home:"ARG",away:"EGY",dt:"Mar 7 jul · 18:00",ts:Date.UTC(2026,6,7,16,0),prob:[70.4,19.4,10.2],sede:"Mercedes-Benz Stadium, Atlanta"},
+ {home:"SUI",away:"COL",dt:"Mar 7 jul · 22:00",ts:Date.UTC(2026,6,7,20,0),prob:[27.1,30.4,42.5],sede:"BC Place, Vancouver"}
+];
+var CUARTOS_PROX=[
+ {home:"FRA",away:"MAR",dt:"Jue 9 jul · 22:00",ts:Date.UTC(2026,6,9,20,0),prob:[61.6,23.0,15.4],ronda:"CUARTOS",sede:"Boston — remake de la semifinal de Catar 2022"}
+];
+var RESULTADOS=[
+ {home:"PAR",away:"FRA",s:"0 – 1",dt:"Sáb 4 jul",nota:"Gol de Mbappé (70') — Francia a cuartos"},
+ {home:"CAN",away:"MAR",s:"0 – 3",dt:"Sáb 4 jul",nota:"Marruecos a cuartos: se medirá a Francia"},
+ {home:"COL",away:"GHA",s:"1 – 0",dt:"Sáb 4 jul"},
+ {home:"ARG",away:"CPV",s:"3 – 2",dt:"Sáb 4 jul"},
+ {home:"AUS",away:"EGY",s:"1 – 1",dt:"Vie 3 jul",nota:"Egipto pasa"},
+ {home:"SUI",away:"DZA",s:"2 – 0",dt:"Vie 3 jul"},
+ {home:"POR",away:"CRO",s:"2 – 1",dt:"Vie 3 jul"},
+ {home:"ESP",away:"AUT",s:"3 – 0",dt:"Jue 2 jul"},
+ {home:"USA",away:"BIH",s:"2 – 0",dt:"Jue 2 jul"},
+ {home:"BEL",away:"SEN",s:"3 – 2",dt:"Mié 1 jul"},
+ {home:"ENG",away:"COD",s:"2 – 1",dt:"Mié 1 jul"},
+ {home:"MEX",away:"ECU",s:"2 – 0",dt:"Mié 1 jul"},
+ {home:"FRA",away:"SWE",s:"3 – 0",dt:"Mié 1 jul"},
+ {home:"BRA",away:"JPN",s:"2 – 1",dt:"Lun 29 jun",nota:"Remontada: Casemiro y Martinelli (90+6)"},
+ {home:"NOR",away:"CIV",s:"2 – 1",dt:"Mar 30 jun"}
+];
+var FICHAS={
+ CAN:{forma:"Grupos 1V·1E·1D (2º B) · pasó dieciseisavos",bajas:["Koné — fractura tibia y peroné, fuera del torneo"],dudas:["Jones y Eustáquio, tocados"]},
+ MAR:{forma:"Grupos 2V·1E·0D (2º C, invicto) · pasó dieciseisavos",bajas:["Ez Abde y Aguerd — fuera del torneo"],dudas:[]},
+ PAR:{forma:"Grupos 1V·1E·1D (3º D) · eliminó a Alemania",bajas:[],dudas:["Sosa y Alderete, tocados"]},
+ FRA:{forma:"Grupos 3V·0E·0D (1º I) · 3-0 a Suecia",bajas:[],dudas:["M. Thuram y Saliba, entre algodones"]},
+ BRA:{forma:"Grupos 2V·1E·0D (1º C) · 2-1 a Japón con remontada agónica (Martinelli, 90+6)",bajas:["Paquetá — desgarro en el muslo, descartado","Wesley — fuera del torneo"],dudas:["Raphinha — casi imposible hoy, apunta a cuartos","Casemiro — molestias en la ingle","Neymar — sin ritmo, entre la duda y la ausencia según la fuente"]},
+ NOR:{forma:"Grupos 2V·0E·1D (2º I) · 2-1 a C. Marfil (Haaland, 86')",bajas:["Ryerson — lesión en el muslo"],dudas:[]},
+ MEX:{forma:"Grupos 3V·0E·0D (1º A) · 2-0 a Ecuador",bajas:[],dudas:[]},
+ ENG:{forma:"Grupos 2V·1E·0D (1º L) · 2-1 a Congo RD",bajas:[],dudas:["Rice y Reece James, tocados"]},
+ POR:{forma:"Grupos 1V·2E·0D (2º K) · 2-1 a Croacia",bajas:[],dudas:[]},
+ ESP:{forma:"Grupos 2V·1E·0D (1º H) · 3-0 a Austria",bajas:[],dudas:["Víctor Muñoz, duda"]},
+ USA:{forma:"Grupos 2V·0E·1D (1º D) · 2-0 a Bosnia",bajas:["Carter-Vickers — fuera (aquiles, pretemporada)"],dudas:[]},
+ BEL:{forma:"Grupos 1V·2E·0D (1º G) · 3-2 a Senegal",bajas:[],dudas:["Debast (fémur), duda"]},
+ ARG:{forma:"Grupos 3V·0E·0D (1º J) · 3-2 a Cabo Verde",bajas:[],dudas:["Cuti Romero, duda"]},
+ EGY:{forma:"Grupos 1V·2E·0D (2º G) · pasó tras 1-1 con Australia",bajas:[],dudas:["Abdelmaguid y Fathy, tocados"]},
+ SUI:{forma:"Grupos 2V·1E·0D (1º B) · 2-0 a Argelia",bajas:[],dudas:[]},
+ COL:{forma:"Grupos 2V·1E·0D (1º K) · 1-0 a Ghana",bajas:[],dudas:[]}
+};
+var GOLEADORES=[
+ {n:"Messi — marcó también a Cabo Verde",eq:"ARG",g:7},
+ {n:"Mbappé — suyo fue el gol a Paraguay",eq:"FRA",g:7},
+ {n:"Haaland — gol decisivo a C. Marfil (86')",eq:"NOR",g:5},{n:"Kane",eq:"ENG",g:5},
+ {n:"Dembélé",eq:"FRA",g:4},{n:"Vinícius Jr. — 4 goles y 1 asistencia",eq:"BRA",g:4}
+];
+var ASISTENCIAS=[
+ {n:"Olise",eq:"FRA",a:5,d:"líder del torneo"},
+ {n:"Bruno Guimarães",eq:"BRA",a:4,d:"segundo máximo asistidor"}
+];
+var RACHAS=[
+ "Haaland lleva 13 partidos seguidos marcando con Noruega — 25 goles en esa racha. Ningún defensa del torneo lo ha dejado a cero cuando fue titular",
+ "Brasil nunca ha ganado a Noruega: 4 partidos, 2 empates y 2 derrotas. Su maldición estadística",
+ "Brasil ha superado los octavos en los últimos 8 Mundiales que disputó, desde 1994",
+ "Noruega ha marcado y encajado en sus 4 partidos: ni una portería a cero, 8 goles en contra",
+ "Francia llega invicta con 14 goles a favor y ganó su octavo sacando 12 córners a Paraguay",
+ "Marruecos ganó 3-0 a Canadá con solo 5 tiros y 1 córner: eficacia de asesino",
+ "España firmó la actuación más dominante del torneo: 22 tiros y Austria acabó con 0 tiros a puerta y 0 córners",
+ "Alisson acumula 2 porterías a cero y Brasil solo encaja 0,5 goles por partido"
+];
+var GOLES_EQUIPO={FRA:{gf:14,gc:2,pj:5},BRA:{gf:9,gc:2,pj:4},NOR:{gf:10,gc:8,pj:4},MEX:{gf:8,gc:0,pj:4},ENG:{gf:8,gc:3,pj:4},MAR:{gf:6,gc:2,pj:4}};
+var STATS={
+ FRA:{m:"5 partidos (grupos completos + Suecia + Paraguay)",cf:[6,4,5,9,12],cc:[4,2,4,1,2],tiros:[11,19,19,25,15],tirosP:[8,5,10,13,5],am:[0,0,1,0,3],faltas:[5,8,9,14,11],pos:[54,56,57,61,76],nota:""},
+ MAR:{m:"2 muestras (Brasil en grupos y Canadá en octavos)",cf:[2,1],cc:[6,11],tiros:[13,5],tirosP:[4,4],am:[0,4],faltas:[14,14],pos:[46,56],nota:" Ojo: ganó 3-0 a Canadá con solo 1 córner y 5 tiros — letal sin necesitar volumen"},
+ BRA:{m:"2 muestras (Marruecos en grupos y Japón en dieciseisavos)",cf:[6,6],cc:[2,2],tiros:[8,20],tirosP:[5,7],am:[2,2],faltas:[16,4],pos:[54,60],nota:""},
+ NOR:{m:"2 muestras (Francia en grupos y C. Marfil en dieciseisavos)",cf:[4,3],cc:[5,14],tiros:[10,9],tirosP:[5,3],am:[1,1],faltas:[9,7],pos:[43,48],nota:" C. Marfil le sacó 14 córners — replegada concede muchos"},
+ MEX:{m:"1 muestra (Ecuador en dieciseisavos)",cf:[3],cc:[8],tiros:[15],tirosP:[3],am:[0],faltas:[10],pos:[43],nota:""},
+ ENG:{m:"1 muestra (Congo RD en dieciseisavos)",cf:[5],cc:[3],tiros:[16],tirosP:[8],am:[1],faltas:[10],pos:[60],nota:""},
+ ESP:{m:"1 muestra (Austria en dieciseisavos)",cf:[9],cc:[0],tiros:[22],tirosP:[10],am:[0],faltas:[8],pos:[65],nota:" Austria acabó con 0 córners y 0 tiros a puerta: dominio total"},
+ POR:{m:"1 muestra (Croacia en dieciseisavos)",cf:[9],cc:[5],tiros:[15],tirosP:[3],am:[1],faltas:[6],pos:[62],nota:""},
+ USA:{m:"2 muestras (Paraguay en grupos y Bosnia en dieciseisavos)",cf:[3,4],cc:[1,3],tiros:[17,9],tirosP:[6,2],am:[1,0],faltas:[13,7],pos:[63,48],nota:" Vio una roja ante Bosnia y jugó media hora con diez"},
+ BEL:{m:"1 muestra (Senegal en dieciseisavos, con prórroga)",cf:[4],cc:[2],tiros:[21],tirosP:[5],am:[1],faltas:[22],pos:[53],nota:" Los 120 minutos inflan sus números — 22 faltas es muchísimo incluso así"},
+ ARG:{m:"1 muestra (Cabo Verde en dieciseisavos, con prórroga)",cf:[8],cc:[8],tiros:[21],tirosP:[10],am:[1],faltas:[13],pos:[64],nota:" Los 120 minutos inflan el recuento"},
+ EGY:{m:"1 muestra (Australia en dieciseisavos, con prórroga)",cf:[7],cc:[4],tiros:[14],tirosP:[4],am:[2],faltas:[14],pos:[58],nota:" Los 120 minutos inflan el recuento"},
+ SUI:{m:"1 muestra (Argelia en dieciseisavos)",cf:[4],cc:[2],tiros:[11],tirosP:[5],am:[0],faltas:[10],pos:[45],nota:""},
+ COL:{m:"1 muestra (Ghana en dieciseisavos)",cf:[3],cc:[2],tiros:[20],tirosP:[8],am:[2],faltas:[14],pos:[62],nota:""},
+ PAR:{m:"5 partidos (eliminado por Francia)",cf:[1,0,1,6,2],cc:[3,12,3,16,12],tiros:[8,6,8,7,5],tirosP:[2,2,2,4,1],am:[5,2,1,2,0],faltas:[17,15,9,12,12],pos:[37,22,44,25,24],nota:""}
+};
+var JUGADORES={
+ "vinicius":{n:"Vinícius Jr.",eq:"BRA",favor:["4 goles y 1 asistencia, titular en todos los partidos","el líder futbolístico de Brasil con la enfermería llena","Noruega concede: C. Marfil le generó 14 córners y llegadas constantes"],contra:["Noruega defiende en bloque y Brasil solo generó 8 tiros contra el Marruecos replegado","el precedente pesa: Brasil nunca ha ganado a Noruega"]},
+ "haaland":{n:"Haaland",eq:"NOR",favor:["5 goles, incluido el decisivo ante C. Marfil en el 86","10 duelos aéreos ganados y punta de 35,6 km/h — los centros y las diagonales le favorecen","la zaga brasileña llega con Casemiro tocado por delante"],contra:["Noruega solo genera 3-5 tiros a puerta por partido ante rivales grandes","Marquinhos y Gabriel Magalhães están siendo de lo mejor de Brasil"]},
+ "mbappe":{n:"Mbappé",eq:"FRA",favor:["7 goles, empatado con Messi en la Bota de Oro — suyo fue el gol a Paraguay (70')","máximo goleador histórico de eliminatorias mundialistas","Francia promedia 7,2 córners y 17,8 tiros por partido"],contra:["el jueves toca Marruecos: solo 2 goles encajados en mis muestras y Bounou en modo eliminatoria","el remake de la semifinal de Catar que Marruecos compite siempre"]},
+ "messi":{n:"Messi",eq:"ARG",favor:["7 goles, líder junto a Mbappé — marcó también a Cabo Verde","Argentina generó 21 tiros y 10 a puerta en dieciseisavos"],contra:["Egipto llegó a octavos con bloque muy ordenado y solo 4 goles encajados en mis datos","el partido de Cabo Verde se fue a la prórroga: Argentina no está fina atrás (8 córners concedidos)"]},
+ "odegaard":{n:"Ødegaard",eq:"NOR",favor:["el organizador de todo el juego noruego, titular fijo"],contra:["Brasil promedia 57,8% de posesión: Noruega verá poco el balón"]},
+ "martinelli":{n:"Martinelli",eq:"BRA",favor:["el gol del 90+6 que eliminó a Japón","candidato a titular por las bajas de Paquetá y Raphinha"],contra:["puede salir de inicio o no — depende del once de Ancelotti"]},
+ "cunha":{n:"Matheus Cunha",eq:"BRA",favor:["titular junto a Vinícius en el frente de ataque"],contra:["comparte remates con Vinícius y Rayan"]},
+ "kane":{n:"Kane",eq:"ENG",favor:["5 goles, doblete salvador ante Congo RD","Inglaterra generó 8 tiros a puerta en dieciseisavos"],contra:["México encajó 0 goles en dieciseisavos y jugará arropada en el Azteca"]},
+ "bellingham":{n:"Bellingham",eq:"ENG",favor:["titular fijo en el once inglés"],contra:["no tengo registro de goles suyos en el torneo — su amenaza es más de llegada"]},
+ "lamine yamal":{n:"Lamine Yamal",eq:"ESP",favor:["titular en la goleada a Austria: España firmó 22 tiros, 10 a puerta y 9 córners","Austria acabó sin un solo tiro a puerta: dominio absoluto"],contra:["Portugal es otro nivel de rival y el derbi ibérico aprieta siempre"]},
+ "cristiano":{n:"Cristiano Ronaldo",eq:"POR",favor:["titular ante Croacia en la remontada 2-1"],contra:["no tengo registro de goles suyos en el torneo en mis datos","enfrente estará la defensa menos batida: España dejó a Austria en 0 tiros a puerta"]},
+ "salah":{n:"Salah",eq:"EGY",favor:["titular y referencia de un Egipto que sacó 7 córners y 14 tiros ante Australia"],contra:["enfrente está Argentina, favorita con el 70% del modelo"]},
+ "de bruyne":{n:"De Bruyne",eq:"BEL",favor:["titular en la remontada épica 3-2 a Senegal (de 0-2 a ganar en la prórroga)"],contra:["Bélgica cometió 22 faltas ese día: llega al límite físico tras 120 minutos"]},
+ "pulisic":{n:"Pulisic",eq:"USA",favor:["titular y líder de un EE. UU. que juega en casa"],contra:["EE. UU. viene de jugar media hora con diez por la roja ante Bosnia"]},
+ "luis diaz":{n:"Luis Díaz",eq:"COL",favor:["titular en una Colombia que firmó 20 tiros y 8 a puerta ante Ghana"],contra:["Suiza no ha encajado en dieciseisavos y concede poquísimo (2 córners a Argelia)"]},
+ "james":{n:"James Rodríguez",eq:"COL",favor:["titular y cerebro de Colombia, que domina con 62% de posesión"],contra:["Suiza es un muro: 0 goles encajados en mis muestras"]},
+ "saibari":{n:"Saibari",eq:"MAR",favor:["3 goles en el torneo, titular fijo de Marruecos"],contra:["el jueves toca Francia y su muro: 2,6 córners y pocos tiros concedidos por partido"]},
+ "brahim":{n:"Brahim Díaz",eq:"MAR",favor:["titular y creatividad de un Marruecos que ganó 3-0 con solo 5 tiros: eficacia máxima"],contra:["Francia dominará el balón — Marruecos vivirá de transiciones"]},
+ "hakimi":{n:"Hakimi",eq:"MAR",favor:["titular fijo, profundidad constante por derecha","se reencuentra con Francia y con Mbappé, su amigo y rival de Catar 2022"],contra:["le tocará más defender que atacar ante Dembélé y compañía"]},
+ "dembele":{n:"Dembélé",eq:"FRA",favor:["4 goles en el torneo","Francia promedia 17,8 tiros por partido"],contra:["comparte remates con Mbappé, Olise y Barcola","Marruecos concede muy poco en eliminatorias"]}
+};
+var ELPARTIDO={
+ home:"BRA",away:"NOR",dt:"Dom 5 jul · 22:00",ts:Date.UTC(2026,6,5,20,0),prob:[53.3,25.4,21.3],
+ estadio:"MetLife Stadium · Nueva Jersey (82.500) — el estadio de la final",
+ premio:"El ganador se cruza en cuartos con el vencedor del México – Inglaterra (vie 10)",
+ llegan:{
+  BRA:"Primera del grupo C (invicta: 1-1 con Marruecos y victorias ante Haití y Escocia) y sufridora en dieciseisavos: remontó 2-1 a Japón con empate de Casemiro y gol agónico de Martinelli en el 90+6. Ancelotti llega con la enfermería llena pero con Vinícius desatado: 4 goles y 1 asistencia, titular en todos los partidos.",
+  NOR:"La sorpresa seria del torneo: segunda del grupo I tras Francia (reservó titulares en ese partido) y 2-1 a Costa de Marfil en dieciseisavos con gol de Haaland en el 86. Solbakken reconoce que Brasil es favorita, pero llega con la plantilla casi al completo y un dato que asusta: ha fallado 11 grandes ocasiones — si afina, hace daño de verdad."
+ },
+ onces:{
+  BRA:{sist:"4-3-3",dt:"Carlo Ancelotti",xi:["Alisson","Danilo · Marquinhos · G. Magalhães · Douglas Santos","Casemiro · Bruno Guimarães · Danilo Santos/Martinelli","Rayan · Matheus Cunha · Vinícius Jr."]},
+  NOR:{sist:"4-3-3",dt:"Ståle Solbakken",xi:["Nyland","Holmgren Pedersen · Ajer · Heggem · Møller Wolfe","Berg · Berge · Ødegaard","Sørloth · Haaland · Nusa"]}
+ },
+ bajas:{
+  BRA:["Paquetá — desgarro en el muslo, descartado","Raphinha — casi imposible, apunta a cuartos","Wesley — fuera del torneo","Casemiro, con molestias en la ingle (duda); Neymar, sin ritmo"],
+  NOR:["Ryerson — lesión en el muslo"]
+ },
+ jugadores:{
+  BRA:["Vinícius Jr. — 4 goles y 1 asistencia, titular en todos los partidos, el líder de esta Brasil","Martinelli — el héroe del 90+6 ante Japón, candidato a entrar en el once","Matheus Cunha — el acompañante de Vinícius en el frente de ataque","Casemiro — marcó el empate ante Japón, pero llega con molestias en la ingle"],
+  NOR:["Haaland — 5 goles, el tanto decisivo ante C. Marfil; 10 duelos aéreos ganados y punta de 35,6 km/h","Ødegaard — el organizador de todo el juego noruego","Nusa — abrió el marcador en dieciseisavos, la amenaza por fuera","Sørloth — el segundo ariete que castiga por alto"]
+ },
+ h2h:["Brasil NUNCA ha ganado a Noruega: 4 enfrentamientos, 2 empates y 2 victorias noruegas","Una de esas victorias fue en el Mundial de Francia 98 (2-1)","Es la maldición estadística más curiosa del fútbol brasileño"],
+ claves:["Vinícius contra Haaland: los dos estandartes, separados por un gol en la Bota de Oro (4 vs 5)","Haaland ha ganado 10 duelos aéreos y alcanza 35,6 km/h — los centros tempranos y las diagonales le favorecen","Brasil promedia 57,8% de posesión y 90% de acierto en el pase: si se adelanta, sabe dormir el partido","La enfermería brasileña obliga a Ancelotti a improvisar el interior: Danilo Santos, Martinelli o Endrick"],
+ datos:["Se juega en el MetLife, el mismo estadio de la final del 19 de julio","Árbitro: Ismail Elfath (EE. UU.)","El ganador jugará cuartos el viernes 10 ante México o Inglaterra"],
+ goles:[
+  "Brasil en mis muestras (Marruecos y Japón): 20 y 8 tiros, con 5-7 a puerta — genera, aunque menos que Francia o España",
+  "Noruega ante rivales grandes se repliega: 9-10 tiros por partido y solo 3-5 a puerta",
+  "Dato que corta la respiración nórdica: Noruega ha fallado 11 grandes ocasiones en el torneo",
+  "Los partidos de ambos en eliminatorias se decidieron en los minutos finales (90+6 y 86) — llega vivo hasta el final"
+ ],
+ mercado:[
+  "El modelo de SportRadar: 53% Brasil, 25% empate, 21% Noruega — favoritismo claro pero no aplastante",
+  "Es el cruce más igualado de los que quedan junto al USA–Bélgica (36%-36%)",
+  "El precedente histórico rema contra el modelo: Brasil nunca ganó a Noruega",
+  "Recuerda: probabilidad no es certeza — Paraguay lo demostró aguantando 70 minutos a Francia"
+ ],
+ tv:"En España, DAZN. El ganador de este partido jugará cuartos el viernes 10 de julio.",
+ cuotas:[
+  {mercado:"Gana Brasil (90')",cuota:"1,85 – 1,92",imp:"52–54%",fuente:"mayoría de casas · Bet365 · Te Apuesto"},
+  {mercado:"Empate (90')",cuota:"3,40",imp:"29%",fuente:"Bet365"},
+  {mercado:"Gana Noruega (90')",cuota:"4,10 – 4,20",imp:"24%",fuente:"Bet365 · mejor precio UK 31/10"},
+  {mercado:"Brasil clasifica (como sea)",cuota:"1,40 – 1,42",imp:"70–71%",fuente:"varias casas"},
+  {mercado:"Noruega clasifica",cuota:"2,82",imp:"35%",fuente:"Te Apuesto"},
+  {mercado:"Más de 2,5 goles",cuota:"1,75",imp:"57%",fuente:"Apuesta Legal"},
+  {mercado:"Ambos equipos marcan — sí",cuota:"1,60 – 1,62",imp:"62%",fuente:"varias casas"},
+  {mercado:"Ødegaard marca en cualquier momento",cuota:"7,00",imp:"14%",fuente:"BetMGM"},
+  {mercado:"Hat-trick de Haaland",cuota:"37,0",imp:"3%",fuente:"BetMGM"}
+ ],
+ cuotasNota:"Cuotas publicadas entre el 3 y el 4 de julio — se mueven hasta el pitido inicial, comprueba el precio vivo antes de nada. Las probabilidades implícitas suman más de 100% porque llevan dentro el margen de la casa: ese margen es exactamente lo que la casa gana a largo plazo. De córners y tarjetas no encontré líneas publicadas verificables, así que no las invento. Y fíjate: Haaland lleva 13 partidos seguidos marcando con Noruega, y aun así su hat-trick paga 37 — las casas nunca regalan nada."
+};
+var CUADRO={
+ octavos:[
+  {a:"CAN",b:"MAR",s:"0 – 3",estado:"Final",gana:"MAR"},
+  {a:"PAR",b:"FRA",s:"0 – 1",estado:"Final · gol de Mbappé",gana:"FRA"},
+  {a:"BRA",b:"NOR",s:"—",estado:"HOY · 22:00 · MetLife Stadium",vivo:true},
+  {a:"MEX",b:"ENG",s:"—",estado:"Lun 6 · 02:00 · Estadio Azteca"},
+  {a:"POR",b:"ESP",s:"—",estado:"Lun 6 · 21:00 · Dallas"},
+  {a:"USA",b:"BEL",s:"—",estado:"Mar 7 · 02:00 · Seattle"},
+  {a:"ARG",b:"EGY",s:"—",estado:"Mar 7 · 18:00 · Atlanta"},
+  {a:"SUI",b:"COL",s:"—",estado:"Mar 7 · 22:00 · Vancouver"}
+ ],
+ cuartos:[
+  {a:"FRA",b:"MAR",s:"—",estado:"Jue 9 · 22:00 · Boston — remake de la semifinal de Catar 2022"},
+  {a:"BRA / NOR",b:"MEX / ENG",estado:"Vie 10 · 21:00"},
+  {a:"POR / ESP",b:"USA / BEL",estado:"Sáb 11 · 23:00"},
+  {a:"ARG / EGY",b:"SUI / COL",estado:"Dom 12 · 03:00"}
+ ],
+ semis:[
+  {a:"Ganador C1",b:"Ganador C2",estado:"Mar 14 · 21:00 · Dallas"},
+  {a:"Ganador C3",b:"Ganador C4",estado:"Mié 15 · 21:00 · Atlanta"}
+ ],
+ final:[
+  {a:"3er puesto",b:"",estado:"Sáb 18 · 23:00 · Miami"},
+  {a:"GRAN FINAL",b:"",estado:"Dom 19 jul · MetLife Stadium · Nueva Jersey"}
+ ]
+};
+var ALIAS={
+ ESP:["espana","españa","spain","roja"],FRA:["francia","france","bleus","galos"],
+ BRA:["brasil","brazil","canarinha"],NOR:["noruega","norway"],MEX:["mexico","méxico","tri"],
+ ENG:["inglaterra","england","ingleses"],POR:["portugal","lusos"],USA:["estados unidos","eeuu","usa","eua"],
+ BEL:["belgica","bélgica","belgium"],ARG:["argentina","albiceleste"],EGY:["egipto","egypt"],
+ SUI:["suiza","switzerland"],COL:["colombia","cafeteros"],CAN:["canada","canadá"],
+ MAR:["marruecos","morocco","leones del atlas"],PAR:["paraguay","albirroja","guaranies"],
+ GHA:["ghana"],CPV:["cabo verde"],AUS:["australia"],DZA:["argelia"],CRO:["croacia"],AUT:["austria"],
+ BIH:["bosnia"],SEN:["senegal"],COD:["congo"],ECU:["ecuador"],SWE:["suecia"],CIV:["costa de marfil","marfil"],JPN:["japon","japón"]
+};
+
+/* ================= UTILIDADES ================= */
+function $(s){return document.querySelector(s)}
+function $$(s){return document.querySelectorAll(s)}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function eur(n){return (n<0?"−":"")+Math.abs(n).toFixed(2).replace(".",",")+" €"}
+function media(a){var s=0;a.forEach(function(x){s+=x});return s/a.length}
+function norm(s){return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"")}
+function team(c){return FLAGS[c]+" "+NOM[c]}
+var MEM={};
+function store(k,v){try{if(v===undefined){var x=localStorage.getItem(k);return x?JSON.parse(x):MEM[k]}localStorage.setItem(k,JSON.stringify(v));MEM[k]=v;}catch(e){if(v===undefined)return MEM[k];MEM[k]=v;}}
+
+/* ================= PIN ================= */
+function checkPin(){
+ var now=Date.now();
+ if(now<pinLockUntil){$("#gateErr").textContent="Demasiados intentos. Espera "+Math.ceil((pinLockUntil-now)/1000)+" s.";return;}
+ if(hpin($("#pinIn").value)===PIN_HASH){pinTries=0;try{sessionStorage.setItem("mundial26_ok","1")}catch(e){} openApp();}
+ else{
+  pinTries++;
+  if(pinTries>=5){pinLockUntil=now+30000;pinTries=0;$("#gateErr").textContent="Demasiados intentos. Bloqueado 30 s.";}
+  else $("#gateErr").textContent="PIN incorrecto — te quedan "+(5-pinTries)+" intentos";
+  $("#pinIn").value="";
+ }
+}
+function openApp(){$("#gate").style.display="none";$("#app").style.display="block";initApp();}
+document.addEventListener("DOMContentLoaded",function(){
+ $("#pinIn").addEventListener("keydown",function(e){if(e.key==="Enter")checkPin()});
+ var ok=false;try{ok=sessionStorage.getItem("mundial26_ok")==="1"}catch(e){}
+ if(ok)openApp();
+});
+
+/* ================= NAVEGACIÓN ================= */
+function nav(p){
+ $$("section.page").forEach(function(s){s.classList.remove("on")});
+ var pg=$("#p-"+p); if(!pg)return;
+ pg.classList.add("on");
+ /* re-dispara el fundido de entrada en cada cambio de pestaña */
+ pg.style.animation="none"; void pg.offsetWidth; pg.style.animation="";
+ $$("nav a").forEach(function(a){a.classList.toggle("on",a.dataset.p===p)});
+ window.scrollTo(0,0);
+}
+document.addEventListener("click",function(e){
+ var a=e.target.closest("nav a"); if(!a)return;
+ e.preventDefault(); nav(a.dataset.p);
+});
+/* difuminado sutil del saludo al bajar (móvil) */
+var _sTick=false;
+window.addEventListener("scroll",function(){
+ if(_sTick)return;_sTick=true;
+ requestAnimationFrame(function(){
+  _sTick=false;
+  var tb=$(".topbar"); if(!tb)return;
+  tb.classList.toggle("scrolled",window.scrollY>24);
+ });
+},{passive:true});
+
+/* barra 1X2 */
+function probBar(p,home,away){
+ return '<div class="probRow"><div class="pl"><span><b>'+esc(NOM[home])+'</b> '+p[0].toFixed(0)+'%</span><span>X '+p[1].toFixed(0)+'%</span><span><b>'+esc(NOM[away])+'</b> '+p[2].toFixed(0)+'%</span></div>'+
+  '<div class="bar" style="height:10px"><i style="width:'+p[0]+'%;background:var(--vio)"></i><i style="width:'+p[1]+'%;background:var(--tx3)"></i><i style="width:'+p[2]+'%;background:#2f8f6b"></i></div></div>';
+}
+
+/* ================= MODAL DE PARTIDO (careo) ================= */
+var modalM=null;
+function openMatch(id){
+ var m=OCTAVOS.concat(CUARTOS_PROX).filter(function(x){return x.home+x.away===id})[0];
+ if(!m)return;
+ modalM=m;
+ $("#mTitle").innerHTML=team(m.home)+' <span style="color:var(--tx3);font-weight:400">vs</span> '+team(m.away);
+ $("#mSub").textContent=(m.ronda==="CUARTOS"?"Cuartos de final":"Octavos de final")+" · "+m.dt+(m.sede?" · "+m.sede:"");
+ $("#mTabs").innerHTML='<button class="on" data-t="careo">Careo de datos</button><button data-t="forma">Forma y bajas</button><button data-t="modelo">Modelo</button>';
+ modalTab("careo");
+ $("#modalBg").classList.add("on");
+ document.body.style.overflow="hidden";
+}
+function closeModal(){$("#modalBg").classList.remove("on");document.body.style.overflow="";}
+document.addEventListener("click",function(e){
+ var b=e.target.closest("#mTabs button"); if(!b)return;
+ $$("#mTabs button").forEach(function(x){x.classList.remove("on")});
+ b.classList.add("on"); modalTab(b.dataset.t);
+});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"){closeModal();if(typeof cerrarRev==="function")cerrarRev();}});
+function statRow(n,va,vb,hiA,hiB){
+ return '<div class="kv"><span style="width:52px;text-align:right;font-weight:'+(hiA?'700':'400')+';color:'+(hiA?'var(--vio2)':'var(--tx2)')+'">'+va+'</span><span class="k" style="flex:1;text-align:center;width:auto">'+esc(n)+'</span><span style="width:52px;font-weight:'+(hiB?'700':'400')+';color:'+(hiB?'var(--vio2)':'var(--tx2)')+'">'+vb+'</span></div>';
+}
+function modalTab(t){
+ var m=modalM; if(!m)return;
+ var a=STATS[m.home],b=STATS[m.away],h="";
+ if(t==="careo"){
+  if(a&&b){
+   h='<div style="display:flex;justify-content:space-between;font-size:.75rem;color:var(--tx3);margin-bottom:4px"><span>'+team(m.home)+'</span><span>'+team(m.away)+'</span></div>';
+   var rows=[["Córners a favor / partido",media(a.cf),media(b.cf),1],["Córners concedidos",media(a.cc),media(b.cc),0],["Tiros / partido",media(a.tiros),media(b.tiros),1],["Tiros a puerta",media(a.tirosP),media(b.tirosP),1],["Amarillas / partido",media(a.am),media(b.am),0],["Faltas / partido",media(a.faltas),media(b.faltas),0],["Posesión media",media(a.pos),media(b.pos),1]];
+   rows.forEach(function(r){
+    var va=r[0]==="Posesión media"?r[1].toFixed(0)+"%":r[1].toFixed(1);
+    var vb=r[0]==="Posesión media"?r[2].toFixed(0)+"%":r[2].toFixed(1);
+    var hiA=r[3]?r[1]>r[2]:r[1]<r[2], hiB=r[3]?r[2]>r[1]:r[2]<r[1];
+    h+=statRow(r[0],va,vb,hiA,hiB);
+   });
+   var proyC=media(a.cf)+media(a.cc)/2+media(b.cf)+media(b.cc)/2;
+   var proyT=media(a.am)+media(b.am);
+   h+='<div class="note" style="margin-top:14px">Punto de partida según las medias: unos <b>'+proyC.toFixed(0)+' córners</b> y <b>'+proyT.toFixed(1)+' amarillas</b> en el cruce — orientativo: muestras cortas ('+esc(a.m.split(" (")[0])+' / '+esc(b.m.split(" (")[0])+') y cada partido escribe su guion.</div>';
+   if(a.nota||b.nota)h+='<div class="src">'+esc((a.nota+" "+b.nota).trim())+'</div>';
+   h+='<div class="src">Datos, no consejos: aquí no hay apuestas recomendadas porque no existen las seguras — combina tu criterio con los números.</div>';
+  }else h='<div class="empty">No tengo estadística detallada de este cruce en esta versión.</div>';
+ }
+ if(t==="forma"){
+  [m.home,m.away].forEach(function(c){
+   var f=FICHAS[c]; if(!f)return;
+   h+='<div style="margin-bottom:16px"><div style="font-weight:700;margin-bottom:6px">'+team(c)+'</div>'+
+    '<div style="font-size:.83rem;margin-bottom:6px">'+esc(f.forma)+'</div>';
+   f.bajas.forEach(function(x){h+='<div style="font-size:.8rem;color:var(--red);padding:2px 0">Baja: '+esc(x)+'</div>'});
+   f.dudas.forEach(function(x){h+='<div style="font-size:.8rem;color:var(--amber);padding:2px 0">Duda: '+esc(x)+'</div>'});
+   if(!f.bajas.length&&!f.dudas.length)h+='<div style="font-size:.8rem;color:var(--green)">Sin bajas destacadas</div>';
+   h+='</div>';
+  });
+  h+='<div class="src">Partes médicos y prensa a 5 de julio — revisa las alineaciones oficiales.</div>';
+ }
+ if(t==="modelo"){
+  h=probBar(m.prob,m.home,m.away);
+  h+='<div style="font-size:.84rem;margin-top:12px;line-height:1.7">El modelo de SportRadar da un <b>'+m.prob[0].toFixed(1)+'%</b> a '+esc(NOM[m.home])+', un <b>'+m.prob[1].toFixed(1)+'%</b> al empate y un <b>'+m.prob[2].toFixed(1)+'%</b> a '+esc(NOM[m.away])+'.</div>';
+  h+='<div class="note" style="margin-top:14px">Una probabilidad no es una certeza: el '+m.prob[2].toFixed(0)+'% ocurre '+m.prob[2].toFixed(0)+' de cada 100 veces. Paraguay aguantó 70 minutos a Francia siendo mucho menos favorita.</div>';
+ }
+ $("#mBody").innerHTML=h;
+}
+/* ================= RENDER: INICIO ================= */
+var cdTimer=null, DEST=null;
+var FIN_MS=2.25*36e5; /* ~2h15 tras el saque: se considera terminado y pasa al siguiente */
+
+/* ============ DATOS EN VIVO (Netlify Function → The Odds API) ============ */
+var LIVE_URL="/.netlify/functions/live", LIVE=null, liveTimer=null;
+/* nombres de la API (inglés) → nuestros códigos */
+var EN2CODE={brazil:"BRA",norway:"NOR",spain:"ESP",portugal:"POR",mexico:"MEX",england:"ENG","united states":"USA",usa:"USA",belgium:"BEL",argentina:"ARG",egypt:"EGY",switzerland:"SUI",colombia:"COL",morocco:"MAR",france:"FRA",paraguay:"PAR",canada:"CAN",japan:"JPN",sweden:"SWE","ivory coast":"CIV","cote d'ivoire":"CIV",ghana:"GHA","cape verde":"CPV",australia:"AUS",algeria:"DZA",croatia:"CRO",austria:"AUT","bosnia and herzegovina":"BIH",senegal:"SEN","dr congo":"COD",ecuador:"ECU"};
+function nombreACodigo(n){
+ if(!n)return null;
+ var k=norm(n);
+ if(EN2CODE[k])return EN2CODE[k];
+ var c=equiposEn(k); if(c.length)return c[0];
+ return null;
+}
+function fetchLive(){
+ if(typeof fetch!=="function")return;
+ fetch(LIVE_URL,{cache:"no-store"}).then(function(r){return r.json()}).then(function(j){
+  if(j&&j.ok&&((j.odds&&j.odds.length)||(j.scores&&j.scores.length))){LIVE=j;renderLive();}
+  else renderLive(j&&j.error==="NO_API_KEY"?"nokey":null);
+ }).catch(function(){renderLive(null);});
+}
+function h2hDe(ev){
+ /* mejor mercado h2h del primer bookmaker disponible → {home,draw,away} en decimal */
+ if(!ev.bookmakers)return null;
+ for(var i=0;i<ev.bookmakers.length;i++){
+  var mk=(ev.bookmakers[i].markets||[]).filter(function(m){return m.key==="h2h"})[0];
+  if(!mk)continue;
+  var o={};
+  mk.outcomes.forEach(function(x){
+   if(x.name===ev.home_team)o.home=x.price;
+   else if(x.name===ev.away_team)o.away=x.price;
+   else o.draw=x.price;
+  });
+  if(o.home&&o.away)return o;
+ }
+ return null;
+}
+function renderLive(flag){
+ var el=$("#liveCard"); if(!el)return;
+ if(!LIVE){
+  if(flag==="nokey"){
+   el.style.display="";
+   el.innerHTML='<h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-bell"/></svg>Datos en vivo<span class="tag">sin configurar</span></h3>'+
+    '<div style="font-size:.84rem;color:var(--tx2);line-height:1.6">La conexión en vivo está desplegada pero falta la clave de la API. Añádela en Netlify → Site settings → Environment variables → <b>ODDS_API_KEY</b> y vuelve a desplegar. Mientras, la web usa los datos verificados cargados.</div>';
+  }else{el.style.display="none";}
+  return;
+ }
+ var now=Date.now(),html="";
+ /* marcadores en vivo o recién terminados */
+ var vivos=(LIVE.scores||[]).filter(function(s){return s.scores&&s.scores.length});
+ var enVivo=vivos.filter(function(s){return !s.completed});
+ var termin=vivos.filter(function(s){return s.completed}).slice(0,4);
+ function marcador(s,live){
+  var ca=nombreACodigo(s.home_team),cb=nombreACodigo(s.away_team);
+  function sc(nm){var o=(s.scores||[]).filter(function(x){return x.name===nm})[0];return o?o.score:"-";}
+  var na=ca?FLAGS[ca]+" "+NOM[ca]:esc(s.home_team),nb=cb?FLAGS[cb]+" "+NOM[cb]:esc(s.away_team);
+  return '<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(34,41,72,.5);font-size:.88rem">'+
+   (live?'<span class="live"></span>':'<span style="color:var(--tx3);font-size:.7rem;width:44px">Final</span>')+
+   '<span style="flex:1">'+na+' <b>'+esc(sc(s.home_team))+'</b> – <b>'+esc(sc(s.away_team))+'</b> '+nb+'</span></div>';
+ }
+ if(enVivo.length||termin.length){
+  html+='<div style="font-weight:600;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--tx3);margin:4px 0 6px">Marcadores</div>';
+  enVivo.forEach(function(s){html+=marcador(s,true)});
+  termin.forEach(function(s){html+=marcador(s,false)});
+ }
+ /* cuotas reales del próximo cruce con precio disponible */
+ var futuros=(LIVE.odds||[]).filter(function(e){return new Date(e.commence_time).getTime()>now}).sort(function(a,b){return new Date(a.commence_time)-new Date(b.commence_time)});
+ var prox=futuros[0];
+ if(prox){
+  var o=h2hDe(prox);
+  var ca=nombreACodigo(prox.home_team),cb=nombreACodigo(prox.away_team);
+  var na=ca?FLAGS[ca]+" "+NOM[ca]:esc(prox.home_team),nb=cb?FLAGS[cb]+" "+NOM[cb]:esc(prox.away_team);
+  html+='<div style="font-weight:600;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--tx3);margin:12px 0 6px">Cuotas reales · próximo cruce</div>';
+  html+='<div style="font-size:.9rem;font-weight:600;margin-bottom:6px">'+na+' vs '+nb+'</div>';
+  if(o){
+   html+='<div class="oddsRow">'+
+    '<div class="o"><div class="l">1</div><div class="v">'+o.home.toFixed(2).replace(".",",")+'</div></div>'+
+    '<div class="o"><div class="l">X</div><div class="v">'+(o.draw?o.draw.toFixed(2).replace(".",","):"—")+'</div></div>'+
+    '<div class="o"><div class="l">2</div><div class="v">'+o.away.toFixed(2).replace(".",",")+'</div></div>'+
+   '</div>';
+  }else html+='<div style="font-size:.8rem;color:var(--tx3)">Aún sin precios publicados para este cruce.</div>';
+ }
+ if(!html){el.style.display="none";return;}
+ var fecha=new Date(LIVE.updated||now),hh=("0"+fecha.getHours()).slice(-2)+":"+("0"+fecha.getMinutes()).slice(-2);
+ el.style.display="";
+ el.innerHTML='<h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-bell"/></svg>En directo<span class="tag">datos reales · '+hh+'</span></h3>'+html+
+  '<div class="src" style="margin-top:10px">Fuente: The Odds API · se actualiza solo. Las cuotas son de casas reales y cambian a cada minuto.'+(LIVE.remaining?' · consultas restantes: '+esc(LIVE.remaining):"")+'</div>';
+}
+function agendaOrden(){return OCTAVOS.concat(CUARTOS_PROX).slice().sort(function(a,b){return a.ts-b.ts;});}
+/* partido destacado dinámico: el que está en juego ahora o el siguiente por orden;
+   cuando uno termina (saque + FIN_MS), avanza solo al próximo del calendario */
+function partidoDestacado(){
+ var lista=agendaOrden(),now=Date.now();
+ for(var i=0;i<lista.length;i++){if(now<lista[i].ts+FIN_MS)return lista[i];}
+ return lista[lista.length-1];
+}
+function esFull(p){return p&&p.home===ELPARTIDO.home&&p.away===ELPARTIDO.away&&p.ts===ELPARTIDO.ts;}
+function renderInicio(){
+ var hoy=new Date();
+ var meses=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+ var dias=["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
+ $("#hoyFecha").textContent=dias[hoy.getDay()]+", "+hoy.getDate()+" de "+meses[hoy.getMonth()]+" — fase final del Mundial 2026";
+
+ var p=partidoDestacado(); DEST=p;
+ var full=esFull(p);
+ var enJuego=Date.now()>=p.ts&&Date.now()<p.ts+FIN_MS;
+ var tag=full?"abre la ronda":(p.ronda==="CUARTOS"?"cuartos de final":"siguiente en el calendario");
+ var cuerpo=
+  '<h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-ball"/></svg>Partido destacado<span class="tag">'+esc(p.dt)+' · '+(enJuego?"en juego":tag)+'</span></h3>'+
+  '<div class="vsRow">'+
+   '<div class="tm"><div style="font-size:1.7rem">'+FLAGS[p.home]+'</div><div class="n">'+esc(NOM[p.home])+'</div><div class="c">'+p.home+'</div></div>'+
+   '<div class="vs">VS</div>'+
+   '<div class="tm"><div style="font-size:1.7rem">'+FLAGS[p.away]+'</div><div class="n">'+esc(NOM[p.away])+'</div><div class="c">'+p.away+'</div></div>'+
+  '</div>'+
+  probBar(p.prob,p.home,p.away)+
+  '<div class="count" id="cd"></div>';
+ if(full){
+  cuerpo+='<div class="oddsRow">'+
+    '<div class="o"><div class="l">1 · '+esc(NOM[p.home])+'</div><div class="v">1,85–1,92</div></div>'+
+    '<div class="o"><div class="l">X · Empate</div><div class="v">3,40</div></div>'+
+    '<div class="o"><div class="l">2 · '+esc(NOM[p.away])+'</div><div class="v">4,10–4,20</div></div>'+
+   '</div>'+
+   '<div class="src">'+esc(ELPARTIDO.estadio)+' · Cuotas publicadas el 3-4 jul (Bet365 y otras) — se mueven hasta el pitido. Modelo: SportRadar.</div>'+
+   '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm" onclick="nav(\'valor\')">Ver análisis completo</button><button class="btn ghost sm" onclick="openMatch(\''+p.home+p.away+'\')">Careo de datos</button></div>';
+ }else{
+  cuerpo+='<div class="src">'+(p.sede?esc(p.sede)+' · ':'')+'Probabilidades del modelo (SportRadar). Las cuotas verificadas y la previa detallada se cargan para el cruce con datos confirmados — ahora en «Datos y cuotas».</div>'+
+   '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm" onclick="openMatch(\''+p.home+p.away+'\')">Careo de datos</button><button class="btn ghost sm" onclick="nav(\'cuadro\')">Ver cuadro</button></div>';
+ }
+ $("#destCard").innerHTML=cuerpo;
+ tickCd();
+ if(cdTimer)clearInterval(cdTimer);
+ cdTimer=setInterval(tickCd,1000);
+
+ var st=betStats();
+ var roi=st.staked>0?(st.balance/st.staked*100):0;
+ var acierto=(st.ganadas+st.perdidas)>0?(st.ganadas/(st.ganadas+st.perdidas)*100):0;
+ $("#resumenHome").innerHTML=
+  '<div style="display:flex;gap:22px;flex-wrap:wrap;margin-bottom:4px">'+
+  '<div><div class="kpi '+(st.balance>=0?"pos":"neg")+'">'+(st.balance>=0?"+":"")+eur(st.balance)+'</div><div class="kLb">Balance</div></div>'+
+  '<div><div class="kpi small '+(roi>=0?"pos":"neg")+'">'+roi.toFixed(1).replace(".",",")+'%</div><div class="kLb">ROI</div></div>'+
+  '<div><div class="kpi small">'+acierto.toFixed(0)+'%</div><div class="kLb">Acierto</div></div>'+
+  '</div>'+
+  '<div style="font-size:.78rem;color:var(--tx3);margin-top:8px">'+st.total+' apuestas · '+st.ganadas+' ganadas · '+st.perdidas+' perdidas · '+st.abiertas+' abiertas</div>'+
+  '<div style="margin-top:14px"><button class="btn sec sm" onclick="nav(\'apuestas\')">Ir a mis apuestas</button></div>';
+
+ var h="";
+ OCTAVOS.concat(CUARTOS_PROX).forEach(function(m){
+  if(m.ts<Date.now()-3*36e5)return;
+  h+='<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(34,41,72,.5);font-size:.86rem;cursor:pointer" onclick="openMatch(\''+m.home+m.away+'\')">'+
+     '<span>'+FLAGS[m.home]+'</span><span style="flex:1;font-weight:500">'+esc(NOM[m.home])+' – '+esc(NOM[m.away])+' <span>'+FLAGS[m.away]+'</span></span>'+
+     (m.ronda==="CUARTOS"?'<span class="chip a">Cuartos</span>':"")+
+     '<span style="color:var(--tx3);font-size:.74rem">'+esc(m.dt)+'</span></div>';
+ });
+ $("#proxHome").innerHTML=h;
+
+ var b="";
+ GOLEADORES.slice(0,4).forEach(function(g,i){
+  b+='<div style="display:flex;gap:9px;align-items:center;padding:7px 0;font-size:.86rem;border-bottom:1px solid rgba(34,41,72,.4)">'+
+     '<span style="color:var(--tx3);width:14px">'+(i+1)+'</span><span>'+FLAGS[g.eq]+'</span><span style="flex:1;font-weight:500">'+esc(g.n.split(" — ")[0])+'</span><b class="vio">'+g.g+'</b></div>';
+ });
+ $("#botaHome").innerHTML=b;
+ renderFeeds();
+}
+function tickCd(){
+ var el=$("#cd"); if(!el||!DEST)return;
+ var now=Date.now(),diff=DEST.ts-now;
+ if(diff<=0){
+  if(now<DEST.ts+FIN_MS){
+   el.innerHTML='<div style="flex:1;text-align:center;padding:9px;color:#ff7b7b;font-weight:700;font-size:.85rem"><span class="live">En juego ahora</span></div>';
+   return;
+  }
+  /* terminado: si hay un cruce posterior, avanza solo; si era el último, avisa */
+  if(cdTimer)clearInterval(cdTimer);
+  if(partidoDestacado()!==DEST){safe(renderInicio);return;}
+  el.innerHTML='<div style="flex:1;text-align:center;padding:9px;color:var(--amber);font-weight:600;font-size:.85rem">Finalizado — pendiente de actualizar resultado</div>';
+  return;
+ }
+ var h=Math.floor(diff/36e5),m=Math.floor(diff%36e5/6e4),s=Math.floor(diff%6e4/1e3);
+ el.innerHTML='<div><b>'+h+'</b><span>horas</span></div><div><b>'+m+'</b><span>min</span></div><div><b>'+s+'</b><span>seg</span></div>';
+}
+
+/* ================= AVISOS / ALERTAS ================= */
+var ALERT_DEFS=[
+ {k:"partidos",ic:"ic-ball",cat:"Torneo",t:"Próximo partido",d:"El siguiente cruce, con acceso directo a su careo de datos"},
+ {k:"pendientes",ic:"ic-list",cat:"Gestión",t:"Selecciones sin marcar",d:"Apuestas abiertas con selecciones pendientes de resolver"},
+ {k:"disciplina",ic:"ic-shield",cat:"Gestión",t:"Control de stake",d:"Aviso si alguna apuesta abierta supera tu límite de disciplina"},
+ {k:"equilibrio",ic:"ic-target",cat:"Gestión",t:"Punto de equilibrio",d:"Si tu acierto real queda por debajo del necesario para tu cuota media"},
+ {k:"caida",ic:"ic-warn",cat:"Gestión",t:"Caída de banca",d:"Aviso si tu banca cae más de un 25% desde su máximo"},
+ {k:"version",ic:"ic-clock",cat:"Datos",t:"Actualizaciones de datos",d:"Recordatorio de la próxima actualización de resultados"},
+ {k:"rachas",ic:"ic-chart",cat:"Torneo",t:"Dato del día",d:"Una racha o dato verificado del torneo, distinto cada día"}
+];
+function getAlertConf(){
+ var c=store("mundial26_alerts")||{};
+ ALERT_DEFS.forEach(function(d){if(typeof c[d.k]!=="boolean")c[d.k]=true});
+ return c;
+}
+function buildAvisos(){
+ var conf=getAlertConf(),st=betStats(),out=[];
+ if(conf.partidos){
+  var prox=null;OCTAVOS.concat(CUARTOS_PROX).forEach(function(m){if(!prox&&m.ts>Date.now())prox=m});
+  if(prox){
+   var hrs=Math.max(0,Math.floor((prox.ts-Date.now())/36e5));
+   out.push({ic:"ic-ball",cat:"Torneo",t:"<b>"+NOM[prox.home]+" – "+NOM[prox.away]+"</b> en "+(hrs<1?"menos de 1 hora":"~"+hrs+" h")+" ("+prox.dt+", "+prox.sede.split(",")[0]+"). Toca para abrir su careo de datos.",click:"openMatch('"+prox.home+prox.away+"')"});
+  }
+ }
+ if(conf.pendientes&&st.pendSel>0)out.push({ic:"ic-list",cat:"Gestión",t:"Tienes <b>"+st.pendSel+"</b> selección(es) pendientes de marcar en tus apuestas abiertas.",click:"nav('apuestas')"});
+ if(conf.disciplina){
+  var banca=getBankIni()+st.balance,lim=banca*getLimPct()/100;
+  var exceso=getBets().filter(function(b){return b.result!=="ganada"&&b.result!=="perdida"&&lim>0&&b.importe>lim});
+  if(exceso.length)out.push({ic:"ic-shield",cat:"Gestión",t:"<b>"+exceso.length+"</b> apuesta(s) abiertas superan tu límite de disciplina ("+getLimPct()+"% = "+eur(lim)+"). Revisa el tamaño de stake.",click:"nav('bankroll')"});
+ }
+ if(conf.equilibrio){
+  var res=getBets().filter(function(b){return b.result==="ganada"||b.result==="perdida"});
+  if(res.length>=5){
+   var hit=res.filter(function(b){return b.result==="ganada"}).length/res.length*100;
+   var cm=res.reduce(function(a,b){return a+b.cuota},0)/res.length;
+   var need=100/cm;
+   if(hit<need)out.push({ic:"ic-target",cat:"Gestión",t:"Tu acierto real ("+hit.toFixed(0)+"%) está por debajo del punto de equilibrio para tu cuota media ("+need.toFixed(0)+"%). El detalle está en el Simulador.",click:"nav('simulador')"});
+  }
+ }
+ if(conf.caida){
+  var ini=getBankIni(),bal=ini,peak=ini,dd=0;
+  getBets().forEach(function(b){
+   if(b.result==="ganada")bal+=b.importe*(b.cuota-1);
+   else if(b.result==="perdida")bal-=b.importe;
+   else return;
+   if(bal>peak)peak=bal;
+   var d=(peak-bal)/peak*100;if(d>dd)dd=d;
+  });
+  if(dd>25)out.push({ic:"ic-warn",cat:"Gestión",t:"Tu banca ha llegado a caer un <b>"+dd.toFixed(0)+"%</b> desde su máximo. Es el momento clásico de reducir stake, no de doblarlo.",click:"nav('bankroll')"});
+ }
+ if(conf.version)out.push({ic:"ic-clock",cat:"Datos",t:"Cuando acabe el Brasil – Noruega: actualizar resultado, cuadro, medias y previa del México – Inglaterra (próxima versión)."});
+ if(conf.rachas)out.push({ic:"ic-chart",cat:"Torneo",t:esc(RACHAS[new Date().getDate()%RACHAS.length])+"."});
+ return out;
+}
+function renderFeeds(){
+ var items=buildAvisos();
+ var html=items.map(function(a){
+  return '<div class="it"'+(a.click?' style="cursor:pointer" onclick="'+a.click+'"':"")+'><svg class="i" viewBox="0 0 24 24"><use href="#'+a.ic+'"/></svg><span style="flex:1">'+a.t+'</span><span class="chipT" style="font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--tx3);background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:2px 7px;align-self:flex-start;flex-shrink:0">'+a.cat+'</span></div>';
+ }).join("")||'<div class="empty">Sin avisos activos ahora mismo — configura cuáles quieres ver en la sección Alertas.</div>';
+ var f1=$("#feedAvisos"),f2=$("#feedAlertas");
+ if(f1)f1.innerHTML=html;
+ if(f2)f2.innerHTML=html;
+}
+function renderAlertConf(){
+ var conf=getAlertConf(),h="";
+ ALERT_DEFS.forEach(function(d){
+  h+='<div class="alertRow"><svg class="i" viewBox="0 0 24 24"><use href="#'+d.ic+'"/></svg>'+
+   '<div class="tt"><b>'+esc(d.t)+' <span class="chipT">'+esc(d.cat)+'</span></b><span>'+esc(d.d)+'</span></div>'+
+   '<input type="checkbox" class="sw" '+(conf[d.k]?"checked":"")+' onchange="toggleAlert(\''+d.k+'\',this.checked)"></div>';
+ });
+ $("#alertConf").innerHTML=h;
+}
+function toggleAlert(k,v){var c=getAlertConf();c[k]=v;store("mundial26_alerts",c);renderFeeds();}
+
+/* ================= RENDER: PARTIDOS ================= */
+var filtPart="todos";
+function renderPartidos(){
+ var h="";
+ if(filtPart!=="jugados"){
+  OCTAVOS.concat(CUARTOS_PROX).forEach(function(m){
+   h+='<div class="match" onclick="openMatch(\''+m.home+m.away+'\')">'+
+    '<div class="row"><span class="chip '+(m.ronda==="CUARTOS"?"a":"v")+'">'+(m.ronda==="CUARTOS"?"Cuartos":"Octavos")+'</span>'+
+    '<span class="tms">'+FLAGS[m.home]+' '+esc(NOM[m.home])+' <span style="color:var(--tx3);font-weight:400">vs</span> '+esc(NOM[m.away])+' '+FLAGS[m.away]+'</span>'+
+    '<span style="color:var(--tx3);font-size:.78rem">'+esc(m.dt)+'</span><span class="arrow">›</span></div>'+
+    '<div style="margin-top:10px">'+probBar(m.prob,m.home,m.away)+'</div>'+
+    '<div class="meta">'+esc(m.sede||"")+' · Pulsa para abrir careo, forma y modelo</div></div>';
+  });
+ }
+ if(filtPart!=="pendientes"){
+  h+='<h3 style="font-size:.72rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.08em;margin:20px 0 12px">Resultados</h3>';
+  RESULTADOS.forEach(function(r){
+   h+='<div class="match" style="cursor:default">'+
+    '<div class="row"><span class="chip g">Final</span>'+
+    '<span class="tms">'+FLAGS[r.home]+' '+esc(NOM[r.home])+' <b style="margin:0 6px">'+esc(r.s)+'</b> '+esc(NOM[r.away])+' '+FLAGS[r.away]+'</span>'+
+    '<span style="color:var(--tx3);font-size:.76rem">'+esc(r.dt)+'</span></div>'+
+    (r.nota?'<div class="meta">'+esc(r.nota)+'</div>':"")+'</div>';
+  });
+ }
+ $("#listaPartidos").innerHTML=h||'<div class="empty">Nada que mostrar</div>';
+}
+document.addEventListener("click",function(e){
+ var b=e.target.closest("#tabsPart button"); if(!b)return;
+ $$("#tabsPart button").forEach(function(x){x.classList.remove("on")});
+ b.classList.add("on"); filtPart=b.dataset.f; renderPartidos();
+});
+
+/* ================= RENDER: ANÁLISIS ================= */
+var GOL_KEY={"Messi":"messi","Mbappé":"mbappe","Haaland":"haaland","Kane":"kane","Dembélé":"dembele","Vinícius Jr.":"vinicius"};
+var golOpen=null;
+function toggleGol(nombre){golOpen=golOpen===nombre?null:nombre;renderGoles();}
+function renderGoles(){
+ var max=GOLEADORES[0].g;
+ var h='<table><tr><th>#</th><th>Jugador</th><th>Goles</th><th style="width:30%"></th></tr>';
+ GOLEADORES.forEach(function(g,i){
+  var parts=g.n.split(" — ");
+  var key=GOL_KEY[parts[0]];
+  h+='<tr style="cursor:pointer" onclick="toggleGol(\''+parts[0].replace(/'/g,"")+'\')">'+
+   '<td class="mut">'+(i+1)+'</td><td><b>'+FLAGS[g.eq]+' '+esc(parts[0])+'</b>'+(parts[1]?'<div style="font-size:.7rem;color:var(--tx3);margin-top:2px">'+esc(parts[1])+'</div>':"")+'</td>'+
+   '<td><b class="vio">'+g.g+'</b></td>'+
+   '<td><div class="bar"><i style="width:'+(g.g/max*100)+'%;background:linear-gradient(90deg,var(--vio),var(--vio2))"></i></div></td></tr>';
+  if(golOpen===parts[0]&&key&&JUGADORES[key]){
+   var j=JUGADORES[key];
+   h+='<tr><td colspan="4" style="background:rgba(124,92,255,.05)">'+
+    '<div style="font-size:.8rem;line-height:1.6;padding:4px 2px"><b style="color:var(--green)">A favor:</b> '+esc(j.favor.join(" · "))+'<br>'+
+    '<b style="color:var(--red)">En contra:</b> '+esc(j.contra.join(" · "))+'</div></td></tr>';
+  }
+ });
+ h+="</table>";
+ $("#tblGoles").innerHTML=h;
+}
+var rankSort={k:"cf",dir:-1};
+function sortRank(k){
+ if(rankSort.k===k)rankSort.dir=-rankSort.dir;else{rankSort.k=k;rankSort.dir=-1;}
+ renderRank();
+}
+function renderRank(){
+ var cols=[["cf","CÓR"],["cc","C.C."],["tiros","TIROS"],["tirosP","T.PTA"],["am","AMAR"],["faltas","FALTAS"],["pos","POS"]];
+ var rows=Object.keys(STATS).map(function(c){
+  var s2=STATS[c],o={c:c,pj:s2.cf.length,out:c==="PAR"};
+  cols.forEach(function(col){o[col[0]]=media(s2[col[0]])});
+  return o;
+ });
+ rows.sort(function(a,b){return (a[rankSort.k]-b[rankSort.k])*rankSort.dir});
+ var h='<table style="min-width:640px"><tr><th>Equipo</th>';
+ cols.forEach(function(col){
+  var on=rankSort.k===col[0];
+  h+='<th style="cursor:pointer;user-select:none;'+(on?"color:var(--vio2)":"")+'" onclick="sortRank(\''+col[0]+'\')">'+col[1]+(on?(rankSort.dir<0?" ↓":" ↑"):"")+'</th>';
+ });
+ h+='<th>PJ</th></tr>';
+ rows.forEach(function(r){
+  h+='<tr'+(r.out?' style="opacity:.45"':"")+'><td style="white-space:nowrap"><b>'+team(r.c)+'</b>'+(r.out?' <span class="chip r" style="font-size:.58rem">Eliminado</span>':"")+'</td>';
+  cols.forEach(function(col){
+   var v=r[col[0]];
+   var txt=col[0]==="pos"?v.toFixed(0)+"%":v.toFixed(1);
+   h+='<td'+(rankSort.k===col[0]?' style="color:var(--vio2);font-weight:700"':' class="mut"')+'>'+txt+'</td>';
+  });
+  h+='<td class="mut">'+r.pj+'</td></tr>';
+ });
+ h+="</table>";
+ $("#rankBox").innerHTML=h;
+}
+function renderDuelos(){
+ var h="";
+ OCTAVOS.concat(CUARTOS_PROX).forEach(function(m){
+  if(m.ts<Date.now()-3*36e5&&m.home!=="BRA")return;
+  var fa=FICHAS[m.home],fb=FICHAS[m.away];
+  h+='<div style="padding:13px 0;border-bottom:1px solid rgba(34,41,72,.5);cursor:pointer" onclick="openMatch(\''+m.home+m.away+'\')">'+
+   '<div style="display:flex;align-items:center;gap:8px;margin-bottom:9px;font-size:.9rem"><b>'+team(m.home)+' vs '+team(m.away)+'</b>'+(m.ronda==="CUARTOS"?'<span class="chip a">Cuartos</span>':"")+'<span style="margin-left:auto;color:var(--tx3);font-size:.72rem">'+esc(m.dt)+'</span></div>'+
+   probBar(m.prob,m.home,m.away)+
+   '<div class="grid g2" style="gap:8px;margin-top:10px">';
+  [[m.home,fa],[m.away,fb]].forEach(function(x){
+   var c=x[0],f=x[1]; if(!f){h+="<div></div>";return;}
+   h+='<div style="font-size:.76rem;color:var(--tx2);line-height:1.55"><b style="color:var(--tx)">'+esc(NOM[c])+'</b><br>'+esc(f.forma)+'<br>'+
+    (f.bajas.length?'<span class="chip r" style="margin-top:4px">'+f.bajas.length+' baja'+(f.bajas.length>1?"s":"")+'</span> ':"")+
+    (f.dudas.length?'<span class="chip a" style="margin-top:4px">'+f.dudas.length+' duda'+(f.dudas.length>1?"s":"")+'</span>':"")+
+    (!f.bajas.length&&!f.dudas.length?'<span class="chip g" style="margin-top:4px">Plantilla completa</span>':"")+
+    '</div>';
+  });
+  h+='</div></div>';
+ });
+ $("#duelosBox").innerHTML=h;
+}
+function renderAnalisis(){
+ renderGoles();
+ var a='<table><tr><th>#</th><th>Jugador</th><th>Asist.</th></tr>';
+ ASISTENCIAS.forEach(function(g,i){
+  a+='<tr><td class="mut">'+(i+1)+'</td><td><b>'+FLAGS[g.eq]+' '+esc(g.n)+'</b> <span style="font-size:.72rem;color:var(--tx3)">'+esc(g.d)+'</span></td><td><b class="vio">'+g.a+'</b></td></tr>';
+ });
+ a+='</table>';
+ /* goles por equipo, compacto */
+ a+='<div class="kLb" style="margin-top:14px">Goles por equipo (verificado)</div><table><tr><th>Equipo</th><th>GF</th><th>GC</th><th>GF/PJ</th></tr>';
+ Object.keys(GOLES_EQUIPO).forEach(function(c){
+  var g=GOLES_EQUIPO[c];
+  a+='<tr><td>'+team(c)+'</td><td><b class="pos">'+g.gf+'</b></td><td><b class="neg">'+g.gc+'</b></td><td class="mut">'+(g.gf/g.pj).toFixed(1)+'</td></tr>';
+ });
+ a+='</table>';
+ $("#tblAsis").innerHTML=a;
+ var rh="";
+ RACHAS.forEach(function(r){rh+='<div style="padding:6px 0;border-bottom:1px solid rgba(34,41,72,.4)">'+esc(r)+'</div>'});
+ $("#rachasBox").innerHTML=rh;
+ renderRank();
+ renderDuelos();
+}
+
+/* ================= RENDER: VALOR (previa + cuotas del destacado) ================= */
+function renderValor(){
+ var p=ELPARTIDO;
+ var h='<div class="card hl">'+
+  '<h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-ball"/></svg>'+team(p.home)+' vs '+team(p.away)+'<span class="tag">'+esc(p.dt)+'</span></h3>'+
+  '<div style="font-size:.8rem;color:var(--tx2);line-height:1.6">'+esc(p.estadio)+'<br>'+esc(p.premio)+'</div>'+
+  '<div style="margin-top:12px">'+probBar(p.prob,p.home,p.away)+'</div></div>';
+
+ h+='<div style="height:16px"></div><div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-target"/></svg>Cuotas publicadas<span class="tag">verificadas 3-4 jul</span></h3>'+
+  '<table><tr><th>Mercado</th><th>Cuota</th><th>Prob. implícita</th><th>Fuente</th></tr>';
+ p.cuotas.forEach(function(x){
+  h+='<tr><td>'+esc(x.mercado)+'</td><td><b class="vio">'+esc(x.cuota)+'</b></td><td class="mut">≈ '+esc(x.imp)+'</td><td style="font-size:.72rem;color:var(--tx3)">'+esc(x.fuente)+'</td></tr>';
+ });
+ h+='</table><div class="src">'+esc(p.cuotasNota)+'</div></div>';
+
+ /* modelo vs mercado (1X2) — datos, no consejo */
+ var c1=1.885,cX=3.40,c2=4.15;
+ var inv=[1/c1,1/cX,1/c2],sumInv=inv[0]+inv[1]+inv[2];
+ var margen=(sumInv-1)*100;
+ var impl=inv.map(function(x){return x/sumInv*100});
+ h+='<div style="height:16px"></div><div class="grid g2">';
+ h+='<div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Modelo vs mercado<span class="tag">1X2, cuotas medias</span></h3>';
+ [["1 · "+NOM[p.home],p.prob[0],impl[0],"var(--vio)"],["X · Empate",p.prob[1],impl[1],"var(--tx3)"],["2 · "+NOM[p.away],p.prob[2],impl[2],"#2f8f6b"]].forEach(function(r){
+  h+='<div class="cmp"><div class="l"><span><b>'+esc(r[0])+'</b></span><span>modelo '+r[1].toFixed(1)+'% · mercado '+r[2].toFixed(1)+'%</span></div>'+
+   '<div class="duo"><div class="bar"><i style="width:'+r[1]+'%;background:'+r[3]+'"></i></div>'+
+   '<div class="bar"><i style="width:'+r[2]+'%;background:'+r[3]+';opacity:.38"></i></div></div></div>';
+ });
+ h+='<div class="src">Barra superior: modelo SportRadar. Barra inferior: probabilidad implícita del mercado sin margen (normalizada). Dónde difieren es información — qué hacer con ella es cosa tuya.</div>';
+ h+='<div class="note">El margen de la casa en el 1X2 de este partido es de un <b>'+margen.toFixed(1).replace(".",",")+'&nbsp;%</b>: las implícitas suman '+(sumInv*100).toFixed(1).replace(".",",")+'&nbsp;%. Ese exceso es lo que la casa gana a largo plazo, apuestes a lo que apuestes.</div></div>';
+
+ h+='<div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-check"/></svg>Checklist antes de apostar</h3>'+
+  '<div class="chk"><span class="n">1</span><span><b style="color:var(--tx)">¿La cuota está viva?</b> Estas se publicaron el 3-4 jul y se mueven hasta el pitido — comprueba el precio actual en tu casa.</span></div>'+
+  '<div class="chk"><span class="n">2</span><span><b style="color:var(--tx)">¿Entra en tu límite de stake?</b> Tu regla de disciplina está en Bankroll; el registro te avisa si la superas.</span></div>'+
+  '<div class="chk"><span class="n">3</span><span><b style="color:var(--tx)">¿Sabes qué acierto necesitas?</b> A cuota 2,00 necesitas ganar más del 50&nbsp;% de las veces solo para no perder. Compara con tu acierto real en el Simulador.</span></div>'+
+  '<div class="chk"><span class="n">4</span><span><b style="color:var(--tx)">¿Es combinada?</b> Cada selección multiplica también el margen de la casa. Acertar 5 de 6 paga lo mismo que fallar 6.</span></div>'+
+  '<div class="chk"><span class="n">5</span><span><b style="color:var(--tx)">¿La apostarías igual mañana en frío?</b> Si la respuesta depende del calentón del partido, déjala pasar — habrá más partidos.</span></div>'+
+  '<div class="src">Esta lista no te dice qué apostar: te ayuda a que lo que decidas apostar sea decisión y no impulso.</div></div>';
+ h+='</div>';
+
+ h+='<div style="height:16px"></div><div class="grid g2">';
+ h+='<div class="card"><h3>Cómo llegan</h3>';
+ [p.home,p.away].forEach(function(c){h+='<div style="margin-bottom:12px"><b style="font-size:.88rem">'+team(c)+'</b><div style="font-size:.82rem;color:var(--tx2);line-height:1.65;margin-top:5px">'+esc(p.llegan[c])+'</div></div>'});
+ h+='</div>';
+ h+='<div class="card"><h3>Onces probables</h3>';
+ [p.home,p.away].forEach(function(c){
+  var o=p.onces[c];
+  h+='<div style="margin-bottom:12px"><b style="font-size:.88rem">'+team(c)+'</b> <span style="font-size:.72rem;color:var(--tx3)">'+esc(o.sist)+' · DT '+esc(o.dt)+'</span>';
+  o.xi.forEach(function(l){h+='<div style="font-size:.8rem;color:var(--tx2);padding:2px 0">'+esc(l)+'</div>'});
+  h+='</div>';
+ });
+ h+='<div class="src">Alineaciones estimadas por la prensa — las oficiales, una hora antes.</div></div></div>';
+
+ h+='<div style="height:16px"></div><div class="grid g2">';
+ h+='<div class="card"><h3>Bajas y dudas</h3>';
+ [p.home,p.away].forEach(function(c){
+  h+='<b style="font-size:.85rem">'+team(c)+'</b>';
+  p.bajas[c].forEach(function(x){h+='<div style="font-size:.8rem;color:var(--red);padding:3px 0">'+esc(x)+'</div>'});
+  h+='<div style="height:8px"></div>';
+ });
+ h+='</div>';
+ h+='<div class="card"><h3>Cara a cara e historial</h3>';
+ p.h2h.forEach(function(x){h+='<div style="font-size:.83rem;color:var(--tx2);line-height:1.6;padding:5px 0;border-bottom:1px solid rgba(34,41,72,.4)">'+esc(x)+'</div>'});
+ h+='</div></div>';
+
+ h+='<div style="height:16px"></div><div class="grid g2">';
+ h+='<div class="card"><h3>Claves del partido</h3>';
+ p.claves.forEach(function(x){h+='<div style="font-size:.83rem;color:var(--tx2);line-height:1.6;padding:5px 0;border-bottom:1px solid rgba(34,41,72,.4)">'+esc(x)+'</div>'});
+ h+='</div>';
+ h+='<div class="card"><h3>Jugadores a seguir</h3>';
+ [p.home,p.away].forEach(function(c){
+  h+='<b style="font-size:.85rem">'+team(c)+'</b>';
+  p.jugadores[c].forEach(function(x){h+='<div style="font-size:.8rem;color:var(--tx2);line-height:1.55;padding:3px 0">'+esc(x)+'</div>'});
+  h+='<div style="height:8px"></div>';
+ });
+ h+='</div></div>';
+
+ h+='<div style="height:16px"></div><div class="card"><h3>Qué dice el mercado</h3>';
+ p.mercado.forEach(function(x){h+='<div style="font-size:.84rem;color:var(--tx2);line-height:1.65;padding:5px 0;border-bottom:1px solid rgba(34,41,72,.4)">'+esc(x)+'</div>'});
+ h+='<div class="src">'+esc(p.tv)+'</div></div>';
+ $("#valorBox").innerHTML=h;
+}
+
+/* ================= RENDER: CUADRO ================= */
+function renderCuadro(){
+ function fila(x,m,marcador){
+  if(!x)return "";
+  var esC=FLAGS[x]!==undefined;
+  var win=m.gana===x;
+  var out=m.gana&&m.gana!==x&&esC;
+  var nombre=esC?FLAGS[x]+" "+esc(NOM[x]):esc(x);
+  return '<div class="t '+(win?"win":"")+(out?" out":"")+'"><span>'+nombre+'</span><span class="s">'+(marcador||"")+'</span></div>';
+ }
+ function col(t,ms){
+  var h='<div class="brkCol"><h4>'+esc(t)+'</h4>';
+  ms.forEach(function(m){
+   var sa="",sb="";
+   if(m.s&&m.s!=="—"){var pp=m.s.split("–").map(function(x){return x.trim()});sa=pp[0]||"";sb=pp[1]||"";}
+   /* estado por el reloj real: vivo solo si está en ventana; pendiente si ya pasó sin resultado */
+   var ov=OCTAVOS.concat(CUARTOS_PROX).filter(function(o){return o.home===m.a&&o.away===m.b;})[0];
+   var vivo=false,estadoTxt=m.estado;
+   if(ov){
+    var now=Date.now();
+    if(now>=ov.ts&&now<ov.ts+FIN_MS)vivo=true;
+    else if(now>=ov.ts+FIN_MS&&(!m.s||m.s==="—")&&!m.gana)estadoTxt="Pendiente de actualizar resultado";
+   }
+   var cls="brkM"+(vivo?" vivo":"")+(m.gana?" res":"")+(m.a==="GRAN FINAL"?" gf":"");
+   h+='<div class="'+cls+'">'+
+    (vivo?'<div class="live" style="margin-bottom:6px">En juego ahora</div>':"")+
+    fila(m.a,m,sa)+fila(m.b,m,sb)+
+    '<div class="when">'+esc(estadoTxt)+(m.gana?' — <b style="color:var(--green)">'+esc(NOM[m.gana])+' a cuartos</b>':"")+'</div></div>';
+  });
+  return h+"</div>";
+ }
+ $("#bracket").innerHTML=
+  col("Octavos · 4-7 jul",CUADRO.octavos)+
+  col("Cuartos · 9-12 jul",CUADRO.cuartos)+
+  col("Semifinales · 14-15 jul",CUADRO.semis)+
+  col("El desenlace",CUADRO.final)+
+  '<div class="brkCol"><h4>Camino</h4><div class="brkM" style="font-size:.78rem;color:var(--tx2);line-height:1.7">8 cruces de octavos alimentan 4 cuartos; el primero confirmado es <b style="color:var(--tx)">Francia – Marruecos</b> (jue 9, Boston), remake de la semifinal de Catar 2022. La final se juega el 19 de julio en el MetLife — el mismo estadio que abrió esta ronda con el Brasil – Noruega.</div></div>';
+}
+
+/* ================= RENDER: CALENDARIO ================= */
+var filtCal="todas";
+function renderAgenda(){
+ var rows="";
+ var all=OCTAVOS.map(function(m){return{m:m,r:"Octavos"}}).concat(CUARTOS_PROX.map(function(m){return{m:m,r:"Cuartos"}}));
+ all.forEach(function(x){
+  if(filtCal!=="todas"&&x.r!==filtCal)return;
+  rows+='<tr style="cursor:pointer" onclick="openMatch(\''+x.m.home+x.m.away+'\')"><td class="mut" style="white-space:nowrap">'+esc(x.m.dt)+'</td><td><b>'+team(x.m.home)+' vs '+team(x.m.away)+'</b></td><td class="mut">'+x.r+'</td><td class="mut" style="font-size:.76rem">'+esc((x.m.sede||"").split("—")[0])+'</td></tr>';
+ });
+ if(filtCal==="todas"){
+  rows+='<tr><td class="mut">Mar 14 / Mié 15</td><td colspan="3" class="mut">Semifinales — Dallas y Atlanta</td></tr>'+
+        '<tr><td class="mut">Sáb 18 · 23:00</td><td colspan="3" class="mut">Tercer puesto — Miami</td></tr>'+
+        '<tr><td class="mut">Dom 19 jul</td><td colspan="3"><b>Gran final — MetLife Stadium, Nueva Jersey</b></td></tr>';
+ }
+ $("#agenda").innerHTML='<table><tr><th>Fecha (ES)</th><th>Partido</th><th>Ronda</th><th>Sede</th></tr>'+rows+'</table><div class="src">Horarios en España peninsular. Pulsa un partido para abrir su careo de datos.</div>';
+}
+document.addEventListener("click",function(e){
+ var b=e.target.closest("#tabsCal button"); if(!b)return;
+ $$("#tabsCal button").forEach(function(x){x.classList.remove("on")});
+ b.classList.add("on"); filtCal=b.dataset.f; renderAgenda();
+});
+
+/* ================= SIMULADOR ================= */
+var valBankSet=false;
+function renderSim(){
+ var m=parseFloat($("#simMonto").value)||0;
+ var c=parseFloat($("#simCuota").value)||1.01; if(c<1.01)c=1.01;
+ $("#simMontoLb").textContent=m+" €";
+ $("#simRet").textContent=eur(m*c);
+ $("#simBen").textContent="+"+eur(m*(c-1));
+ $("#simProb").textContent=(100/c).toFixed(1).replace(".",",")+" %";
+}
+document.addEventListener("input",function(e){
+ var id=e.target.id;
+ if(id==="simMonto"||id==="simCuota")renderSim();
+ if(id==="valP"||id==="valCuota"||id==="valBank"||id==="valLim")renderEV();
+});
+document.addEventListener("change",function(e){
+ if(e.target.id==="valMkt"){
+  var v=e.target.value;
+  if(v){var vc=$("#valCuota");if(vc)vc.value=v;}
+  renderEV();
+ }
+});
+/* punto de equilibrio: acierto necesario vs tu acierto real */
+function renderBreakeven(){
+ var box=$("#breakeven"); if(!box)return;
+ var bets=getBets().filter(function(b){return b.result==="ganada"||b.result==="perdida"});
+ var h="";
+ if(bets.length){
+  var g=bets.filter(function(b){return b.result==="ganada"}).length;
+  var hit=g/bets.length*100;
+  var cm=bets.reduce(function(a,b){return a+b.cuota},0)/bets.length;
+  var need=100/cm;
+  var delta=hit-need;
+  h+='<div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:6px">'+
+   '<div><div class="kpi small">'+hit.toFixed(1).replace(".",",")+'%</div><div class="kLb">Tu acierto real ('+bets.length+' resueltas)</div></div>'+
+   '<div><div class="kpi small vio">'+need.toFixed(1).replace(".",",")+'%</div><div class="kLb">Necesario a tu cuota media ('+cm.toFixed(2).replace(".",",")+')</div></div>'+
+  '</div>';
+  h+='<div class="cmp"><div class="duo">'+
+   '<div class="bar"><i style="width:'+Math.min(100,hit)+'%;background:'+(delta>=0?"var(--green)":"var(--red)")+'"></i></div>'+
+   '<div class="bar"><i style="width:'+Math.min(100,need)+'%;background:var(--vio);opacity:.5"></i></div></div>'+
+   '<div class="l" style="margin-top:5px"><span>Tu acierto</span><span>Punto de equilibrio</span></div></div>';
+  h+='<div style="font-size:.84rem;color:var(--tx2);line-height:1.65;margin-top:8px">'+
+   (delta>=0
+    ?'Vas <b class="pos">'+delta.toFixed(1).replace(".",",")+' puntos por encima</b> del equilibrio. Cuidado con leerlo como garantía: con '+bets.length+' apuestas la muestra es corta y la varianza manda.'
+    :'Estás <b class="neg">'+Math.abs(delta).toFixed(1).replace(".",",")+' puntos por debajo</b> del equilibrio: con este acierto y esta cuota media, el balance esperado es negativo. Las dos palancas reales: menos apuestas y mejor elegidas, o cuotas donde tu criterio aporte de verdad.')+
+   '</div>';
+ }else{
+  h='<div style="font-size:.85rem;color:var(--tx2);line-height:1.65">Cuando tengas apuestas resueltas en «Mis apuestas», aquí verás tu <b style="color:var(--tx)">acierto real</b> frente al que necesitas según tu cuota media. Es el número que más dice de tu efectividad.</div>'+
+   '<div class="cmp" style="margin-top:12px"><div class="l"><span>Ejemplo a cuota 2,00</span><span>necesitas &gt; 50%</span></div><div class="bar"><i style="width:50%;background:var(--vio)"></i></div></div>'+
+   '<div class="cmp"><div class="l"><span>Ejemplo a cuota 3,00</span><span>necesitas &gt; 33,3%</span></div><div class="bar"><i style="width:33.3%;background:var(--vio)"></i></div></div>';
+ }
+ box.innerHTML=h;
+}
+/* ===== Calculadora de valor (EV + Kelly) ===== */
+function fillValMkt(){
+ var sel=$("#valMkt"); if(!sel||sel.getAttribute("data-done"))return;
+ var opts='<option value="">— cuota manual —</option>';
+ if(typeof LEGS!=="undefined"&&LEGS.forEach){
+  LEGS.forEach(function(l){opts+='<option value="'+l.c+'">'+esc(l.t)+' · '+l.c.toFixed(2).replace(".",",")+'</option>';});
+ }
+ sel.innerHTML=opts; sel.setAttribute("data-done","1");
+}
+function renderEV(){
+ if(!$("#valP"))return;
+ fillValMkt();
+ if(!valBankSet){
+  var vb=$("#valBank"); if(vb)vb.value=Math.max(5,Math.round(getBankIni()+betStats().balance));
+  var vl=$("#valLim"); if(vl)vl.value=getLimPct();
+  valBankSet=true;
+ }
+ var c=Math.max(1.01,parseFloat($("#valCuota").value)||2);
+ var p=Math.min(.99,Math.max(.01,(parseInt($("#valP").value)||50)/100));
+ var bank=Math.max(1,parseFloat($("#valBank").value)||50);
+ var lim=Math.min(1,Math.max(.005,(parseFloat($("#valLim").value)||5)/100));
+ $("#valPLb").textContent=Math.round(p*100)+" %";
+ var imp=1/c;                       /* prob. implícita (con margen) */
+ var edge=p-imp;                    /* ventaja en tanto por uno */
+ var ev=p*c-1;                      /* valor esperado por cada 1 € apostado */
+ /* veredicto por franjas */
+ var col,txt,ex;
+ if(edge>0.02){col="var(--green)";txt="Valor a tu favor";ex="Según tu estimación, esta cuota paga más de lo que debería. A largo plazo, apostar precios así suma — si tu probabilidad es realista.";}
+ else if(edge<-0.02){col="var(--red)";txt="Sin valor: la casa te cobra de más";ex="La cuota da por más probable el resultado de lo que tú crees. Repetir precios así, a la larga, resta.";}
+ else{col="var(--amber)";txt="En el filo — sin margen claro";ex="Tu probabilidad y la que marca la cuota casi coinciden. Aquí manda el margen de la casa; no hay ventaja que explotar.";}
+ $("#valVeredicto").innerHTML='<div style="display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,'+col+'22,transparent);border:1px solid '+col+';border-radius:13px;padding:13px 16px">'+
+  '<div style="width:10px;height:10px;border-radius:50%;background:'+col+';flex-shrink:0;box-shadow:0 0 12px '+col+'"></div>'+
+  '<div><div style="font-weight:700;color:'+col+';font-size:1.02rem">'+txt+'</div><div style="font-size:.82rem;color:var(--tx2);line-height:1.5;margin-top:3px">'+ex+'</div></div></div>';
+ $("#valOut").innerHTML=
+  '<div class="box"><div class="lb">Prob. implícita</div><div class="kpi small">'+(imp*100).toFixed(1).replace(".",",")+' %</div></div>'+
+  '<div class="box"><div class="lb">Tu ventaja</div><div class="kpi small '+(edge>0?"pos":edge<0?"neg":"")+'">'+(edge>=0?"+":"−")+Math.abs(edge*100).toFixed(1).replace(".",",")+' pts</div></div>'+
+  '<div class="box"><div class="lb">Valor esperado /10 €</div><div class="kpi small '+(ev>0?"pos":ev<0?"neg":"")+'">'+(ev>=0?"+":"−")+eur(Math.abs(ev*10))+'</div></div>';
+ /* barra tu prob vs implícita */
+ $("#valBar").innerHTML='<div class="cmp"><div class="duo">'+
+  '<div class="bar"><i style="width:'+(p*100).toFixed(1)+'%;background:'+(edge>=0?"var(--green)":"var(--red)")+'"></i></div>'+
+  '<div class="bar"><i style="width:'+(imp*100).toFixed(1)+'%;background:var(--vio);opacity:.55"></i></div></div>'+
+  '<div class="l" style="margin-top:5px"><span>Tu probabilidad ('+(p*100).toFixed(0)+'%)</span><span>La de la cuota ('+(imp*100).toFixed(0)+'%)</span></div></div>';
+ /* stake Kelly fraccionado, capado a disciplina */
+ var b=c-1;
+ var kelly=b>0?(p*b-(1-p))/b:0;     /* fracción Kelly óptima */
+ var kFull=Math.max(0,kelly);
+ var kQuarter=kFull/4;              /* Kelly/4, prudente */
+ var stakeK=bank*kQuarter;
+ var stakeCap=bank*lim;
+ var stakeFinal=Math.min(stakeK,stakeCap);
+ var capado=stakeK>stakeCap&&kFull>0;
+ var sh;
+ if(kFull<=0){
+  sh='<div style="font-size:.86rem;color:var(--tx2);line-height:1.6"><b class="neg">Kelly = 0.</b> Con tu probabilidad, este precio no ofrece ventaja: el criterio de gestión dice no ponerle dinero. No es un veto — es que las cuentas no acompañan.</div>';
+ }else{
+  sh='<div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-end">'+
+   '<div><div class="kpi small vio">'+eur(stakeFinal)+'</div><div class="kLb">Stake orientativo (Kelly/4)</div></div>'+
+   '<div><div class="kpi small">'+(kFull*100).toFixed(1).replace(".",",")+' %</div><div class="kLb">Kelly completo de tu banca</div></div>'+
+   '<div><div class="kpi small">'+eur(bank)+'</div><div class="kLb">Banca de referencia</div></div></div>'+
+   (capado?'<div style="font-size:.8rem;color:var(--amber);margin-top:8px">Kelly pediría más, pero se ha recortado a tu límite de disciplina ('+(lim*100).toFixed(0)+'% = '+eur(stakeCap)+'). Bien hecho: proteger la banca va primero.</div>':'');
+ }
+ $("#valStake").innerHTML='<div class="kBox">'+sh+'</div>';
+}
+
+/* ================= MIS APUESTAS (formato compatible V12: mundial26_bets) ================= */
+function getBets(){var b=store("mundial26_bets");return Array.isArray(b)?b:[]}
+function setBets(b){store("mundial26_bets",b)}
+function splitSel(s){return String(s).split(/\s*[•;\n]\s*|\s+\+\s+/).map(function(x){return x.trim()}).filter(Boolean)}
+function betStats(){
+ var bets=getBets(),bal=0,ab=0,pendSel=0,g=0,pd=0,staked=0;
+ bets.forEach(function(b){
+  if(b.result==="ganada"){bal+=b.importe*(b.cuota-1);g++;staked+=b.importe;}
+  else if(b.result==="perdida"){bal-=b.importe;pd++;staked+=b.importe;}
+  else{ab++;if(b.sel)b.sel.forEach(function(s){if(s.s==="pendiente")pendSel++});}
+ });
+ return{balance:bal,total:bets.length,abiertas:ab,pendSel:pendSel,ganadas:g,perdidas:pd,staked:staked};
+}
+/* ---- Toasts ---- */
+function toast(msg,type){
+ var w=$("#toastWrap");
+ if(!w){w=document.createElement("div");w.id="toastWrap";w.className="toastWrap";document.body.appendChild(w);}
+ var t=document.createElement("div");t.className="toast "+(type||"");t.textContent=msg;w.appendChild(t);
+ setTimeout(function(){t.style.opacity="0";t.style.transform="translateY(8px)";setTimeout(function(){if(t.parentNode)t.parentNode.removeChild(t);},420);},3400);
+}
+/* ---- Racha de derrotas al cierre (para avisar de "perseguir pérdidas") ---- */
+function rachaDerrotas(){
+ var res=getBets().filter(function(b){return b.result==="ganada"||b.result==="perdida"});
+ var n=0;
+ for(var i=res.length-1;i>=0;i--){if(res[i].result==="perdida")n++;else break;}
+ return n;
+}
+/* ---- Revisión de cordura: devuelve avisos para prevenir errores ---- */
+function betWarnings(pt,d,c,s,partes){
+ var w=[],bancaAct=getBankIni()+betStats().balance,limPct=getLimPct(),maxStake=bancaAct*limPct/100;
+ if(c<1.10||c>50) w.push({lvl:"warn",t:"Cuota de "+c.toFixed(2).replace(".",",")+" — revisa que no sea un error de tecleo. Fuera del rango habitual, un dígito de más cambia toda la cuenta."});
+ if(maxStake>0&&s>maxStake) w.push({lvl:"stop",t:"El importe ("+eur(s)+") supera tu límite de disciplina: "+limPct+"% de la banca = "+eur(maxStake)+". Ese límite lo pusiste por algo."});
+ if(bancaAct>0&&s>bancaAct*0.25&&!(maxStake>0&&s>maxStake)) w.push({lvl:"warn",t:"Estás poniendo el "+(s/bancaAct*100).toFixed(0)+"% de tu banca en una sola apuesta. Concentrar tanto en una jugada dispara la varianza."});
+ if(bancaAct>0&&s>bancaAct) w.push({lvl:"stop",t:"El importe supera tu saldo disponible ("+eur(bancaAct)+"). Estarías apostando más de lo que tienes registrado."});
+ if(partes.length>=4) w.push({lvl:"warn",t:"Combinada de "+partes.length+" selecciones: cada pata multiplica el margen de la casa, no tu acierto. Tu peor recuerdo fue acertar 5 de 6 y perder 20 €."});
+ var rd=rachaDerrotas();
+ if(rd>=3) w.push({lvl:"stop",t:"Llevas "+rd+" apuestas perdidas seguidas. Subir el importe para 'recuperar' es el error más caro que existe. Si esta la haces, que sea por criterio, no por revancha."});
+ return w;
+}
+var pendBet=null;
+function addBet(){
+ var pt=$("#nbPartido").value.trim(),d=$("#nbDesc").value.trim(),c=parseFloat($("#nbCuota").value),s=parseFloat($("#nbStake").value);
+ if(!pt||!d||!(c>1)||!(s>0)){toast("Rellena partido, apuesta, cuota (>1) e importe (>0).","err");return;}
+ var partes=splitSel(d);
+ pendBet={partido:pt,apuesta:d,cuota:c,importe:s,result:"pendiente"};
+ if(partes.length>1)pendBet.sel=partes.map(function(x){return{t:x,s:"pendiente"}});
+ var avisos=betWarnings(pt,d,c,s,partes);
+ if(!avisos.length){guardarPend();return;}
+ /* hay avisos: mostramos la revisión */
+ $("#revSub").textContent=pt+" · "+eur(s)+" a cuota "+c.toFixed(2).replace(".",",")+(partes.length>1?" · combinada de "+partes.length:"");
+ $("#revList").innerHTML=avisos.map(function(a){
+  var ico=a.lvl==="stop"?"ic-warn":"ic-shield";
+  return '<div class="rw '+a.lvl+'"><span class="ic"><svg viewBox="0 0 24 24"><use href="#'+ico+'"/></svg></span><div>'+esc(a.t)+'</div></div>';
+ }).join("")+'<div class="rw"><span class="ic" style="background:rgba(124,92,255,.14);color:var(--vio2)"><svg viewBox="0 0 24 24"><use href="#ic-target"/></svg></span><div>Nada de esto te prohíbe apostar: es tu dinero y tu decisión. Solo son las cuentas delante, para que la tomes con la cabeza y no con el impulso.</div></div>';
+ $("#revBg").classList.add("on");document.body.style.overflow="hidden";
+}
+function guardarPend(){
+ if(!pendBet)return;
+ var bets=getBets();bets.push(pendBet);setBets(bets);pendBet=null;
+ $("#nbPartido").value="";$("#nbDesc").value="";$("#nbCuota").value="";$("#nbStake").value="";
+ refreshAll();
+ toast("Apuesta registrada. Cuando se resuelva, márcala para que cuente en tu balance.","ok");
+}
+function confirmarRev(){cerrarRev();guardarPend();}
+function cerrarRev(){$("#revBg").classList.remove("on");document.body.style.overflow="";}
+function toggleSel(i,j){
+ var bets=getBets(),b=bets[i]; if(!b||!b.sel)return;
+ var s=b.sel[j];
+ s.s=s.s==="pendiente"?"acierto":s.s==="acierto"?"fallo":"pendiente";
+ if(b.sel.some(function(x){return x.s==="fallo"}))b.result="perdida";
+ else if(b.sel.every(function(x){return x.s==="acierto"}))b.result="ganada";
+ else b.result="pendiente";
+ setBets(bets);refreshAll();
+}
+function setResult(i,r){var bets=getBets();if(!bets[i])return;bets[i].result=r;setBets(bets);refreshAll();}
+function delBet(i){
+ var bets=getBets(),b=bets[i]; if(!b)return;
+ if(!confirm("¿Borrar esta apuesta? ("+b.partido+")"))return;
+ bets.splice(i,1);setBets(bets);refreshAll();
+}
+var filtBets="todas";
+function renderBets(){
+ var bets=getBets(),h="";
+ bets.slice().reverse().forEach(function(b){
+  var i=bets.indexOf(b);
+  var st=b.result||"pendiente";
+  if(filtBets!=="todas"&&st!==filtBets)return;
+  var chip=st==="ganada"?'<span class="chip g">Ganada +'+eur(b.importe*(b.cuota-1))+'</span>':st==="perdida"?'<span class="chip r">Perdida −'+eur(b.importe)+'</span>':'<span class="chip a">Abierta</span>';
+  var sels="";
+  if(b.sel){
+   var ok=b.sel.filter(function(s){return s.s==="acierto"}).length;
+   sels='<div class="sels">';
+   b.sel.forEach(function(s,j){
+    var cls=s.s==="acierto"?"ok":s.s==="fallo"?"ko":"";
+    var mk=s.s==="acierto"?"✓":s.s==="fallo"?"✕":"";
+    sels+='<div class="sel '+cls+'" onclick="toggleSel('+i+','+j+')"><span class="st">'+mk+'</span><span>'+esc(s.t)+'</span></div>';
+   });
+   sels+='</div>';
+   chip+=' <span class="chip v">Combinada · '+ok+'/'+b.sel.length+'</span>';
+  }
+  var resBtns='';
+  if(!b.sel){
+   resBtns='<span style="display:inline-flex;gap:4px">'+["pendiente","ganada","perdida"].map(function(r){
+    return '<button class="btn '+(b.result===r?"":"ghost ")+'sm" onclick="setResult('+i+',\''+r+'\')">'+r+'</button>';
+   }).join("")+'</span>';
+  }
+  h+='<div class="bet"><div class="hd"><b>'+esc(b.partido)+'</b>'+chip+'</div>'+
+   (b.sel?"":'<div style="font-size:.85rem;color:var(--tx2);margin-top:7px">'+esc(b.apuesta)+'</div>')+sels+
+   '<div class="ft"><span>Cuota <b>'+b.cuota.toFixed(2).replace(".",",")+'</b></span><span>Importe <b>'+eur(b.importe)+'</b></span><span>Retorno pot. <b>'+eur(b.importe*b.cuota)+'</b></span>'+resBtns+
+   '<button class="btn danger sm" style="margin-left:auto" onclick="delBet('+i+')">Borrar</button></div></div>';
+ });
+ $("#listaBets").innerHTML=h||'<div class="empty">No hay apuestas'+(filtBets!=="todas"?" en este filtro":"")+'. Cuando decidas una por tu cuenta, apúntala arriba para ver tu balance real.</div>';
+}
+document.addEventListener("click",function(e){
+ var b=e.target.closest("#tabsBets button"); if(!b)return;
+ $$("#tabsBets button").forEach(function(x){x.classList.remove("on")});
+ b.classList.add("on"); filtBets=b.dataset.f==="pendiente"?"pendiente":b.dataset.f; renderBets();
+});
+function exportBets(){
+ var data=JSON.stringify(getBets());
+ if(navigator.clipboard&&navigator.clipboard.writeText){
+  navigator.clipboard.writeText(data).then(function(){toast("Copia de seguridad copiada al portapapeles ("+getBets().length+" apuestas). Pégala en Notas.","ok")},function(){prompt("Copia este JSON:",data)});
+ }else prompt("Copia este JSON:",data);
+}
+function importBets(){
+ var t=prompt("Pega aquí el JSON exportado:");
+ if(!t)return;
+ try{
+  var arr=JSON.parse(t);
+  if(!Array.isArray(arr))throw 0;
+  setBets(arr);refreshAll();
+  toast("Importadas "+arr.length+" apuestas.","ok");
+ }catch(e){toast("Ese código no es válido. Comprueba que lo pegaste entero.","err")}
+}
+
+/* ================= BANKROLL ================= */
+function getBankIni(){var b=store("mundial26_bank");return b&&typeof b.inicial==="number"?b.inicial:50}
+function getLimPct(){var b=store("mundial26_bank");return b&&typeof b.limPct==="number"?b.limPct:5}
+function saveBank(){
+ var v=parseFloat($("#bankIni").value);
+ if(isNaN(v)||v<0){toast("Importe no válido","err");return;}
+ store("mundial26_bank",{inicial:v,limPct:getLimPct()});refreshAll();
+ toast("Banca inicial actualizada.","ok");
+}
+function saveLim(){
+ var v=parseInt($("#limPct").value)||5;
+ store("mundial26_bank",{inicial:getBankIni(),limPct:v});
+ previewLim();renderFeeds();
+}
+function previewLim(){
+ var v=parseInt($("#limPct").value)||5;
+ $("#limPctLb").textContent=v+" %";
+ var st=betStats(),banca=getBankIni()+st.balance;
+ var maxStake=Math.max(0,banca*v/100);
+ $("#limInfo").innerHTML='Con tu banca actual de <b style="color:var(--tx)">'+eur(banca)+'</b>, tu importe máximo orientativo por apuesta es <b class="vio">'+eur(maxStake)+'</b>.';
+}
+function renderBank(){
+ var ini=getBankIni(),st=betStats();
+ var actual=ini+st.balance;
+ var roi=st.staked>0?(st.balance/st.staked*100):0;
+ $("#bankIni").value=ini;
+ $("#saldoTop").textContent=eur(actual);
+ $("#saldoTop").className="v";
+ $("#bankKpis").innerHTML=
+  '<div class="card"><h3>Saldo actual</h3><div class="kpi '+(st.balance>=0?"pos":"neg")+'">'+eur(actual)+'</div><div class="kLb">inicial '+eur(ini)+'</div></div>'+
+  '<div class="card"><h3>Balance</h3><div class="kpi '+(st.balance>=0?"pos":"neg")+'">'+(st.balance>=0?"+":"")+eur(st.balance)+'</div><div class="kLb">'+st.ganadas+' ganadas · '+st.perdidas+' perdidas</div></div>'+
+  '<div class="card"><h3>Yield / ROI</h3><div class="kpi '+(roi>=0?"pos":"neg")+'">'+roi.toFixed(1).replace(".",",")+' %</div><div class="kLb">sobre '+eur(st.staked)+' resueltos</div></div>';
+
+ /* radiografía */
+ var bets=getBets(),res=bets.filter(function(b){return b.result==="ganada"||b.result==="perdida"});
+ var ex=$("#bankExtra"),dg=$("#bankDesglose");
+ if(ex){
+  if(res.length){
+   var hit=st.ganadas/res.length*100;
+   var cm=res.reduce(function(a,b){return a+b.cuota},0)/res.length;
+   var sm=res.reduce(function(a,b){return a+b.importe},0)/res.length;
+   var combi=res.filter(function(b){return b.sel}).length;
+   /* drawdown de la curva de balance */
+   var bal2=ini,peak=ini,dd=0;
+   bets.forEach(function(b){
+    if(b.result==="ganada")bal2+=b.importe*(b.cuota-1);
+    else if(b.result==="perdida")bal2-=b.importe;
+    else return;
+    if(bal2>peak)peak=bal2;
+    var d=(peak-bal2)/peak*100;if(d>dd)dd=d;
+   });
+   /* racha actual */
+   var racha=0,tipo="";
+   for(var i=bets.length-1;i>=0;i--){
+    var r=bets[i].result;
+    if(r!=="ganada"&&r!=="perdida")continue;
+    if(!tipo){tipo=r;racha=1;}
+    else if(r===tipo)racha++;
+    else break;
+   }
+   ex.innerHTML=
+    '<div class="kBox"><div class="lb">Acierto</div><div class="v">'+hit.toFixed(0)+'%</div></div>'+
+    '<div class="kBox"><div class="lb">Cuota media</div><div class="v">'+cm.toFixed(2).replace(".",",")+'</div></div>'+
+    '<div class="kBox"><div class="lb">Stake medio</div><div class="v">'+eur(sm)+'</div></div>'+
+    '<div class="kBox"><div class="lb">Combinadas</div><div class="v">'+combi+' de '+res.length+'</div></div>'+
+    '<div class="kBox"><div class="lb">Caída máxima</div><div class="v '+(dd>30?"neg":"")+'">'+dd.toFixed(0)+'%</div></div>'+
+    '<div class="kBox"><div class="lb">Racha actual</div><div class="v '+(tipo==="ganada"?"pos":tipo==="perdida"?"neg":"")+'">'+(racha?racha+" "+(tipo==="ganada"?"G":"P"):"—")+'</div></div>';
+   var mejor=null,peor=null;
+   res.forEach(function(b){
+    var v=b.result==="ganada"?b.importe*(b.cuota-1):-b.importe;
+    if(mejor===null||v>(mejor.result==="ganada"?mejor.importe*(mejor.cuota-1):-mejor.importe))mejor=b;
+    if(peor===null||v<(peor.result==="ganada"?peor.importe*(peor.cuota-1):-peor.importe))peor=b;
+   });
+   var dh="";
+   if(mejor&&mejor.result==="ganada")dh+='<div style="font-size:.82rem;padding:4px 0"><span class="chip g">Mejor</span> '+esc(mejor.partido)+' — '+esc(mejor.apuesta)+' <b class="pos">+'+eur(mejor.importe*(mejor.cuota-1))+'</b></div>';
+   if(peor&&peor.result==="perdida")dh+='<div style="font-size:.82rem;padding:4px 0"><span class="chip r">Peor</span> '+esc(peor.partido)+' — '+esc(peor.apuesta)+' <b class="neg">−'+eur(peor.importe)+'</b></div>';
+   dg.innerHTML=dh;
+  }else{
+   ex.innerHTML='<div class="kBox" style="grid-column:1/-1"><div class="lb">Sin apuestas resueltas</div><div style="font-size:.82rem;color:var(--tx2);margin-top:4px">Cuando marques resultados en «Mis apuestas», aquí saldrá tu acierto, cuota media, stake medio, caída máxima y tu mejor y peor apuesta.</div></div>';
+   dg.innerHTML="";
+  }
+ }
+ var lim=$("#limPct");
+ if(lim){lim.value=getLimPct();previewLim();}
+ drawBalance(ini);drawDonut();
+}
+function drawBalance(ini){
+ var bets=getBets(),pts=[ini],bal=ini;
+ bets.forEach(function(b){
+  if(b.result==="ganada"){bal+=b.importe*(b.cuota-1);pts.push(bal);}
+  else if(b.result==="perdida"){bal-=b.importe;pts.push(bal);}
+ });
+ if(pts.length<2){$("#chartBal").innerHTML='<div class="empty">Aún no hay apuestas resueltas — la gráfica aparecerá aquí.</div>';return;}
+ var W=460,H=180,P=28;
+ var mn=Math.min.apply(null,pts),mx=Math.max.apply(null,pts);
+ if(mx===mn){mx+=1;mn-=1;}
+ var xy=pts.map(function(v,i){return[P+i*(W-2*P)/(pts.length-1),H-P-(v-mn)*(H-2*P)/(mx-mn)]});
+ var line=xy.map(function(q,i){return(i?"L":"M")+q[0].toFixed(1)+","+q[1].toFixed(1)}).join(" ");
+ var y0=H-P-(ini-mn)*(H-2*P)/(mx-mn);
+ var last=pts[pts.length-1];
+ var col=last>=ini?"#22c55e":"#ef4444";
+ var area=line+" L"+xy[xy.length-1][0].toFixed(1)+","+(H-P)+" L"+P+","+(H-P)+" Z";
+ $("#chartBal").innerHTML='<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto">'+
+  '<defs><linearGradient id="gBal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+col+'" stop-opacity=".25"/><stop offset="1" stop-color="'+col+'" stop-opacity="0"/></linearGradient></defs>'+
+  '<path d="'+area+'" fill="url(#gBal)"/>'+
+  '<line x1="'+P+'" y1="'+y0+'" x2="'+(W-P)+'" y2="'+y0+'" stroke="#222948" stroke-dasharray="4 4"/>'+
+  '<path d="'+line+'" fill="none" stroke="'+col+'" stroke-width="2.5" stroke-linejoin="round"/>'+
+  xy.map(function(q){return '<circle cx="'+q[0]+'" cy="'+q[1]+'" r="3" fill="#eceef6"/>'}).join("")+
+  '<text x="'+P+'" y="'+(y0-7)+'" fill="#5f6890" font-size="10">inicial '+eur(ini)+'</text>'+
+  '<text x="'+(W-P)+'" y="'+(xy[xy.length-1][1]-9)+'" fill="'+col+'" font-size="11" text-anchor="end">'+eur(last)+'</text></svg>';
+}
+function drawDonut(){
+ var bets=getBets(),abierto=0,ganado=0,perdido=0;
+ bets.forEach(function(b){
+  if(b.result==="ganada")ganado+=b.importe;
+  else if(b.result==="perdida")perdido+=b.importe;
+  else abierto+=b.importe;
+ });
+ var tot=abierto+ganado+perdido;
+ if(tot<=0){$("#chartDonut").innerHTML='<div class="empty">Sin dinero apostado todavía.</div>';return;}
+ var segs=[["En juego",abierto,"#f5a623"],["En ganadas",ganado,"#22c55e"],["En perdidas",perdido,"#ef4444"]].filter(function(s){return s[1]>0});
+ var R=54,C=2*Math.PI*R,off=0,parts="";
+ segs.forEach(function(s){
+  var len=s[1]/tot*C;
+  parts+='<circle r="'+R+'" cx="70" cy="70" fill="none" stroke="'+s[2]+'" stroke-width="18" stroke-dasharray="'+len+' '+(C-len)+'" stroke-dashoffset="'+(-off)+'" transform="rotate(-90 70 70)" stroke-linecap="butt"/>';
+  off+=len;
+ });
+ var leg=segs.map(function(s){
+  return '<div style="display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--tx2);padding:4px 0"><span style="width:10px;height:10px;border-radius:3px;background:'+s[2]+'"></span>'+s[0]+' · <b style="color:var(--tx)">'+eur(s[1])+'</b> ('+(s[1]/tot*100).toFixed(0)+'%)</div>';
+ }).join("");
+ $("#chartDonut").innerHTML='<div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">'+
+  '<svg viewBox="0 0 140 140" style="width:140px;height:140px;flex-shrink:0">'+parts+
+  '<text x="70" y="66" text-anchor="middle" fill="#eceef6" font-size="14" font-weight="700">'+eur(tot)+'</text>'+
+  '<text x="70" y="82" text-anchor="middle" fill="#5f6890" font-size="8.5">TOTAL APOSTADO</text></svg>'+
+  '<div>'+leg+'</div></div>';
+}
+/* ================= ASISTENTE (motor local, sin API) ================= */
+function equiposEn(q){
+ var out=[];
+ Object.keys(ALIAS).forEach(function(c){
+  var lista=ALIAS[c].concat([norm(NOM[c]||""),c.toLowerCase()]);
+  for(var i=0;i<lista.length;i++){
+   var tok=norm(lista[i]||""); if(!tok)continue;
+   if(tok.length<=4){
+    if(new RegExp("(^|[^a-z])"+tok.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"($|[^a-z])").test(q)){out.push(c);return;}
+   }else if(q.indexOf(tok)>-1){out.push(c);return;}
+  }
+ });
+ return out;
+}
+function jugadorEn(q){
+ var claves=Object.keys(JUGADORES);
+ for(var i=0;i<claves.length;i++){if(q.indexOf(claves[i])>-1)return JUGADORES[claves[i]];}
+ return null;
+}
+function statCorners(codes){
+ var con=codes.filter(function(c){return STATS[c]});
+ if(!con.length)return "Dime de qué equipo quieres los córners (tengo a los 15 vivos). Ejemplo: «córners de España» o «córners del Brasil–Noruega».";
+ var partes=con.map(function(c){
+  var s=STATS[c];
+  var tot=s.cf.map(function(x,i){return x+s.cc[i]});
+  return NOM[c]+" ("+s.m+"): a favor "+s.cf.join(", ")+" — media "+media(s.cf).toFixed(1)+"; en contra media "+media(s.cc).toFixed(1)+"; sus partidos suman de media "+media(tot).toFixed(1)+" córners."+s.nota;
+ });
+ var t=pick(ABRE)+": "+partes.join(". Y ")+".";
+ if(con.length===2){
+  var a=STATS[con[0]],b2=STATS[con[1]];
+  var proy=media(a.cf)+media(a.cc)/2+media(b2.cf)+media(b2.cc)/2;
+  t+=" Lectura del cruce: sumando lo que genera cada uno y lo que suele conceder el otro, el punto de partida ronda los "+proy.toFixed(0)+" córners — orientativo, porque las muestras son pequeñas y el guion de cada partido manda.";
+ }
+ return t;
+}
+function statTarjetas(codes){
+ var con=codes.filter(function(c){return STATS[c]});
+ if(!con.length)return "Dime el equipo y te doy sus tarjetas y faltas por partido. Ejemplo: «tarjetas de Marruecos».";
+ return pick(ABRE)+": "+con.map(function(c){
+  var s=STATS[c];
+  return NOM[c]+" ("+s.m+"): "+s.am.join(", ")+" amarillas por partido (media "+media(s.am).toFixed(1)+") y "+media(s.faltas).toFixed(1)+" faltas de media."+s.nota;
+ }).join(". Y ")+".";
+}
+function statTiros(codes){
+ var con=codes.filter(function(c){return STATS[c]});
+ if(!con.length)return "Dime el equipo y te doy sus tiros por partido. Ejemplo: «tiros de Inglaterra».";
+ return con.map(function(c){
+  var s=STATS[c];
+  return NOM[c]+" ("+s.m+"): "+media(s.tiros).toFixed(1)+" tiros por partido, "+media(s.tirosP).toFixed(1)+" a puerta ("+s.tiros.join(", ")+" por partido)."+s.nota;
+ }).join(". ")+".";
+}
+function fmtProb(m){
+ return "el modelo le da un "+m.prob[0].toFixed(0)+"% a "+NOM[m.home]+", un "+m.prob[1].toFixed(0)+"% al empate y un "+m.prob[2].toFixed(0)+"% a "+NOM[m.away]+" — estimación estadística, no una certeza";
+}
+function partidoDe(c){
+ var todos=OCTAVOS.concat(CUARTOS_PROX);
+ for(var i=0;i<todos.length;i++){if(todos[i].home===c||todos[i].away===c)return todos[i];}
+ return null;
+}
+/* contexto conversacional: recuerda el último equipo/jugador del hilo */
+var CTX={eqs:[],jug:null};
+function pick(a){return a[Math.floor(Math.random()*a.length)];}
+var ABRE=["Pues mira","Te cuento","Aquí va","Mira","Vamos"];
+var STAT_KW=/corner|saque de esquina|tarjeta|amarilla|roja|tiros|remates|disparos|posesion|faltas|goles|baja|lesion|forma|como llega|cuota|resultado|probabilidad|favorito/;
+function botResponde(qRaw){
+ var q=norm(qRaw);
+ var eqs=equiposEn(q);
+ var tiene=function(){for(var i=0;i<arguments.length;i++){if(q.indexOf(arguments[i])>-1)return true;}return false;};
+
+ /* entidad temporal: "hoy / esta noche / ahora" apunta al partido destacado REAL (según el reloj) */
+ if(!eqs.length&&tiene("hoy","esta noche","de hoy","ahora","proximo","siguiente")&&tiene("partido","cuota","probabilidad","cruce","gana","paga","juega","favorito")){var _d=partidoDestacado();eqs=[_d.home,_d.away];}
+
+ /* seguimiento de contexto: follow-ups elípticos ("¿y sus tarjetas?", "tarjetas?", "¿y el otro?") heredan el equipo anterior */
+ var ellip=/^\s*(¿)?\s*(y|tambien|ademas|entonces|ademas de eso)\b/.test(q)||(q.split(/\s+/).length<=3&&STAT_KW.test(q));
+ if(!eqs.length&&CTX.eqs.length&&ellip)eqs=CTX.eqs.slice();
+ if(!eqs.length&&CTX.eqs.length>=2&&/\bel otro\b|\bla otra\b|\bel rival\b/.test(q))eqs=[CTX.eqs[1],CTX.eqs[0]];
+ var DEF=eqs.length?eqs:(CTX.eqs.length?CTX.eqs:["BRA","NOR"]);
+ if(eqs.length)CTX.eqs=eqs.slice();
+
+ /* cortesía */
+ if(/^(gracias|muchas gracias|genial|perfecto|vale gracias|crack|eres un crack|de lujo|mil gracias)\b/.test(q))return pick(["De nada, para eso estoy.","Un placer.","Cuando quieras."])+" Aquí sigo: equipos, jugadores, cuotas de hoy, combinadas o tu balance — lo que necesites.";
+ if(/^(adios|hasta luego|chao|chau|buenas noches|me voy|nos vemos|hasta mañana)\b/.test(q))return pick(["Hasta luego, David.","Nos vemos.","Cuídate."])+" Y recuerda: si registras lo que apuestes, tu balance real siempre estará esperándote aquí.";
+
+ /* identidad del asistente */
+ if(tiene("quien eres","que eres","eres una ia","eres un bot","eres humano","como funcionas","como te llamas","que modelo eres")){
+  return "Soy el asistente de análisis de este panel: un motor local que razona solo con los datos verificados de la página (act. 5 jul), sin conexión externa ni APIs. Distingo entre hechos (resultados, bajas), estadísticas (córners, tiros, posesión) y predicciones del modelo — y las señalo como tales. Lo que nunca hago: inventar datos ni elegir apuestas por ti.";
+ }
+
+ /* comparación entre dos equipos — datos lado a lado */
+ if(eqs.length>=2&&tiene("mejor","compara","comparacion","quien llega mejor","vs","contra")&&!tiene("corner","tarjeta","tiros","posesion","cuota")){
+  var A=eqs[0],B=eqs[1],sA=STATS[A],sB=STATS[B];
+  if(sA&&sB){
+   var gA=GOLES_EQUIPO[A],gB=GOLES_EQUIPO[B];
+   var r="Te pongo a "+NOM[A]+" y "+NOM[B]+" lado a lado, y decides tú:\n";
+   r+="• Tiros/partido: "+media(sA.tiros).toFixed(1)+" vs "+media(sB.tiros).toFixed(1)+" (a puerta "+media(sA.tirosP).toFixed(1)+" vs "+media(sB.tirosP).toFixed(1)+")\n";
+   r+="• Posesión media: "+media(sA.pos).toFixed(0)+"% vs "+media(sB.pos).toFixed(0)+"%\n";
+   r+="• Córners a favor: "+media(sA.cf).toFixed(1)+" vs "+media(sB.cf).toFixed(1)+" · concedidos: "+media(sA.cc).toFixed(1)+" vs "+media(sB.cc).toFixed(1)+"\n";
+   if(gA&&gB)r+="• Goles: "+gA.gf+" a favor / "+gA.gc+" en contra vs "+gB.gf+" / "+gB.gc+"\n";
+   var pm0=partidoDe(A);
+   if(pm0&&(pm0.home===B||pm0.away===B))r+="• Modelo del cruce: "+fmtProb(pm0)+"\n";
+   r+="Muestras: "+sA.m.split(" (")[0]+" / "+sB.m.split(" (")[0]+" — cortas, así que tómalo como orientación.";
+   return r;
+  }
+ }
+
+ /* explicación del modelo / probabilidades */
+ if(tiene("por que","porque","explica","como se calcula","de donde sale")&&tiene("modelo","probabilidad","porcentaje","61","53","70")){
+  return "Los porcentajes salen del modelo estadístico de SportRadar: procesa resultados, rendimiento reciente y fuerza del rival, y estima la frecuencia de cada resultado si el partido se jugara muchas veces. Dos avisos de profesional: (1) un 53% significa que ese resultado también FALLA 47 de cada 100 veces; (2) el modelo no sabe de bajas de última hora ni de lo que pasa en un vestuario. Por eso aquí lo cruzas con bajas, forma y tu propio criterio — ninguna cifra decide por ti.";
+ }
+
+ /* varias estadísticas en una pregunta → respuesta combinada */
+ var multi=[];
+ if(tiene("corner","saque de esquina"))multi.push("c");
+ if(tiene("tarjeta","amarilla","roja","faltas"))multi.push("t");
+ if(tiene("tiros","remates","disparos"))multi.push("s");
+ if(tiene("posesion"))multi.push("p");
+ if(multi.length>1){
+  var parts2=[];
+  if(multi.indexOf("c")>-1)parts2.push(statCorners(DEF));
+  if(multi.indexOf("t")>-1)parts2.push(statTarjetas(DEF));
+  if(multi.indexOf("s")>-1)parts2.push(statTiros(DEF));
+  if(multi.indexOf("p")>-1)parts2.push(DEF.filter(function(c){return STATS[c]}).map(function(c){return NOM[c]+": "+media(STATS[c].pos).toFixed(0)+"% de posesión media"}).join(". "));
+  return parts2.join("\n\n");
+ }
+
+ /* límite del proyecto: sin recomendaciones */
+ if(tiene("que apuesto","que apostar","recomiend","recomend","apuesta segura","cual meto","tip ","fija","gratis","mejor apuesta","combinada buena","hazme una combinada","dame una combinada")){
+  return "Eso no lo hago: no elijo apuestas ni existen las «seguras» — acertar 5 de 6 en una combinada pagó −20 €. Lo que sí tienes: la pestaña «Combinadas» te enseña las que el mercado señala como más probables y un constructor con la cuota y probabilidad exactas de cualquier mezcla; y aquí te doy probabilidades del modelo, córners, tarjetas, tiros, bajas y tu balance real. Decide tú con los números delante.";
+ }
+ /* simulación */
+ var sim=q.match(/simula?r?\s+(\d+[.,]?\d*)\s*(?:€|euros?)?\s*(?:a|con|x)\s*(?:cuota\s*)?(\d+[.,]?\d*)/);
+ if(sim){
+  var mm=parseFloat(sim[1].replace(",",".")),cc2=parseFloat(sim[2].replace(",","."));
+  if(cc2>1)return "Simulación: "+eur(mm)+" a cuota "+cc2.toFixed(2).replace(".",",")+" —\nRetorno si acierta: "+eur(mm*cc2)+"\nBeneficio neto: +"+eur(mm*(cc2-1))+"\nProbabilidad implícita: "+(100/cc2).toFixed(1).replace(".",",")+" % (incluye el margen de la casa)\nSi aciertas menos veces de las que implica la cuota, pierdes a largo plazo. En la pestaña Simulador tienes la calculadora de valor: pones tu probabilidad y te dice si esa cuota la merece y qué stake tocaría.";
+ }
+ /* ¿marcará X? — razonamiento */
+ var jug=jugadorEn(q);
+ if(jug)CTX.jug=jug;
+ if(jug&&tiene("marque","marcara","meta ","metera","gol de","factible","ves posible","crees que")){
+  return "¿Que si veo a "+jug.n+" marcando? Vamos con lo que dicen los datos. A favor: "+jug.favor.join("; ")+". En contra: "+jug.contra.join("; ")+". Mi lectura: "+(jug.favor.length>=jug.contra.length?"los números le acompañan":"lo tiene complicado según los números")+". Pero el gol de un jugador concreto es lo más caprichoso del fútbol — quien te lo venda como seguro te vende humo.";
+ }
+ if(jug)return jug.n+" ("+NOM[jug.eq]+"): a favor — "+jug.favor.join("; ")+". A tener en cuenta — "+jug.contra.join("; ")+".";
+ /* goles por equipo */
+ if(tiene("goles","goleada")&&eqs.length){
+  var ge=GOLES_EQUIPO[eqs[0]];
+  if(ge)return NOM[eqs[0]]+" lleva "+ge.gf+" goles a favor y "+ge.gc+" en contra en "+ge.pj+" partidos ("+(ge.gf/ge.pj).toFixed(1)+" y "+(ge.gc/ge.pj).toFixed(1)+" por partido)."+(eqs[0]==="MEX"?" Ojo al dato: México aún no ha encajado en todo el torneo.":"");
+  return "El cómputo completo de goles solo lo tengo verificado de Francia, Brasil, Noruega, México, Inglaterra y Marruecos. De "+NOM[eqs[0]]+" pregúntame mejor sus tiros o su último resultado.";
+ }
+ /* stats con razonamiento */
+ if(tiene("corner","saque de esquina"))return statCorners(DEF);
+ if(tiene("tarjeta","amarilla","roja","faltas"))return statTarjetas(DEF);
+ if(tiene("tiros","remates","disparos"))return statTiros(DEF);
+ if(tiene("posesion")){
+  var conP=DEF.filter(function(c){return STATS[c]});
+  if(!conP.length)return "Dime el equipo y te doy su posesión media. Ejemplo: «posesión de Brasil».";
+  return conP.map(function(c){return NOM[c]+" ("+STATS[c].m+"): "+media(STATS[c].pos).toFixed(0)+"% de posesión media"}).join(". ")+".";
+ }
+ /* campeón / final / árbitro / agenda */
+ if(tiene("quien gana el mundial","campeon","favorito del torneo","quien lo gana")){
+  return "Nadie lo sabe, y desconfía de quien diga lo contrario. Lo que dicen los datos: Francia es la más sólida (invicta, 14 goles, 61% del modelo ante Marruecos en cuartos), Argentina y Brasil lideran sus cruces, y España viene de la actuación más dominante (22 tiros y 0 a puerta en contra ante Austria). Pero Marruecos ganó 3-0 con 5 tiros: las eliminatorias no leen estadísticas.";
+ }
+ if(tiene("cuando es la final","donde es la final","la final del mundial")){
+  return "La final es el domingo 19 de julio en el MetLife Stadium de Nueva Jersey — el mismo estadio que abrió esta ronda con el Brasil–Noruega. El tercer puesto, el sábado 18 en Miami.";
+ }
+ if(tiene("arbitro","quien pita"))return "El Brasil–Noruega lo arbitró el estadounidense Ismail Elfath. De los demás cruces no tengo designaciones cargadas en esta versión.";
+ if(tiene("que partidos hay","partidos de hoy","que juegan hoy","agenda","juega manana","quien juega hoy")){
+  var now2=Date.now(),ag=agendaOrden(),jug=[],env=[],prox=[];
+  ag.forEach(function(m){
+   var et=NOM[m.home]+" – "+NOM[m.away]+" ("+m.dt+(m.sede?", "+m.sede.split("—")[0].split(",")[0].trim():"")+")";
+   if(now2>=m.ts+FIN_MS)jug.push(NOM[m.home]+" – "+NOM[m.away]);
+   else if(now2>=m.ts)env.push(et);
+   else prox.push(et);
+  });
+  var r="Agenda según el reloj — ";
+  if(env.length)r+="🔴 En juego ahora: "+env.join("; ")+". ";
+  if(prox.length)r+="Próximos: "+prox.slice(0,4).join("; ")+". ";
+  else r+="No quedan cruces por delante en los datos cargados (hasta el primer cuarto, Francia–Marruecos). ";
+  if(jug.length)r+="Ya disputados (según la hora; el resultado puede no estar aún cargado): "+jug.join("; ")+".";
+  return r.trim();
+ }
+ /* portería a cero / equipo sin encajar (hecho verificado) */
+ if(tiene("porteria a cero","porteria cero","clean sheet","sin encajar","no ha encajado","no encaja","imbatid")){
+  return "Dato verificado: México no ha encajado ni un gol en todo el torneo — la única portería imbatida que tengo confirmada de los equipos vivos. Del resto no tengo el registro de porterías a cero cerrado en esta versión, así que no te lo invento; pídeme sus goles en contra («goles de Inglaterra») y lo miramos.";
+ }
+ /* cuotas — consciente de la hora: las verificadas cargadas son del ELPARTIDO; si ya se jugó, avisa */
+ if(tiene("cuota","cuanto paga","que paga","mas de 2","menos de 2","over","under","ambos marcan","total de goles","mas goles","menos goles")){
+  var fin=Date.now()>ELPARTIDO.ts+FIN_MS;
+  var esVerif=eqs.length&&(eqs.indexOf(ELPARTIDO.home)>-1||eqs.indexOf(ELPARTIDO.away)>-1);
+  /* pregunta por un equipo distinto al del partido con cuotas cargadas, o el verificado ya se jugó */
+  if(eqs.length&&(!esVerif||fin)){
+   var pmq=partidoDe(eqs[0]);
+   if(pmq&&Date.now()<pmq.ts+FIN_MS){
+    return "No tengo cuotas verificadas de "+NOM[eqs[0]]+" cargadas en esta versión y no me las invento. Lo que sí te doy es el modelo para su cruce ("+NOM[pmq.home]+" – "+NOM[pmq.away]+", "+pmq.dt+"): "+fmtProb(pmq)+". Las cuotas reales de las casas se mueven a cada minuto; para tenerlas al día habría que conectar una fuente en directo — ahora la web no la tiene.";
+   }
+   return "No tengo cuotas verificadas de "+NOM[eqs[0]]+" y no me las invento. Puede que su cruce ya se haya jugado (pregúntame el resultado) o que aún no tenga datos confirmados cargados.";
+  }
+  if(fin){
+   var d2=partidoDestacado();
+   return "Aviso importante: las únicas cuotas verificadas que tengo cargadas eran del "+NOM[ELPARTIDO.home]+" – "+NOM[ELPARTIDO.away]+", y ese partido ya se jugó, así que están caducadas. Para el siguiente del calendario ("+NOM[d2.home]+" – "+NOM[d2.away]+", "+d2.dt+") todavía no hay cuotas verificadas cargadas; no te las invento. Te doy el modelo: "+fmtProb(d2)+". Las cuotas en tiempo real necesitan una fuente en directo conectada a la web.";
+  }
+  var lineas=ELPARTIDO.cuotas.map(function(x){return x.mercado+": "+x.cuota+" (≈"+x.imp+")"});
+  return "Te las resumo del "+NOM[ELPARTIDO.home]+" – "+NOM[ELPARTIDO.away]+" (publicadas el 3-4 jul, se mueven hasta el pitido): "+lineas.join(" · ")+". Están con su fuente en «Datos y cuotas», y en «Combinadas» puedes ver lo que implica juntarlas. Ojo al detalle de siempre: las implícitas suman más de 100% — ese exceso es el margen de la casa.";
+ }
+ /* balance / bankroll */
+ if(tiene("balance","como voy","mis apuestas","cuanto llevo","cuanto he perdido","cuanto he ganado","bankroll","saldo")){
+  var st=betStats(),ini=getBankIni();
+  if(!st.total)return "Aún no tienes apuestas registradas en este navegador. Se apuntan en «Mis apuestas». Bankroll inicial configurado: "+eur(ini)+".";
+  return "Vamos a verlo: llevas "+st.total+" apuestas apuntadas — "+st.ganadas+" ganadas, "+st.perdidas+" perdidas y "+st.abiertas+" abiertas. Balance real: "+(st.balance>=0?"+":"")+eur(st.balance)+" · Saldo: "+eur(ini+st.balance)+" (inicial "+eur(ini)+"). "+(st.balance<0?"Ese número en rojo es el dato más honesto de toda la página.":"Que no te engañe una buena racha: la muestra manda.");
+ }
+ /* asistencias / rachas */
+ if(tiene("asistencia","asistidor"))return "En asistencias manda Olise: 5, líder del torneo — el arquitecto de esta Francia. Le sigue Bruno Guimarães con 4, el motor de Brasil.";
+ if(tiene("racha","dato curioso","sabias que"))return RACHAS[Math.floor(Math.random()*RACHAS.length)]+" — tienes todas las rachas en la pestaña Análisis.";
+ /* goleadores */
+ if(tiene("bota de oro","goleador","pichichi")){
+  return "Bota de Oro (5 jul): "+GOLEADORES.map(function(g,i){return (i+1)+". "+g.n.split(" — ")[0]+" ("+NOM[g.eq]+") — "+g.g}).join(" · ")+". Desempate: asistencias y después minutos jugados.";
+ }
+ /* probabilidad */
+ if(tiene("probabilidad","quien gana","favorito","pronostico","prediccion")){
+  if(eqs.length){
+   var pm=partidoDe(eqs[0]);
+   if(pm)return "Para el "+NOM[pm.home]+" – "+NOM[pm.away]+" ("+pm.dt+"), "+fmtProb(pm)+". Tienes la barra visual en Partidos y el careo de datos al pulsarlo.";
+   return "No tengo un cruce pendiente de "+NOM[eqs[0]]+" — puede que ya haya jugado (pregúntame el resultado) o esté eliminado.";
+  }
+  return "¿De qué cruce? Tengo el modelo de todos los octavos y del Francia–Marruecos de cuartos. Ejemplo: «probabilidad de España».";
+ }
+ /* bajas / forma */
+ if(tiene("baja","lesion","lesionado","duda","como llega","forma de")){
+  var cs=DEF;
+  var out2=[];
+  cs.forEach(function(c){
+   var f=FICHAS[c]; if(!f)return;
+   var b3=f.bajas.length?("Bajas: "+f.bajas.join("; ")):"Sin bajas destacadas";
+   var d3=f.dudas.length?(" Dudas: "+f.dudas.join("; ")+"."):"";
+   out2.push(NOM[c]+" — "+f.forma+". "+b3+"."+d3);
+  });
+  return out2.join("\n\n")||"De ese equipo no tengo ficha en esta versión.";
+ }
+ /* resultado */
+ if(tiene("resultado","como quedo","como acabo","quien gano","marcador")){
+  if(eqs.length){
+   for(var i3=0;i3<RESULTADOS.length;i3++){
+    var r3=RESULTADOS[i3];
+    if(r3.home===eqs[0]||r3.away===eqs[0])return NOM[r3.home]+" "+r3.s+" "+NOM[r3.away]+" ("+r3.dt+")"+(r3.nota?". "+r3.nota:".");
+   }
+   var pm3=partidoDe(eqs[0]);
+   if(pm3)return NOM[eqs[0]]+" todavía no ha jugado su cruce: "+NOM[pm3.home]+" – "+NOM[pm3.away]+", "+pm3.dt+".";
+   return "No tengo resultado de "+NOM[eqs[0]]+" en esta versión (datos hasta el 5 jul).";
+  }
+  return "Resultados de octavos hasta ahora: Paraguay 0-1 Francia (gol de Mbappé) y Canadá 0-3 Marruecos. El resto se juega entre hoy y el martes — pídeme el de un equipo concreto si quieres el detalle.";
+ }
+ /* cuadro */
+ if(tiene("cuadro","bracket","eliminatoria","cruces","semifinal","final")){
+  return "Cuadro: primer cuarto confirmado, Francia – Marruecos (jue 9, Boston — remake de Catar 2022). Los demás salen de: Brasil/Noruega vs México/Inglaterra (vie 10), Portugal/España vs EE. UU./Bélgica (sáb 11) y Argentina/Egipto vs Suiza/Colombia (dom 12). Semis el 14-15, tercer puesto el 18 en Miami y la final el 19 en el MetLife. Esquema completo en la pestaña Cuadro.";
+ }
+ /* cuándo juega X */
+ if(tiene("cuando juega","a que hora","horario")||eqs.length){
+  if(eqs.length){
+   var pm4=partidoDe(eqs[0]);
+   if(pm4)return NOM[eqs[0]]+" juega el "+pm4.dt+" (hora ES): "+NOM[pm4.home]+" – "+NOM[pm4.away]+(pm4.sede?", en "+pm4.sede.split("—")[0].trim():"")+". "+fmtProb(pm4).charAt(0).toUpperCase()+fmtProb(pm4).slice(1)+".";
+   for(var i4=0;i4<RESULTADOS.length;i4++){
+    var r4=RESULTADOS[i4];
+    if(r4.home===eqs[0]||r4.away===eqs[0])return NOM[eqs[0]]+" ya jugó: "+NOM[r4.home]+" "+r4.s+" "+NOM[r4.away]+" ("+r4.dt+")"+(r4.nota?". "+r4.nota:".");
+   }
+   return "No tengo partido programado de "+NOM[eqs[0]]+" en esta versión.";
+  }
+ }
+ if(/^(hola|buenas|hey|que tal|ey|holaa|buenos dias|buenas tardes|saludos)/.test(q))return pick(["¡Hola, David!","¡Ey! ¿Qué miramos hoy?","¡Buenas!"])+" Razono con datos reales de los 15 equipos vivos (act. 5 jul): córners, tarjetas, tiros y posesión de cada uno, jugadores («¿ves factible que marque Haaland?»), cuotas verificadas del partido de hoy, resultados, bajas, cuadro y tu balance. Yo no elijo apuestas — te doy los números y decides tú.";
+ if(tiene("ayuda","que sabes","que puedes"))return "Puedo responder sobre: horarios y agenda · resultados · probabilidades del modelo · córners, tarjetas, tiros y posesión de los 15 vivos · jugadores con argumentos a favor y en contra · cuotas verificadas de hoy (incluido más/menos de 2,5) · bajas y forma · cuadro · tu balance y bankroll · simulaciones («simula 20 a 2.5»). Recuerdo de qué equipo hablamos, así que puedes encadenar («¿y sus tarjetas?»). Lo que nunca hago: elegir apuestas por ti.";
+ /* fallback consciente del equipo detectado (did-you-mean) */
+ if(eqs.length){
+  var fc=eqs[0];
+  return "No he pillado del todo qué quieres de "+NOM[fc]+". De este equipo puedo darte: córners, tarjetas, tiros, posesión, goles, forma y bajas, su próximo cruce y la probabilidad del modelo. Prueba con «tarjetas de "+NOM[fc]+"» o «¿cómo llega "+NOM[fc]+"?».";
+ }
+ return "Esa no la tengo del todo clara. Trabajo con los datos verificados de la página (al 5 de julio), sin conexión externa. Pídeme cosas como: «compara Brasil y Noruega», «córners y tarjetas de España», «¿y sus tiros?» (recuerdo de qué equipo hablábamos), «¿por qué el modelo da 53%?», cuotas de hoy, el cuadro, tu balance o una simulación («simula 10 a 2.5»).";
+}
+function pushMsg(t,who){
+ var d=document.createElement("div");
+ d.className="msg "+who;
+ d.textContent=t;
+ $("#chatLog").appendChild(d);
+ $("#chatLog").scrollTop=$("#chatLog").scrollHeight;
+}
+function sendChat(e){
+ e.preventDefault();
+ var v=$("#chatIn").value.trim();
+ if(!v)return false;
+ pushMsg(v,"u");
+ $("#chatIn").value="";
+ var ty=document.createElement("div");
+ ty.className="typing";ty.innerHTML="<i></i><i></i><i></i>";
+ $("#chatLog").appendChild(ty);
+ $("#chatLog").scrollTop=$("#chatLog").scrollHeight;
+ setTimeout(function(){
+  ty.remove();
+  pushMsg(botResponde(v),"b");
+ },420+Math.random()*380);
+ return false;
+}
+function quickChat(t){$("#chatIn").value=t;sendChat({preventDefault:function(){}});}
+
+/* ================= AUTO-ACTUALIZACIÓN =================
+   La web es estática a propósito (sin API en el navegador: la clave quedaría expuesta).
+   Esto refresca solo los estados internos cada minuto y busca versiones nuevas
+   desplegadas en Netlify cada 2 horas (y al volver a la pestaña). */
+var UPD_CHECK_MS=2*60*60*1000, UPD_TICK_MS=60*1000;
+function checkNuevaVersion(){
+ if(location.protocol==="file:")return;
+ try{
+  fetch(location.pathname+"?chk="+Date.now(),{cache:"no-store"}).then(function(r){return r.text()}).then(function(t){
+   var m=t.match(/id="verChip">(V\d+)</);
+   if(m&&m[1]!==VERSION)mostrarUpd(m[1]);
+  }).catch(function(){});
+ }catch(e){}
+}
+function mostrarUpd(v){
+ if($("#updBar"))return;
+ var d=document.createElement("div");
+ d.className="updBar";d.id="updBar";
+ d.innerHTML='<span class="tt">Hay una versión nueva desplegada: <b>'+esc(v)+'</b> (tienes '+VERSION+'). Datos más recientes disponibles.</span>'+
+  '<button class="btn sm" onclick="location.reload()">Actualizar ahora</button>'+
+  '<button class="btn ghost sm" onclick="this.parentNode.remove()">Luego</button>';
+ document.body.appendChild(d);
+}
+function tickRefresco(){safe(renderInicio);safe(renderFeeds);safe(renderCuadro);}
+document.addEventListener("visibilitychange",function(){if(!document.hidden)checkNuevaVersion();});
+
+/* ================= COMBINADAS (laboratorio) ================= */
+var LEGS=[
+ {id:"1",t:"Gana Brasil (90')",c:1.885,grp:"res"},
+ {id:"X",t:"Empate (90')",c:3.40,grp:"res"},
+ {id:"2",t:"Gana Noruega (90')",c:4.15,grp:"res"},
+ {id:"BQ",t:"Brasil clasifica (como sea)",c:1.41,grp:"cla"},
+ {id:"NQ",t:"Noruega clasifica",c:2.82,grp:"cla"},
+ {id:"O25",t:"Más de 2,5 goles",c:1.75,grp:"gol"},
+ {id:"BTTS",t:"Ambos equipos marcan — sí",c:1.61,grp:"gol"},
+ {id:"ODE",t:"Ødegaard marca en cualquier momento",c:7.0,grp:"jug"},
+ {id:"HAT",t:"Hat-trick de Haaland",c:37.0,grp:"jug"}
+];
+/* imposibles juntas o solapadas (la casa no las combina) */
+var LEG_CONF=[["1","X"],["1","2"],["X","2"],["BQ","NQ"],["1","NQ"],["2","BQ"],["1","BQ"],["2","NQ"]];
+function legConflicto(ids){
+ for(var i=0;i<LEG_CONF.length;i++){
+  if(ids.indexOf(LEG_CONF[i][0])>-1&&ids.indexOf(LEG_CONF[i][1])>-1)return LEG_CONF[i];
+ }
+ return null;
+}
+function legById(id){for(var i=0;i<LEGS.length;i++)if(LEGS[i].id===id)return LEGS[i];return null}
+function combiCalc(ids){
+ var c=1,p2=1;
+ ids.forEach(function(id){var l=legById(id);c*=l.c;p2*=1/l.c;});
+ return{cuota:c,prob:p2*100};
+}
+function renderCombiTop(){
+ var box=$("#combiTop"); if(!box)return;
+ /* todas las duplas y algunos tríos sin conflicto, ordenadas por prob conjunta */
+ var combos=[];
+ for(var i=0;i<LEGS.length;i++)for(var j=i+1;j<LEGS.length;j++){
+  var ids=[LEGS[i].id,LEGS[j].id];
+  if(legConflicto(ids))continue;
+  combos.push(ids);
+ }
+ for(var a=0;a<LEGS.length;a++)for(var b=a+1;b<LEGS.length;b++)for(var d=b+1;d<LEGS.length;d++){
+  var ids3=[LEGS[a].id,LEGS[b].id,LEGS[d].id];
+  if(legConflicto(ids3))continue;
+  combos.push(ids3);
+ }
+ combos=combos.map(function(ids){var r=combiCalc(ids);return{ids:ids,cuota:r.cuota,prob:r.prob}});
+ combos.sort(function(x,y){return y.prob-x.prob});
+ var top=combos.slice(0,6);
+ var h="";
+ top.forEach(function(cb,idx){
+  var corr=cb.ids.filter(function(id){return legById(id).grp==="gol"}).length>1||
+           (cb.ids.some(function(id){return legById(id).grp==="res"})&&cb.ids.some(function(id){return legById(id).grp==="cla"}));
+  h+='<div style="padding:13px 0;border-bottom:1px solid rgba(34,41,72,.5)">'+
+   '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:7px">'+
+   '<span class="chip v">#'+(idx+1)+' · '+cb.ids.length+' selecciones</span>'+
+   '<span class="chip g">Prob. conjunta ≈ '+cb.prob.toFixed(1).replace(".",",")+'%</span>'+
+   '<span class="chip">Cuota teórica '+cb.cuota.toFixed(2).replace(".",",")+'</span>'+
+   (corr?'<span class="chip a">Correlacionadas</span>':"")+
+   '<button class="btn ghost sm" style="margin-left:auto" onclick="cargarCombi(\''+cb.ids.join(",")+'\')">Abrir en el constructor</button></div>'+
+   '<div style="font-size:.85rem;color:var(--tx2)">'+cb.ids.map(function(id){return esc(legById(id).t)}).join('<span style="color:var(--vio2);font-weight:700"> + </span>')+'</div>'+
+   '</div>';
+ });
+ box.innerHTML=h;
+}
+var combiSel=[];
+function cargarCombi(idsStr){
+ combiSel=idsStr.split(",");
+ renderCombiLegs();
+ nav("combinadas");
+ var el2=$("#combiOut");if(el2&&el2.scrollIntoView)el2.scrollIntoView({behavior:"smooth",block:"center"});
+}
+function toggleLeg(id){
+ var i=combiSel.indexOf(id);
+ if(i>-1)combiSel.splice(i,1);else combiSel.push(id);
+ renderCombiLegs();
+}
+function renderCombiLegs(){
+ var box=$("#combiLegs"); if(!box)return;
+ var h="";
+ LEGS.forEach(function(l){
+  var on=combiSel.indexOf(l.id)>-1;
+  var conf=!on&&legConflicto(combiSel.concat([l.id]));
+  h+='<div class="sel '+(on?"ok":"")+'" style="'+(conf?"opacity:.35;pointer-events:none;":"")+'padding:7px 5px" onclick="toggleLeg(\''+l.id+'\')">'+
+   '<span class="st">'+(on?"✓":"")+'</span>'+
+   '<span style="flex:1">'+esc(l.t)+'</span>'+
+   '<span class="chip">'+l.c.toFixed(2).replace(".",",")+'</span>'+
+   '<span class="chip" style="border:none;color:var(--tx3)">'+(100/l.c).toFixed(0)+'%</span></div>';
+ });
+ box.innerHTML=h;
+ var out=$("#combiOut"); if(!out)return;
+ if(combiSel.length<2){
+  out.innerHTML='<div class="empty">Marca 2 o más selecciones compatibles y aquí verás la cuota conjunta, su probabilidad y tu retorno.</div>';
+  return;
+ }
+ var r=combiCalc(combiSel);
+ var st=betStats(),banca=getBankIni()+st.balance;
+ var stakeSug=Math.max(0,banca*getLimPct()/100);
+ out.innerHTML=
+  '<div class="mcGrid" style="grid-template-columns:repeat(4,1fr)">'+
+  '<div class="box"><div class="lb">Selecciones</div><div class="v">'+combiSel.length+'</div></div>'+
+  '<div class="box"><div class="lb">Cuota teórica</div><div class="v vio">'+r.cuota.toFixed(2).replace(".",",")+'</div></div>'+
+  '<div class="box"><div class="lb">Prob. conjunta</div><div class="v">'+r.prob.toFixed(1).replace(".",",")+'%</div></div>'+
+  '<div class="box"><div class="lb">Con tu límite ('+eur(stakeSug)+')</div><div class="v pos">'+eur(stakeSug*r.cuota)+'</div></div>'+
+  '</div>'+
+  '<div class="note" style="margin-top:12px">Fallará aproximadamente <b>'+(100-r.prob).toFixed(0)+' de cada 100 veces</b>. La cuota teórica multiplica precios con margen incluido: el margen también se ha multiplicado. Si decides jugarla, regístrala en «Mis apuestas» para que cuente en tu balance real.</div>'+
+  '<div style="margin-top:10px"><button class="btn sm" onclick="combiARegistro()">Llevar a Mis apuestas</button> <button class="btn ghost sm" onclick="combiSel=[];renderCombiLegs()">Limpiar</button></div>';
+}
+function combiARegistro(){
+ if(combiSel.length<2)return;
+ var r=combiCalc(combiSel);
+ $("#nbPartido").value="BRA – NOR";
+ $("#nbDesc").value=combiSel.map(function(id){return legById(id).t}).join(" + ");
+ $("#nbCuota").value=r.cuota.toFixed(2);
+ $("#nbStake").value="";
+ nav("apuestas");
+}
+
+/* ================= INIT ================= */
+function safe(fn){try{fn()}catch(e){/* un fallo en una sección nunca debe tumbar las demás */}}
+function refreshAll(){safe(renderInicio);safe(renderBets);safe(renderBank);safe(renderBreakeven);safe(renderFeeds);}
+var booted=false;
+function initApp(){
+ if(booted)return; booted=true;
+ $("#verChip").textContent=VERSION;
+ safe(renderInicio);
+ safe(renderPartidos);
+ safe(renderAnalisis);
+ safe(renderValor);
+ safe(renderCuadro);
+ safe(renderAgenda);
+ safe(renderAlertConf);
+ safe(renderSim);
+ safe(renderEV);
+ safe(renderBank);
+ safe(renderBets);
+ safe(renderBreakeven);
+ safe(renderCombiTop);
+ safe(renderCombiLegs);
+ setInterval(tickRefresco,UPD_TICK_MS);
+ setInterval(checkNuevaVersion,UPD_CHECK_MS);
+ setTimeout(checkNuevaVersion,5000);
+ /* datos en vivo: al arrancar y cada 5 min (si la función está desplegada) */
+ fetchLive(); if(liveTimer)clearInterval(liveTimer); liveTimer=setInterval(fetchLive,5*60*1000);
+ var _d0=partidoDestacado();
+ pushMsg("Hola, David. Trabajo con los datos verificados cargados en la web (al cierre del 5 de julio). El siguiente cruce del calendario es "+NOM[_d0.home]+" – "+NOM[_d0.away]+" ("+_d0.dt+"). Pregúntame por córners, tarjetas, jugadores o tu balance, y pulsa cualquier partido para ver su careo. Un apunte honesto: las cuotas verificadas cargadas eran del Brasil–Noruega, que ya se jugó; para cuotas al minuto haría falta conectar una fuente en directo.","b");
+ var h=(location.hash||"#inicio").slice(1);
+ if($("#p-"+h))nav(h);
+}
+</script>
+</body>
+</html>
