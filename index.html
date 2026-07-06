@@ -164,6 +164,17 @@ input[type=checkbox].sw:checked::after{left:19px;background:#fff}
 .match .tms{flex:1;font-weight:600;font-size:.95rem}
 .match .meta{color:var(--tx3);font-size:.73rem;margin-top:5px}
 .match .arrow{color:var(--tx3);transition:transform .2s}
+.match .when{color:var(--tx3);font-size:.78rem;white-space:nowrap}
+.match .score{margin:0 8px;font-size:1.02rem;letter-spacing:.5px}
+.match .win{color:var(--green);font-weight:800}
+.match.liveM{border-color:rgba(255,123,123,.5);box-shadow:0 0 0 1px rgba(255,123,123,.18)}
+.match.resM{cursor:pointer}
+.match.resM:hover{border-color:var(--border2)}
+.chip.lv{background:rgba(255,123,123,.12);border-color:rgba(255,123,123,.4);color:#ff7b7b}
+.secH{display:flex;align-items:center;gap:9px;font-size:.72rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.09em;font-weight:700;margin:22px 0 12px}
+.secH:first-child{margin-top:4px}
+.secH .secN{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 6px;border-radius:20px;background:var(--card2,rgba(124,92,255,.14));color:var(--vio2);font-size:.7rem}
+.secH::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent)}
 
 /* modal */
 #modalBg{position:fixed;inset:0;background:rgba(4,5,10,.75);backdrop-filter:blur(4px);z-index:150;display:none;align-items:flex-start;justify-content:center;padding:6vh 16px;overflow-y:auto}
@@ -397,7 +408,7 @@ nav.bott{display:none}
 <div id="app">
 
 <nav class="side">
-  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>WCAI</b><span class="ver" id="verChip">V26</span></div>
+  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>WCAI</b><span class="ver" id="verChip">V27</span></div>
   <a href="#inicio" data-p="inicio" class="on"><svg class="i" viewBox="0 0 24 24"><use href="#ic-home"/></svg>Inicio</a>
   <a href="#partidos" data-p="partidos"><svg class="i" viewBox="0 0 24 24"><use href="#ic-ball"/></svg>Partidos</a>
   <a href="#analisis" data-p="analisis"><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Análisis</a>
@@ -509,7 +520,7 @@ nav.bott{display:none}
 <!-- ---------- VALOR ---------- -->
 <section class="page" id="p-valor">
   <h2 class="pageT">Datos y cuotas del partido</h2>
-  <div class="pageSub">La previa completa del partido destacado: mercados verificados, modelo, onces, bajas e historial</div>
+  <div class="pageSub">La previa del próximo cruce: cuotas reales en directo, modelo vs mercado, forma y bajas — se actualiza sola</div>
   <div id="valorLive" style="display:none;margin-bottom:16px"></div>
   <div id="valorBox"></div>
   <div class="note v"><b>Este panel no elige por ti.</b> Muestra cuotas verificadas con fuente y fecha, su probabilidad implícita (incluye el margen de la casa) y lo que dice el modelo. La conclusión es siempre tuya. A largo plazo el balance apostando suele ser negativo; las combinadas multiplican el margen de la casa.</div>
@@ -518,11 +529,11 @@ nav.bott{display:none}
 <!-- ---------- COMBINADAS ---------- -->
 <section class="page" id="p-combinadas">
   <h2 class="pageT">Laboratorio de combinadas</h2>
-  <div class="pageSub">Brasil – Noruega · construidas solo con los 9 mercados verificados — el azar decide, los números no mienten</div>
+  <div class="pageSub">Del próximo cruce · construidas con las cuotas reales del feed en vivo — el azar decide, los números no mienten</div>
   <div class="card hl">
     <h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-stack"/></svg>Las que el mercado señala como más probables<span class="tag">ordenadas por prob. conjunta</span></h3>
     <div id="combiTop"></div>
-    <div class="src">Cuota teórica = multiplicación de las cuotas medias verificadas (3-4 jul). La probabilidad conjunta multiplica las implícitas, que ya incluyen el margen de la casa — y al combinar, ese margen se acumula. Mercados del mismo partido están correlacionados: una casa real las cotiza como «crea tu apuesta», con precio distinto. Esto no es una recomendación: es el mapa de lo que pagas y lo que implica.</div>
+    <div class="src">Cuota teórica = multiplicación de las cuotas reales del feed en vivo. La probabilidad conjunta multiplica las implícitas, que ya incluyen el margen de la casa — y al combinar, ese margen se acumula. Mercados del mismo partido están correlacionados: una casa real las cotiza como «crea tu apuesta», con precio distinto. Esto no es una recomendación: es el mapa de lo que pagas y lo que implica.</div>
   </div>
   <div style="height:16px"></div>
   <div class="card">
@@ -742,7 +753,7 @@ nav.bott{display:none}
 
 <script>
 "use strict";
-var VERSION="V26";
+var VERSION="V27";
 /* PIN: disuasión del lado del cliente (el código llega al navegador, no es seguridad real).
    Guardamos solo un hash del PIN y limitamos los intentos para frenar el tanteo casual. */
 function hpin(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);}return (h>>>0).toString(16);}
@@ -976,13 +987,20 @@ document.addEventListener("DOMContentLoaded",function(){
 });
 
 /* ================= NAVEGACIÓN ================= */
+var PAGINA="inicio";
 function nav(p){
  $$("section.page").forEach(function(s){s.classList.remove("on")});
  var pg=$("#p-"+p); if(!pg)return;
+ PAGINA=p;
  pg.classList.add("on");
  /* re-dispara el fundido de entrada en cada cambio de pestaña */
  pg.style.animation="none"; void pg.offsetWidth; pg.style.animation="";
  $$("nav a").forEach(function(a){a.classList.toggle("on",a.dataset.p===p)});
+ /* al entrar a una vista dinámica, refréscala con lo último del feed */
+ if(p==="partidos")safe(renderPartidos);
+ else if(p==="valor")safe(renderValor);
+ else if(p==="combinadas"){safe(rebuildLegs);safe(renderCombiTop);safe(renderCombiLegs);}
+ else if(p==="cuadro")safe(renderCuadro);
  window.scrollTo(0,0);
 }
 document.addEventListener("click",function(e){
@@ -1086,9 +1104,17 @@ function nombreACodigo(n){
 function fetchLive(){
  if(typeof fetch!=="function")return;
  fetch(LIVE_URL,{cache:"no-store"}).then(function(r){return r.json()}).then(function(j){
-  if(j&&j.ok&&((j.odds&&j.odds.length)||(j.scores&&j.scores.length))){LIVE=j;renderLive();}
+  if(j&&j.ok&&((j.odds&&j.odds.length)||(j.scores&&j.scores.length))){LIVE=j;renderLive();refreshDinamico();}
   else renderLive(j&&j.error==="NO_API_KEY"?"nokey":null);
  }).catch(function(){renderLive(null);});
+}
+/* re-renderiza las vistas dependientes del reloj/feeds: inicio y cuadro siempre;
+   la página activa según corresponda. Barato y aislado por safe(). */
+function refreshDinamico(){
+ safe(renderInicio); safe(renderCuadro);
+ if(PAGINA==="partidos")safe(renderPartidos);
+ else if(PAGINA==="valor")safe(renderValor);
+ else if(PAGINA==="combinadas"){safe(rebuildLegs);safe(renderCombiTop);safe(renderCombiLegs);}
 }
 function h2hDe(ev){
  /* mejor mercado h2h del primer bookmaker disponible → {home,draw,away} en decimal */
@@ -1149,6 +1175,9 @@ function renderValorLive(){
 function renderLive(flag){
  renderValorLive();
  var el=$("#liveCard"); if(!el)return;
+ /* football-data.org (panel «Resultados reales») es la fuente principal de marcadores y
+    calendario; si trae datos, evitamos el panel duplicado de The Odds API en Inicio */
+ if(FB&&FB.response&&FB.response.length){el.style.display="none";return;}
  if(!LIVE){
   if(flag==="nokey"){
    el.style.display="";
@@ -1204,7 +1233,7 @@ var FB_URL="/.netlify/functions/football", FB=null;
 function fetchFootball(){
  if(typeof fetch!=="function")return;
  fetch(FB_URL,{cache:"no-store"}).then(function(r){return r.json()}).then(function(j){
-  if(j&&j.ok&&j.response&&j.response.length){FB=j;renderReal();}
+  if(j&&j.ok&&j.response&&j.response.length){FB=j;renderReal();refreshDinamico();}
   else renderReal(j&&j.error==="NO_API_KEY"?"nokey":null);
  }).catch(function(){renderReal(null);});
 }
@@ -1253,11 +1282,59 @@ function renderReal(flag){
 }
 
 function agendaOrden(){return OCTAVOS.concat(CUARTOS_PROX).slice().sort(function(a,b){return a.ts-b.ts;});}
-/* partido destacado dinámico: el que está en juego ahora o el siguiente por orden;
-   cuando uno termina (saque + FIN_MS), avanza solo al próximo del calendario */
+
+/* ============ INTEGRACIÓN DE RESULTADOS REALES (football-data.org / The Odds API) ============
+   Estas funciones cruzan el calendario del proyecto con los feeds en vivo para que
+   cada vista (Partidos, Cuotas, Combinadas, Cuadro) se ordene por hora y se
+   actualice sola: resultado y estado desde FB, cuotas al minuto desde LIVE. */
+var LIVE_ST={"1H":1,"2H":1,"HT":1,"ET":1,"BT":1,"P":1,"LIVE":1,"INT":1},
+    FIN_ST={"FT":1,"AET":1,"PEN":1};
+function fbBuscar(ca,cb){
+ if(!FB||!FB.response)return null;
+ for(var i=0;i<FB.response.length;i++){
+  var fx=FB.response[i];
+  var h=nombreACodigo(fx.teams&&fx.teams.home&&fx.teams.home.name);
+  var a=nombreACodigo(fx.teams&&fx.teams.away&&fx.teams.away.name);
+  if(!h||!a)continue;
+  var swap;
+  if(h===ca&&a===cb)swap=false; else if(h===cb&&a===ca)swap=true; else continue;
+  var g=fx.goals||{},sh=fx.fixture&&fx.fixture.status&&fx.fixture.status.short;
+  var gh=swap?g.away:g.home, ga=swap?g.home:g.away;
+  return {gh:gh,ga:ga,sh:sh,live:!!LIVE_ST[sh],fin:!!FIN_ST[sh],has:(gh!=null&&ga!=null)};
+ }
+ return null;
+}
+/* estado unificado de un cruce: prioriza el feed real; si no hay, usa el reloj */
+function estadoPartido(m){
+ var now=Date.now(),rr=fbBuscar(m.home,m.away);
+ var live=rr?rr.live:(now>=m.ts&&now<m.ts+FIN_MS);
+ var fin =rr?rr.fin :(now>=m.ts+FIN_MS);
+ var score=(rr&&rr.has)?(rr.gh+" – "+rr.ga):null;
+ var gana=null;
+ if(fin&&rr&&rr.has)gana=rr.gh>rr.ga?m.home:(rr.ga>rr.gh?m.away:null);
+ return {live:live,fin:fin,prox:(!live&&!fin),score:score,gana:gana,gh:rr?rr.gh:null,ga:rr?rr.ga:null,sh:rr?rr.sh:null};
+}
+/* cuotas reales del cruce, orientadas a nuestro local(ca)/visitante(cb) */
+function oddsPara(ca,cb){
+ if(!LIVE||!LIVE.odds)return null;
+ for(var i=0;i<LIVE.odds.length;i++){
+  var ev=LIVE.odds[i];
+  var h=nombreACodigo(ev.home_team),a=nombreACodigo(ev.away_team);
+  var swap;
+  if(h===ca&&a===cb)swap=false; else if(h===cb&&a===ca)swap=true; else continue;
+  var o=h2hDe(ev),tt=totalsDe(ev),res=null;
+  if(o)res=swap?{home:o.away,draw:o.draw,away:o.home}:{home:o.home,draw:o.draw,away:o.away};
+  return {h2h:res,tot:tt,ev:ev};
+ }
+ return null;
+}
+function coma(n,d){return (typeof d==="number"?n.toFixed(d):n).toString().replace(".",",");}
+
+/* partido destacado dinámico: el primer cruce del calendario que aún no ha terminado
+   (en juego o próximo). Salta solo al siguiente en cuanto el feed lo da por finalizado. */
 function partidoDestacado(){
- var lista=agendaOrden(),now=Date.now();
- for(var i=0;i<lista.length;i++){if(now<lista[i].ts+FIN_MS)return lista[i];}
+ var lista=agendaOrden();
+ for(var i=0;i<lista.length;i++){if(!estadoPartido(lista[i]).fin)return lista[i];}
  return lista[lista.length-1];
 }
 function esFull(p){return p&&p.home===ELPARTIDO.home&&p.away===ELPARTIDO.away&&p.ts===ELPARTIDO.ts;}
@@ -1289,8 +1366,17 @@ function renderInicio(){
    '<div class="src">'+esc(ELPARTIDO.estadio)+' · Cuotas publicadas el 3-4 jul (Bet365 y otras) — se mueven hasta el pitido. Modelo: SportRadar.</div>'+
    '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm" onclick="nav(\'valor\')">Ver análisis completo</button><button class="btn ghost sm" onclick="openMatch(\''+p.home+p.away+'\')">Careo de datos</button></div>';
  }else{
-  cuerpo+='<div class="src">'+(p.sede?esc(p.sede)+' · ':'')+'Probabilidades del modelo (SportRadar). Las cuotas verificadas y la previa detallada se cargan para el cruce con datos confirmados — ahora en «Datos y cuotas».</div>'+
-   '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm" onclick="openMatch(\''+p.home+p.away+'\')">Careo de datos</button><button class="btn ghost sm" onclick="nav(\'cuadro\')">Ver cuadro</button></div>';
+  var odd=oddsPara(p.home,p.away);
+  if(odd&&odd.h2h){
+   cuerpo+='<div class="oddsRow">'+
+     '<div class="o"><div class="l">1 · '+esc(NOM[p.home])+'</div><div class="v">'+coma(odd.h2h.home,2)+'</div></div>'+
+     '<div class="o"><div class="l">X · Empate</div><div class="v">'+(odd.h2h.draw?coma(odd.h2h.draw,2):'—')+'</div></div>'+
+     '<div class="o"><div class="l">2 · '+esc(NOM[p.away])+'</div><div class="v">'+coma(odd.h2h.away,2)+'</div></div></div>'+
+     '<div class="src">'+(p.sede?esc(p.sede)+' · ':'')+'Cuotas reales en directo (The Odds API) · modelo SportRadar. Previa completa en «Datos y cuotas».</div>';
+  }else{
+   cuerpo+='<div class="src">'+(p.sede?esc(p.sede)+' · ':'')+'Probabilidades del modelo (SportRadar). Cuotas reales al minuto y previa detallada en «Datos y cuotas».</div>';
+  }
+  cuerpo+='<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm" onclick="nav(\'valor\')">Ver cuotas y análisis</button><button class="btn ghost sm" onclick="openMatch(\''+p.home+p.away+'\')">Careo de datos</button></div>';
  }
  $("#destCard").innerHTML=cuerpo;
  tickCd();
@@ -1422,24 +1508,49 @@ function toggleAlert(k,v){var c=getAlertConf();c[k]=v;store("mundial26_alerts",c
 /* ================= RENDER: PARTIDOS ================= */
 var filtPart="todos";
 function renderPartidos(){
+ var prox=[],fin=[];
+ OCTAVOS.concat(CUARTOS_PROX).forEach(function(m){
+  var e=estadoPartido(m); (e.fin?fin:prox).push({m:m,e:e});
+ });
+ prox.sort(function(a,b){return a.m.ts-b.m.ts;});  /* el más cercano, arriba */
+ fin.sort(function(a,b){return b.m.ts-a.m.ts;});    /* el más reciente, arriba */
+ function chipRonda(m){return '<span class="chip '+(m.ronda==="CUARTOS"?"a":"v")+'">'+(m.ronda==="CUARTOS"?"Cuartos":"Octavos")+'</span>';}
  var h="";
+ /* ---- Próximos y en juego (orden de juego, el más cercano primero) ---- */
  if(filtPart!=="jugados"){
-  OCTAVOS.concat(CUARTOS_PROX).forEach(function(m){
-   h+='<div class="match" onclick="openMatch(\''+m.home+m.away+'\')">'+
-    '<div class="row"><span class="chip '+(m.ronda==="CUARTOS"?"a":"v")+'">'+(m.ronda==="CUARTOS"?"Cuartos":"Octavos")+'</span>'+
+  h+='<h3 class="secH">Próximos y en juego <span class="secN">'+prox.length+'</span></h3>';
+  if(!prox.length)h+='<div class="empty">No quedan partidos por jugar en esta ronda.</div>';
+  prox.forEach(function(x){
+   var m=x.m,e=x.e;
+   h+='<div class="match'+(e.live?" liveM":"")+'" onclick="openMatch(\''+m.home+m.away+'\')">'+
+    '<div class="row">'+chipRonda(m)+
+    (e.live?'<span class="chip lv"><span class="live"></span>En juego'+(e.score?' · '+esc(e.score):'')+'</span>':'')+
     '<span class="tms">'+FLAGS[m.home]+' '+esc(NOM[m.home])+' <span style="color:var(--tx3);font-weight:400">vs</span> '+esc(NOM[m.away])+' '+FLAGS[m.away]+'</span>'+
-    '<span style="color:var(--tx3);font-size:.78rem">'+esc(m.dt)+'</span><span class="arrow">›</span></div>'+
+    '<span class="when">'+esc(m.dt)+'</span><span class="arrow">›</span></div>'+
     '<div style="margin-top:10px">'+probBar(m.prob,m.home,m.away)+'</div>'+
     '<div class="meta">'+esc(m.sede||"")+' · Pulsa para abrir careo, forma y modelo</div></div>';
   });
  }
+ /* ---- Finalizados (resultado real del feed, el más reciente primero) ---- */
  if(filtPart!=="pendientes"){
-  h+='<h3 style="font-size:.72rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.08em;margin:20px 0 12px">Resultados</h3>';
+  h+='<h3 class="secH">Finalizados <span class="secN">'+fin.length+'</span></h3>';
+  if(!fin.length)h+='<div class="empty">Aún no ha terminado ningún cruce de esta ronda.</div>';
+  fin.forEach(function(x){
+   var m=x.m,e=x.e,wa=e.gana===m.home,wb=e.gana===m.away;
+   h+='<div class="match resM" onclick="openMatch(\''+m.home+m.away+'\')">'+
+    '<div class="row">'+chipRonda(m)+'<span class="chip g">Final</span>'+
+    '<span class="tms"><span class="'+(wa?"win":"")+'">'+FLAGS[m.home]+' '+esc(NOM[m.home])+'</span> <b class="score">'+esc(e.score||"—")+'</b> <span class="'+(wb?"win":"")+'">'+esc(NOM[m.away])+' '+FLAGS[m.away]+'</span></span>'+
+    '<span class="when">'+esc(m.dt)+'</span></div>'+
+    (e.gana?'<div class="meta"><b style="color:var(--green)">'+esc(NOM[e.gana])+'</b> avanza a la siguiente ronda</div>':(e.score?'':'<div class="meta">Pendiente de confirmar resultado</div>'))+
+    '</div>';
+  });
+  /* rondas anteriores (dieciseisavos y previas) — contenido verificado del proyecto */
+  h+='<h3 class="secH" style="opacity:.7">Rondas anteriores</h3>';
   RESULTADOS.forEach(function(r){
-   h+='<div class="match" style="cursor:default">'+
+   h+='<div class="match resM" style="cursor:default">'+
     '<div class="row"><span class="chip g">Final</span>'+
-    '<span class="tms">'+FLAGS[r.home]+' '+esc(NOM[r.home])+' <b style="margin:0 6px">'+esc(r.s)+'</b> '+esc(NOM[r.away])+' '+FLAGS[r.away]+'</span>'+
-    '<span style="color:var(--tx3);font-size:.76rem">'+esc(r.dt)+'</span></div>'+
+    '<span class="tms">'+FLAGS[r.home]+' '+esc(NOM[r.home])+' <b class="score">'+esc(r.s)+'</b> '+esc(NOM[r.away])+' '+FLAGS[r.away]+'</span>'+
+    '<span class="when">'+esc(r.dt)+'</span></div>'+
     (r.nota?'<div class="meta">'+esc(r.nota)+'</div>':"")+'</div>';
   });
  }
@@ -1551,7 +1662,102 @@ function renderAnalisis(){
 
 /* ================= RENDER: VALOR (previa + cuotas del destacado) ================= */
 function renderValor(){
- var p=ELPARTIDO;
+ /* Esta vista integra las cuotas reales; ocultamos el panel superior duplicado */
+ var vl=$("#valorLive"); if(vl)vl.style.display="none";
+ /* si el destacado es el partido con previa autoral (Brasil–Noruega) y aún no ha
+    terminado, mostramos la previa completa; en cuanto termina, pasa a modo dinámico */
+ var pd=partidoDestacado(), edp=estadoPartido(pd);
+ if(pd.home===ELPARTIDO.home&&pd.away===ELPARTIDO.away&&!edp.fin){renderValorAutor(ELPARTIDO);return;}
+ renderValorDinamico(pd,edp);
+}
+/* ---- Cuotas del partido destacado, en directo (cualquier cruce) ---- */
+function renderValorDinamico(p,e){
+ var ca=p.home,cb=p.away,od=oddsPara(ca,cb),h="";
+ var estadoTag=e.live
+   ?'<span class="tag" style="color:#ff7b7b"><span class="live" style="margin-right:5px"></span>En juego'+(e.score?" · "+esc(e.score):"")+'</span>'
+   :e.fin?'<span class="tag chip g" style="border:none">Finalizado'+(e.score?" · "+esc(e.score):"")+'</span>'
+   :'<span class="tag">'+esc(p.dt)+'</span>';
+ h+='<div class="card hl">'+
+   '<h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-ball"/></svg>'+team(ca)+' vs '+team(cb)+estadoTag+'</h3>'+
+   '<div style="font-size:.8rem;color:var(--tx2);line-height:1.6">'+esc(p.sede||"")+' · '+(p.ronda==="CUARTOS"?"Cuartos de final":"Octavos de final")+'</div>'+
+   '<div style="margin-top:12px">'+probBar(p.prob,ca,cb)+'</div></div>';
+
+ /* Cuotas reales del feed + margen + modelo vs mercado */
+ h+='<div style="height:16px"></div>';
+ if(od&&od.h2h){
+  var o=od.h2h,tt=od.tot;
+  var inv=[1/o.home,(o.draw?1/o.draw:0),1/o.away],sumInv=inv[0]+inv[1]+inv[2];
+  var impl=inv.map(function(x){return x/sumInv*100}),margen=(sumInv-1)*100;
+  var fecha=new Date((LIVE&&LIVE.updated)||Date.now()),hh=("0"+fecha.getHours()).slice(-2)+":"+("0"+fecha.getMinutes()).slice(-2);
+  h+='<div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-target"/></svg>Cuotas en directo<span class="tag">datos reales · '+hh+'</span></h3>'+
+    '<div class="oddsRow">'+
+     '<div class="o"><div class="l">1 · '+esc(NOM[ca])+'</div><div class="v">'+coma(o.home,2)+'</div></div>'+
+     '<div class="o"><div class="l">X · Empate</div><div class="v">'+(o.draw?coma(o.draw,2):"—")+'</div></div>'+
+     '<div class="o"><div class="l">2 · '+esc(NOM[cb])+'</div><div class="v">'+coma(o.away,2)+'</div></div></div>';
+  if(tt)h+='<div class="oddsRow" style="margin-top:8px">'+
+     '<div class="o"><div class="l">Más de '+coma(tt.punto)+'</div><div class="v">'+coma(tt.over,2)+'</div></div>'+
+     '<div class="o"><div class="l">Menos de '+coma(tt.punto)+'</div><div class="v">'+coma(tt.under,2)+'</div></div></div>';
+  h+='<div class="src" style="margin-top:10px">Cuotas de casas reales (The Odds API), se actualizan solas. Prob. implícita 1X2 sin margen (normalizada): '+coma(impl[0],1)+'% · '+coma(impl[1],1)+'% · '+coma(impl[2],1)+'%.</div>'+
+    '<div class="note">El margen de la casa en el 1X2 es de un <b>'+coma(margen,1)+'&nbsp;%</b>: las implícitas brutas suman '+coma(sumInv*100,1)+'&nbsp;%. Ese exceso es lo que la casa gana a largo plazo, apuestes a lo que apuestes.</div></div>';
+
+  h+='<div style="height:16px"></div><div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Modelo vs mercado<span class="tag">1X2</span></h3>';
+  [["1 · "+NOM[ca],p.prob[0],impl[0],"var(--vio)"],["X · Empate",p.prob[1],impl[1],"var(--tx3)"],["2 · "+NOM[cb],p.prob[2],impl[2],"#2f8f6b"]].forEach(function(r){
+   h+='<div class="cmp"><div class="l"><span><b>'+esc(r[0])+'</b></span><span>modelo '+coma(r[1],1)+'% · mercado '+coma(r[2],1)+'%</span></div>'+
+    '<div class="duo"><div class="bar"><i style="width:'+r[1]+'%;background:'+r[3]+'"></i></div>'+
+    '<div class="bar"><i style="width:'+r[2]+'%;background:'+r[3]+';opacity:.38"></i></div></div></div>';
+  });
+  h+='<div class="src">Barra superior: modelo SportRadar. Barra inferior: implícita del mercado sin margen. Donde difieren hay información — qué hacer con ella es cosa tuya.</div></div>';
+ }else{
+  h+='<div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-target"/></svg>Cuotas en directo</h3>'+
+    '<div class="empty">'+(e.fin?"Partido finalizado.":"Aún no hay cuotas publicadas para este cruce en el feed en vivo.")+' En cuanto las casas abran mercado aparecerán aquí solas.</div></div>';
+ }
+
+ /* Cómo llegan + bajas (fichas del proyecto, existen para todos los equipos vivos) */
+ var fa=FICHAS[ca],fb=FICHAS[cb];
+ if(fa||fb){
+  h+='<div style="height:16px"></div><div class="grid g2">';
+  h+='<div class="card"><h3>Cómo llegan</h3>';
+  [[ca,fa],[cb,fb]].forEach(function(x){var c=x[0],f=x[1];if(!f)return;h+='<div style="margin-bottom:12px"><b style="font-size:.88rem">'+team(c)+'</b><div style="font-size:.82rem;color:var(--tx2);line-height:1.6;margin-top:5px">'+esc(f.forma)+'</div></div>';});
+  h+='</div><div class="card"><h3>Bajas y dudas</h3>';
+  [[ca,fa],[cb,fb]].forEach(function(x){
+   var c=x[0],f=x[1];h+='<b style="font-size:.85rem">'+team(c)+'</b>';
+   if(f&&f.bajas.length)f.bajas.forEach(function(b){h+='<div style="font-size:.8rem;color:var(--red);padding:3px 0">'+esc(b)+'</div>';});
+   if(f&&f.dudas.length)f.dudas.forEach(function(d){h+='<div style="font-size:.8rem;color:var(--amber);padding:3px 0">'+esc(d)+' <span style="color:var(--tx3)">· duda</span></div>';});
+   if(!f||(!f.bajas.length&&!f.dudas.length))h+='<div style="font-size:.8rem;color:var(--green);padding:3px 0">Plantilla completa</div>';
+   h+='<div style="height:8px"></div>';
+  });
+  h+='</div></div>';
+ }
+
+ /* Careo estadístico compacto */
+ var sa=STATS[ca],sb=STATS[cb];
+ if(sa&&sb){
+  h+='<div style="height:16px"></div><div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Careo estadístico<span class="tag">medias por partido</span></h3>'+
+    '<div style="display:flex;justify-content:space-between;font-size:.75rem;color:var(--tx3);margin-bottom:6px"><span>'+team(ca)+'</span><span>'+team(cb)+'</span></div>';
+  [["Córners a favor","cf",1],["Córners concedidos","cc",0],["Tiros","tiros",1],["Tiros a puerta","tirosP",1],["Amarillas","am",0],["Posesión","pos",1]].forEach(function(r){
+   var va=media(sa[r[1]]),vb=media(sb[r[1]]);
+   var ta=r[1]==="pos"?va.toFixed(0)+"%":va.toFixed(1),tb=r[1]==="pos"?vb.toFixed(0)+"%":vb.toFixed(1);
+   var hiA=r[2]?va>vb:va<vb,hiB=r[2]?vb>va:vb<va;
+   h+=statRow(r[0],ta,tb,hiA,hiB);
+  });
+  h+='<div class="src">Recuento por partido (SportRadar). Muestra pequeña en eliminatorias: léelo como tendencia, no como certeza.</div></div>';
+ }
+
+ h+=checklistCuotas();
+ $("#valorBox").innerHTML=h;
+}
+function checklistCuotas(){
+ return '<div style="height:16px"></div><div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-check"/></svg>Checklist antes de apostar</h3>'+
+  '<div class="chk"><span class="n">1</span><span><b style="color:var(--tx)">¿La cuota está viva?</b> Las cuotas de arriba son reales pero se mueven hasta el pitido — confírmalas en tu casa antes de nada.</span></div>'+
+  '<div class="chk"><span class="n">2</span><span><b style="color:var(--tx)">¿Entra en tu límite de stake?</b> Tu regla de disciplina está en Bankroll; el registro te avisa si la superas.</span></div>'+
+  '<div class="chk"><span class="n">3</span><span><b style="color:var(--tx)">¿Sabes qué acierto necesitas?</b> A cuota 2,00 necesitas ganar más del 50&nbsp;% de las veces solo para no perder. Compara con tu acierto real en el Simulador.</span></div>'+
+  '<div class="chk"><span class="n">4</span><span><b style="color:var(--tx)">¿Es combinada?</b> Cada selección multiplica también el margen de la casa. Acertar 5 de 6 paga lo mismo que fallar 6.</span></div>'+
+  '<div class="chk"><span class="n">5</span><span><b style="color:var(--tx)">¿La apostarías igual mañana en frío?</b> Si la respuesta depende del calentón del partido, déjala pasar — habrá más partidos.</span></div>'+
+  '<div class="src">Esta lista no te dice qué apostar: te ayuda a que lo que decidas apostar sea decisión y no impulso.</div></div>';
+}
+/* ---- Previa completa autoral (solo Brasil–Noruega mientras no termine) ---- */
+function renderValorAutor(p){
+ var vl=$("#valorLive"); if(vl)vl.style.display="none";
  var h='<div class="card hl">'+
   '<h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-ball"/></svg>'+team(p.home)+' vs '+team(p.away)+'<span class="tag">'+esc(p.dt)+'</span></h3>'+
   '<div style="font-size:.8rem;color:var(--tx2);line-height:1.6">'+esc(p.estadio)+'<br>'+esc(p.premio)+'</div>'+
@@ -1564,11 +1770,9 @@ function renderValor(){
  });
  h+='</table><div class="src">'+esc(p.cuotasNota)+'</div></div>';
 
- /* modelo vs mercado (1X2) — datos, no consejo */
  var c1=1.885,cX=3.40,c2=4.15;
  var inv=[1/c1,1/cX,1/c2],sumInv=inv[0]+inv[1]+inv[2];
- var margen=(sumInv-1)*100;
- var impl=inv.map(function(x){return x/sumInv*100});
+ var margen=(sumInv-1)*100,impl=inv.map(function(x){return x/sumInv*100});
  h+='<div style="height:16px"></div><div class="grid g2">';
  h+='<div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Modelo vs mercado<span class="tag">1X2, cuotas medias</span></h3>';
  [["1 · "+NOM[p.home],p.prob[0],impl[0],"var(--vio)"],["X · Empate",p.prob[1],impl[1],"var(--tx3)"],["2 · "+NOM[p.away],p.prob[2],impl[2],"#2f8f6b"]].forEach(function(r){
@@ -1578,21 +1782,18 @@ function renderValor(){
  });
  h+='<div class="src">Barra superior: modelo SportRadar. Barra inferior: probabilidad implícita del mercado sin margen (normalizada). Dónde difieren es información — qué hacer con ella es cosa tuya.</div>';
  h+='<div class="note">El margen de la casa en el 1X2 de este partido es de un <b>'+margen.toFixed(1).replace(".",",")+'&nbsp;%</b>: las implícitas suman '+(sumInv*100).toFixed(1).replace(".",",")+'&nbsp;%. Ese exceso es lo que la casa gana a largo plazo, apuestes a lo que apuestes.</div></div>';
-
  h+='<div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-check"/></svg>Checklist antes de apostar</h3>'+
   '<div class="chk"><span class="n">1</span><span><b style="color:var(--tx)">¿La cuota está viva?</b> Estas se publicaron el 3-4 jul y se mueven hasta el pitido — comprueba el precio actual en tu casa.</span></div>'+
   '<div class="chk"><span class="n">2</span><span><b style="color:var(--tx)">¿Entra en tu límite de stake?</b> Tu regla de disciplina está en Bankroll; el registro te avisa si la superas.</span></div>'+
-  '<div class="chk"><span class="n">3</span><span><b style="color:var(--tx)">¿Sabes qué acierto necesitas?</b> A cuota 2,00 necesitas ganar más del 50&nbsp;% de las veces solo para no perder. Compara con tu acierto real en el Simulador.</span></div>'+
-  '<div class="chk"><span class="n">4</span><span><b style="color:var(--tx)">¿Es combinada?</b> Cada selección multiplica también el margen de la casa. Acertar 5 de 6 paga lo mismo que fallar 6.</span></div>'+
-  '<div class="chk"><span class="n">5</span><span><b style="color:var(--tx)">¿La apostarías igual mañana en frío?</b> Si la respuesta depende del calentón del partido, déjala pasar — habrá más partidos.</span></div>'+
-  '<div class="src">Esta lista no te dice qué apostar: te ayuda a que lo que decidas apostar sea decisión y no impulso.</div></div>';
- h+='</div>';
+  '<div class="chk"><span class="n">3</span><span><b style="color:var(--tx)">¿Sabes qué acierto necesitas?</b> A cuota 2,00 necesitas ganar más del 50&nbsp;% de las veces solo para no perder.</span></div>'+
+  '<div class="chk"><span class="n">4</span><span><b style="color:var(--tx)">¿Es combinada?</b> Cada selección multiplica también el margen de la casa.</span></div>'+
+  '<div class="chk"><span class="n">5</span><span><b style="color:var(--tx)">¿La apostarías igual mañana en frío?</b> Si depende del calentón del partido, déjala pasar.</span></div>'+
+  '<div class="src">Esta lista no te dice qué apostar: te ayuda a que lo que decidas apostar sea decisión y no impulso.</div></div></div>';
 
  h+='<div style="height:16px"></div><div class="grid g2">';
  h+='<div class="card"><h3>Cómo llegan</h3>';
  [p.home,p.away].forEach(function(c){h+='<div style="margin-bottom:12px"><b style="font-size:.88rem">'+team(c)+'</b><div style="font-size:.82rem;color:var(--tx2);line-height:1.65;margin-top:5px">'+esc(p.llegan[c])+'</div></div>'});
- h+='</div>';
- h+='<div class="card"><h3>Onces probables</h3>';
+ h+='</div><div class="card"><h3>Onces probables</h3>';
  [p.home,p.away].forEach(function(c){
   var o=p.onces[c];
   h+='<div style="margin-bottom:12px"><b style="font-size:.88rem">'+team(c)+'</b> <span style="font-size:.72rem;color:var(--tx3)">'+esc(o.sist)+' · DT '+esc(o.dt)+'</span>';
@@ -1600,74 +1801,65 @@ function renderValor(){
   h+='</div>';
  });
  h+='<div class="src">Alineaciones estimadas por la prensa — las oficiales, una hora antes.</div></div></div>';
-
  h+='<div style="height:16px"></div><div class="grid g2">';
- h+='<div class="card"><h3>Bajas y dudas</h3>';
- [p.home,p.away].forEach(function(c){
-  h+='<b style="font-size:.85rem">'+team(c)+'</b>';
-  p.bajas[c].forEach(function(x){h+='<div style="font-size:.8rem;color:var(--red);padding:3px 0">'+esc(x)+'</div>'});
-  h+='<div style="height:8px"></div>';
- });
- h+='</div>';
  h+='<div class="card"><h3>Cara a cara e historial</h3>';
  p.h2h.forEach(function(x){h+='<div style="font-size:.83rem;color:var(--tx2);line-height:1.6;padding:5px 0;border-bottom:1px solid rgba(34,41,72,.4)">'+esc(x)+'</div>'});
- h+='</div></div>';
-
- h+='<div style="height:16px"></div><div class="grid g2">';
- h+='<div class="card"><h3>Claves del partido</h3>';
+ h+='</div><div class="card"><h3>Claves del partido</h3>';
  p.claves.forEach(function(x){h+='<div style="font-size:.83rem;color:var(--tx2);line-height:1.6;padding:5px 0;border-bottom:1px solid rgba(34,41,72,.4)">'+esc(x)+'</div>'});
- h+='</div>';
- h+='<div class="card"><h3>Jugadores a seguir</h3>';
- [p.home,p.away].forEach(function(c){
-  h+='<b style="font-size:.85rem">'+team(c)+'</b>';
-  p.jugadores[c].forEach(function(x){h+='<div style="font-size:.8rem;color:var(--tx2);line-height:1.55;padding:3px 0">'+esc(x)+'</div>'});
-  h+='<div style="height:8px"></div>';
- });
  h+='</div></div>';
-
- h+='<div style="height:16px"></div><div class="card"><h3>Qué dice el mercado</h3>';
- p.mercado.forEach(function(x){h+='<div style="font-size:.84rem;color:var(--tx2);line-height:1.65;padding:5px 0;border-bottom:1px solid rgba(34,41,72,.4)">'+esc(x)+'</div>'});
- h+='<div class="src">'+esc(p.tv)+'</div></div>';
  $("#valorBox").innerHTML=h;
 }
 
 /* ================= RENDER: CUADRO ================= */
+/* localiza el partido del calendario (en cualquier orden) para un cruce a–b */
+function calMatch(a,b){return OCTAVOS.concat(CUARTOS_PROX).filter(function(o){return (o.home===a&&o.away===b)||(o.home===b&&o.away===a);})[0];}
+/* qué octavos alimentan cada cuarto (por índice en CUADRO.octavos) */
+var CUARTOS_SRC=[[1,0],[2,3],[4,5],[6,7]];
+function ganadorOctavo(idx){var m=CUADRO.octavos[idx];if(!m)return null;var cm=calMatch(m.a,m.b);return cm?estadoPartido(cm).gana:null;}
 function renderCuadro(){
- function fila(x,m,marcador){
+ function fila(x,win,out,marcador){
   if(!x)return "";
   var esC=FLAGS[x]!==undefined;
-  var win=m.gana===x;
-  var out=m.gana&&m.gana!==x&&esC;
   var nombre=esC?FLAGS[x]+" "+esc(NOM[x]):esc(x);
-  return '<div class="t '+(win?"win":"")+(out?" out":"")+'"><span>'+nombre+'</span><span class="s">'+(marcador||"")+'</span></div>';
+  return '<div class="t '+(win?"win":"")+(out&&esC?" out":"")+'"><span>'+nombre+'</span><span class="s">'+(marcador||"")+'</span></div>';
  }
- function col(t,ms){
-  var h='<div class="brkCol"><h4>'+esc(t)+'</h4>';
-  ms.forEach(function(m){
-   var sa="",sb="";
-   if(m.s&&m.s!=="—"){var pp=m.s.split("–").map(function(x){return x.trim()});sa=pp[0]||"";sb=pp[1]||"";}
-   /* estado por el reloj real: vivo solo si está en ventana; pendiente si ya pasó sin resultado */
-   var ov=OCTAVOS.concat(CUARTOS_PROX).filter(function(o){return o.home===m.a&&o.away===m.b;})[0];
-   var vivo=false,estadoTxt=m.estado;
-   if(ov){
-    var now=Date.now();
-    if(now>=ov.ts&&now<ov.ts+FIN_MS)vivo=true;
-    else if(now>=ov.ts+FIN_MS&&(!m.s||m.s==="—")&&!m.gana)estadoTxt="Pendiente de actualizar resultado";
-   }
-   var cls="brkM"+(vivo?" vivo":"")+(m.gana?" res":"")+(m.a==="GRAN FINAL"?" gf":"");
-   h+='<div class="'+cls+'">'+
-    (vivo?'<div class="live" style="margin-bottom:6px">En juego ahora</div>':"")+
-    fila(m.a,m,sa)+fila(m.b,m,sb)+
-    '<div class="when">'+esc(estadoTxt)+(m.gana?' — <b style="color:var(--green)">'+esc(NOM[m.gana])+' a cuartos</b>':"")+'</div></div>';
-  });
-  return h+"</div>";
+ function partes(score){if(!score)return ["",""];var pp=score.split("–").map(function(s){return s.trim()});return [pp[0]||"",pp[1]||""];}
+ /* bloque de octavos: estado y resultado reales del feed */
+ function octavoBloque(m){
+  var cm=calMatch(m.a,m.b),e=cm?estadoPartido(cm):{prox:true};
+  var pp=partes(e.score),gana=e.gana||null,vivo=!!e.live;
+  var estadoTxt=vivo?"En juego ahora":e.fin?("Final"+(gana?"":" · pendiente de confirmar")):m.estado;
+  var cls="brkM"+(vivo?" vivo":"")+(gana?" res":"");
+  return '<div class="'+cls+'">'+
+   (vivo?'<div class="live" style="margin-bottom:6px">En juego'+(e.score?" · "+esc(e.score):"")+'</div>':"")+
+   fila(m.a,gana===m.a,gana&&gana!==m.a,pp[0])+fila(m.b,gana===m.b,gana&&gana!==m.b,pp[1])+
+   '<div class="when">'+esc(estadoTxt)+(gana?' — <b style="color:var(--green)">'+esc(NOM[gana])+' a cuartos</b>':"")+'</div></div>';
  }
+ /* bloque de cuartos: participantes derivados de los ganadores de octavos + resultado real si lo hay */
+ function cuartoBloque(m,i){
+  var src=CUARTOS_SRC[i];
+  var A=src?(ganadorOctavo(src[0])||m.a):m.a;
+  var B=src?(ganadorOctavo(src[1])||m.b):m.b;
+  var confirmados=FLAGS[A]!==undefined&&FLAGS[B]!==undefined;
+  var e=confirmados?estadoPartido({home:A,away:B,ts:9e15}):{prox:true};
+  var pp=partes(e.score),gana=e.gana||null,vivo=!!e.live;
+  var estadoTxt=vivo?"En juego ahora":e.fin?"Final":m.estado;
+  var cls="brkM"+(vivo?" vivo":"")+(gana?" res":"");
+  return '<div class="'+cls+'">'+
+   (vivo?'<div class="live" style="margin-bottom:6px">En juego</div>':"")+
+   fila(A,gana===A,gana&&gana!==A,pp[0])+fila(B,gana===B,gana&&gana!==B,pp[1])+
+   '<div class="when">'+esc(estadoTxt)+'</div></div>';
+ }
+ function colStatic(ms){var h="";ms.forEach(function(m){h+='<div class="brkM'+(m.a==="GRAN FINAL"?" gf":"")+'">'+fila(m.a,false,false,"")+fila(m.b,false,false,"")+'<div class="when">'+esc(m.estado)+'</div></div>';});return h;}
+ function colWrap(t,inner){return '<div class="brkCol"><h4>'+esc(t)+'</h4>'+inner+'</div>';}
+ var octH="";CUADRO.octavos.forEach(function(m){octH+=octavoBloque(m);});
+ var cuaH="";CUADRO.cuartos.forEach(function(m,i){cuaH+=cuartoBloque(m,i);});
  $("#bracket").innerHTML=
-  col("Octavos · 4-7 jul",CUADRO.octavos)+
-  col("Cuartos · 9-12 jul",CUADRO.cuartos)+
-  col("Semifinales · 14-15 jul",CUADRO.semis)+
-  col("El desenlace",CUADRO.final)+
-  '<div class="brkCol"><h4>Camino</h4><div class="brkM" style="font-size:.78rem;color:var(--tx2);line-height:1.7">8 cruces de octavos alimentan 4 cuartos; el primero confirmado es <b style="color:var(--tx)">Francia – Marruecos</b> (jue 9, Boston), remake de la semifinal de Catar 2022. La final se juega el 19 de julio en el MetLife — el mismo estadio que abrió esta ronda con el Brasil – Noruega.</div></div>';
+  colWrap("Octavos · 4-7 jul",octH)+
+  colWrap("Cuartos · 9-12 jul",cuaH)+
+  colWrap("Semifinales · 14-15 jul",colStatic(CUADRO.semis))+
+  colWrap("El desenlace",colStatic(CUADRO.final))+
+  '<div class="brkCol"><h4>Camino</h4><div class="brkM" style="font-size:.78rem;color:var(--tx2);line-height:1.7">Los 8 cruces de octavos alimentan los 4 cuartos: el cuadro se rellena solo con cada resultado del feed en vivo. La final se juega el 19 de julio en el MetLife, Nueva Jersey — el mismo estadio que abrió esta ronda.</div></div>';
 }
 
 /* ================= RENDER: CALENDARIO ================= */
@@ -2403,23 +2595,32 @@ function mostrarUpd(v){
   '<button class="btn ghost sm" onclick="this.parentNode.remove()">Luego</button>';
  document.body.appendChild(d);
 }
-function tickRefresco(){safe(renderInicio);safe(renderFeeds);safe(renderCuadro);}
+function tickRefresco(){safe(renderInicio);safe(renderFeeds);safe(renderCuadro);if(PAGINA==="partidos")safe(renderPartidos);else if(PAGINA==="valor")safe(renderValor);}
 document.addEventListener("visibilitychange",function(){if(!document.hidden)checkNuevaVersion();});
 
 /* ================= COMBINADAS (laboratorio) ================= */
-var LEGS=[
- {id:"1",t:"Gana Brasil (90')",c:1.885,grp:"res"},
- {id:"X",t:"Empate (90')",c:3.40,grp:"res"},
- {id:"2",t:"Gana Noruega (90')",c:4.15,grp:"res"},
- {id:"BQ",t:"Brasil clasifica (como sea)",c:1.41,grp:"cla"},
- {id:"NQ",t:"Noruega clasifica",c:2.82,grp:"cla"},
- {id:"O25",t:"Más de 2,5 goles",c:1.75,grp:"gol"},
- {id:"BTTS",t:"Ambos equipos marcan — sí",c:1.61,grp:"gol"},
- {id:"ODE",t:"Ødegaard marca en cualquier momento",c:7.0,grp:"jug"},
- {id:"HAT",t:"Hat-trick de Haaland",c:37.0,grp:"jug"}
-];
-/* imposibles juntas o solapadas (la casa no las combina) */
-var LEG_CONF=[["1","X"],["1","2"],["X","2"],["BQ","NQ"],["1","NQ"],["2","BQ"],["1","BQ"],["2","NQ"]];
+/* Las selecciones se generan del partido destacado con cuotas reales del feed.
+   Solo mercados con precio publicado: 1X2 y línea de goles (más/menos). */
+var LEGS=[], LEG_CONF=[];
+function rebuildLegs(){
+ var p=partidoDestacado(),od=oddsPara(p.home,p.away),ca=p.home,cb=p.away,legs=[];
+ if(od&&od.h2h){
+  var o=od.h2h;
+  legs.push({id:"1",t:"Gana "+NOM[ca]+" (90')",c:o.home,grp:"res"});
+  if(o.draw)legs.push({id:"X",t:"Empate (90')",c:o.draw,grp:"res"});
+  legs.push({id:"2",t:"Gana "+NOM[cb]+" (90')",c:o.away,grp:"res"});
+ }
+ if(od&&od.tot){
+  legs.push({id:"O",t:"Más de "+coma(od.tot.punto)+" goles",c:od.tot.over,grp:"gol"});
+  legs.push({id:"U",t:"Menos de "+coma(od.tot.punto)+" goles",c:od.tot.under,grp:"gol"});
+ }
+ LEGS=legs;
+ LEG_CONF=[["1","X"],["1","2"],["X","2"],["O","U"]];  /* 1X2 y O/U son excluyentes */
+ if(typeof combiSel!=="undefined")combiSel=combiSel.filter(function(id){return legById(id);});
+ var sub=document.querySelector('#p-combinadas .pageSub');
+ if(sub)sub.textContent=NOM[ca]+" – "+NOM[cb]+" · construidas con las cuotas reales del feed en vivo — el azar decide, los números no mienten";
+ return LEGS;
+}
 function legConflicto(ids){
  for(var i=0;i<LEG_CONF.length;i++){
   if(ids.indexOf(LEG_CONF[i][0])>-1&&ids.indexOf(LEG_CONF[i][1])>-1)return LEG_CONF[i];
@@ -2434,6 +2635,7 @@ function combiCalc(ids){
 }
 function renderCombiTop(){
  var box=$("#combiTop"); if(!box)return;
+ if(!LEGS.length){box.innerHTML='<div class="empty">Aún no hay cuotas publicadas para el próximo cruce. En cuanto el feed las traiga, aquí aparecerán las combinadas más probables.</div>';return;}
  /* todas las duplas y algunos tríos sin conflicto, ordenadas por prob conjunta */
  var combos=[];
  for(var i=0;i<LEGS.length;i++)for(var j=i+1;j<LEGS.length;j++){
@@ -2479,6 +2681,7 @@ function toggleLeg(id){
 }
 function renderCombiLegs(){
  var box=$("#combiLegs"); if(!box)return;
+ if(!LEGS.length){box.innerHTML='<div class="empty">Sin cuotas publicadas todavía para el próximo cruce.</div>';var o0=$("#combiOut");if(o0)o0.innerHTML="";return;}
  var h="";
  LEGS.forEach(function(l){
   var on=combiSel.indexOf(l.id)>-1;
@@ -2511,7 +2714,8 @@ function renderCombiLegs(){
 function combiARegistro(){
  if(combiSel.length<2)return;
  var r=combiCalc(combiSel);
- $("#nbPartido").value="BRA – NOR";
+ var p=partidoDestacado();
+ $("#nbPartido").value=NOM[p.home]+" – "+NOM[p.away];
  $("#nbDesc").value=combiSel.map(function(id){return legById(id).t}).join(" + ");
  $("#nbCuota").value=r.cuota.toFixed(2);
  $("#nbStake").value="";
@@ -2537,6 +2741,7 @@ function initApp(){
  safe(renderBank);
  safe(renderBets);
  safe(renderBreakeven);
+ safe(rebuildLegs);
  safe(renderCombiTop);
  safe(renderCombiLegs);
  setInterval(tickRefresco,UPD_TICK_MS);
@@ -2546,7 +2751,7 @@ function initApp(){
  fetchLive(); fetchFootball();
  if(liveTimer)clearInterval(liveTimer); liveTimer=setInterval(function(){fetchLive();fetchFootball();},5*60*1000);
  var _d0=partidoDestacado();
- pushMsg("Hola, David. Trabajo con los datos verificados cargados en la web (al cierre del 5 de julio). El siguiente cruce del calendario es "+NOM[_d0.home]+" – "+NOM[_d0.away]+" ("+_d0.dt+"). Pregúntame por córners, tarjetas, jugadores o tu balance, y pulsa cualquier partido para ver su careo. Un apunte honesto: las cuotas verificadas cargadas eran del Brasil–Noruega, que ya se jugó; para cuotas al minuto haría falta conectar una fuente en directo.","b");
+ pushMsg("Hola, David. Los resultados y las cuotas se actualizan solos desde el feed en vivo. El siguiente cruce del calendario es "+NOM[_d0.home]+" – "+NOM[_d0.away]+" ("+_d0.dt+"). Pregúntame por córners, tarjetas, jugadores o tu balance, pulsa cualquier partido para ver su careo, y mira «Datos y cuotas» para las cuotas reales al minuto del próximo partido.","b");
  var h=(location.hash||"#inicio").slice(1);
  if($("#p-"+h))nav(h);
 }
