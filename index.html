@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex,nofollow">
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests">
-<title>WCAI · Mundial 2026</title>
+<title>Criterio · Mundial 2026</title>
 <script>/* anti-clickjacking: si nos cargan dentro de un iframe, rompemos el marco */
 try{if(window.top!==window.self){window.top.location=window.self.location;}}catch(e){document.documentElement.style.display="none";}</script>
 <style>
@@ -420,8 +420,8 @@ nav.bott{display:none}
 <!-- ============ PIN ============ -->
 <div id="gate">
  <div class="gateBox">
-  <div class="gLogo"><span class="gMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>WC<em>AI</em></b></div>
-  <div class="gSub">Panel de análisis · Mundial 2026</div>
+  <div class="gLogo"><span class="gMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio</b></div>
+  <div class="gSub">Datos y análisis del Mundial 2026</div>
   <div class="gLock"><svg class="i" viewBox="0 0 24 24" style="width:13px;height:13px"><use href="#ic-shield"/></svg>Acceso restringido</div>
   <p>Datos verificados, estadísticas y seguimiento personal.<br>Introduce tu PIN para continuar.</p>
   <input id="pinIn" type="password" inputmode="numeric" maxlength="4" placeholder="····" autocomplete="off">
@@ -435,7 +435,7 @@ nav.bott{display:none}
 <div id="app">
 
 <nav class="side">
-  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>WC<em>AI</em></b><span class="ver" id="verChip">V31</span></div>
+  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio</b><span class="ver" id="verChip">V32</span></div>
   <a href="#inicio" data-p="inicio" class="on"><svg class="i" viewBox="0 0 24 24"><use href="#ic-home"/></svg>Inicio</a>
   <a href="#partidos" data-p="partidos"><svg class="i" viewBox="0 0 24 24"><use href="#ic-ball"/></svg>Partidos</a>
   <a href="#analisis" data-p="analisis"><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Análisis</a>
@@ -671,12 +671,12 @@ nav.bott{display:none}
 
 <!-- ---------- ASISTENTE ---------- -->
 <section class="page" id="p-asistente">
-  <h2 class="pageT">Asistente WCAI</h2>
+  <h2 class="pageT">Asistente</h2>
   <div class="pageSub">Motor local — responde solo con los datos verificados de esta plataforma</div>
   <div class="card">
     <div class="botHd">
       <span class="botAv"><svg viewBox="0 0 24 24"><use href="#ic-bot"/></svg></span>
-      <div><b style="font-size:.92rem">Asistente WCAI</b><div class="st">En línea · sin conexión externa</div></div>
+      <div><b style="font-size:.92rem">Asistente</b><div class="st">En línea · sin conexión externa</div></div>
     </div>
     <div class="chatWrap">
       <div id="chatLog"></div>
@@ -758,7 +758,7 @@ nav.bott{display:none}
 
 <script>
 "use strict";
-var VERSION="V31";
+var VERSION="V32";
 /* PIN: disuasión del lado del cliente (el código llega al navegador, no es seguridad real).
    Guardamos solo un hash del PIN y limitamos los intentos para frenar el tanteo casual. */
 function hpin(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);}return (h>>>0).toString(16);}
