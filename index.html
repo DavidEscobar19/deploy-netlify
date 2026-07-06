@@ -205,7 +205,7 @@ input[type=checkbox].sw:checked::after{left:19px;background:#fff}
 /* modal */
 #modalBg{position:fixed;inset:0;background:rgba(4,5,10,.75);backdrop-filter:blur(4px);z-index:150;display:none;align-items:flex-start;justify-content:center;padding:6vh 16px;overflow-y:auto}
 #modalBg.on{display:flex}
-#modal{width:100%;max-width:640px;background:var(--panel);border:1px solid var(--border2);border-radius:18px;padding:24px;animation:fadeUp .3s ease}
+#modal{width:100%;max-width:640px;background:linear-gradient(180deg,rgba(255,255,255,.025),transparent 40%),var(--panel);border:1px solid var(--border2);border-radius:20px;padding:24px;box-shadow:0 30px 80px -30px rgba(0,0,0,.7),0 0 0 1px rgba(124,92,255,.08);animation:fadeUp .3s ease}
 #modal .mHd{display:flex;align-items:flex-start;gap:10px;margin-bottom:6px}
 #modal .mHd .x{margin-left:auto;background:var(--card2);border:1px solid var(--border);color:var(--tx2);width:30px;height:30px;border-radius:9px;font-size:.95rem;line-height:1}
 #modal .mHd .x:hover{color:var(--tx)}
@@ -257,7 +257,7 @@ input[type=checkbox].sw:checked::after{left:19px;background:#fff}
 .botHd .st::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
 
 /* bets */
-.bet{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:15px 18px;margin-bottom:11px;transition:border .2s}
+.bet{background:linear-gradient(180deg,rgba(255,255,255,.02),transparent 42%),var(--card);border:1px solid var(--border);border-radius:var(--r);padding:15px 18px;margin-bottom:11px;box-shadow:var(--shadow);transition:border .2s,box-shadow .2s}
 .bet:hover{border-color:var(--border2)}
 .bet .hd{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
 .bet .hd b{font-size:.9rem}
@@ -435,7 +435,7 @@ nav.bott{display:none}
 <div id="app">
 
 <nav class="side">
-  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip">V36</span></div>
+  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip">V37</span></div>
   <a href="#inicio" data-p="inicio" class="on"><svg class="i" viewBox="0 0 24 24"><use href="#ic-home"/></svg>Inicio</a>
   <a href="#partidos" data-p="partidos"><svg class="i" viewBox="0 0 24 24"><use href="#ic-ball"/></svg>Partidos</a>
   <a href="#analisis" data-p="analisis"><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Análisis</a>
@@ -758,7 +758,7 @@ nav.bott{display:none}
 
 <script>
 "use strict";
-var VERSION="V36";
+var VERSION="V37";
 /* PIN: disuasión del lado del cliente (el código llega al navegador, no es seguridad real).
    Guardamos solo un hash del PIN y limitamos los intentos para frenar el tanteo casual. */
 function hpin(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);}return (h>>>0).toString(16);}
