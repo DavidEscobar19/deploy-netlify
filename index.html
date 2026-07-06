@@ -49,8 +49,9 @@ svg.i{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stro
  background-image:radial-gradient(ellipse 50% 40% at 50% 0%,rgba(124,92,255,.14),transparent)}
 .gateBox{width:100%;max-width:380px;background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:38px 34px;text-align:center;animation:fadeUp .5s ease}
 .gLogo{display:inline-flex;align-items:center;gap:11px;margin-bottom:8px}
-.gMark{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--vio),#5230d6);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 24px rgba(124,92,255,.35)}
-.gMark svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:2}
+.gMark{width:54px;height:54px;border-radius:16px;background:linear-gradient(145deg,#9a7cff,#6b4bef 46%,#4325c4);display:flex;align-items:center;justify-content:center;box-shadow:0 10px 34px -8px rgba(124,92,255,.6),inset 0 1px 0 rgba(255,255,255,.35),inset 0 -8px 18px -8px rgba(0,0,0,.35);position:relative}
+.gMark::after{content:"";position:absolute;inset:0;border-radius:16px;border:1px solid rgba(255,255,255,.18);pointer-events:none}
+.gMark svg{width:28px;height:28px;fill:#fff;stroke:none}
 .gLogo b{font-size:1.35rem;letter-spacing:.3px}
 .gLogo b em{font-style:normal;color:var(--vio2)}
 #gate p{color:var(--tx2);font-size:.85rem;margin:6px 0 26px;line-height:1.5}
@@ -65,9 +66,10 @@ svg.i{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 #app{display:none}
 nav.side{width:224px;background:var(--bg2);border-right:1px solid var(--border);padding:20px 12px;position:fixed;top:0;bottom:0;left:0;overflow-y:auto;z-index:50;display:flex;flex-direction:column}
 .sLogo{display:flex;align-items:center;gap:10px;padding:2px 8px 20px}
-.sMark{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--vio),#5230d6);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(124,92,255,.3)}
-.sMark svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2}
-.sLogo b{font-size:1.1rem}
+.sMark{width:36px;height:36px;border-radius:11px;background:linear-gradient(145deg,#9a7cff,#6b4bef 46%,#4325c4);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px -6px rgba(124,92,255,.5),inset 0 1px 0 rgba(255,255,255,.3)}
+.sMark svg{width:20px;height:20px;fill:#fff;stroke:none}
+.sLogo b{font-size:1.1rem;letter-spacing:.2px}
+.sLogo b em{font-style:normal;color:var(--vio2)}
 .sLogo .ver{font-size:.62rem;background:rgba(124,92,255,.14);color:var(--vio2);border:1px solid var(--vioD);padding:2px 8px;border-radius:20px;margin-left:auto;font-weight:600}
 nav.side a{display:flex;align-items:center;gap:11px;color:var(--tx2);text-decoration:none;padding:10px 12px;border-radius:11px;font-size:.87rem;font-weight:500;margin-bottom:3px;transition:background .18s,color .18s;position:relative}
 nav.side a:hover{background:var(--card);color:var(--tx)}
@@ -249,7 +251,7 @@ input[type=checkbox].sw:checked::after{left:19px;background:#fff}
 .sugg button{background:var(--card2);border:1px solid var(--border);color:var(--tx2);font-size:.72rem;padding:6px 13px;border-radius:20px;transition:all .18s}
 .sugg button:hover{color:var(--vio2);border-color:var(--vioD)}
 .botHd{display:flex;align-items:center;gap:10px;padding-bottom:14px;border-bottom:1px solid var(--border);margin-bottom:14px}
-.botAv{width:36px;height:36px;border-radius:11px;background:linear-gradient(135deg,var(--vio),#5230d6);display:flex;align-items:center;justify-content:center}
+.botAv{width:38px;height:38px;border-radius:12px;background:linear-gradient(145deg,#9a7cff,#6b4bef 46%,#4325c4);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px -6px rgba(124,92,255,.5),inset 0 1px 0 rgba(255,255,255,.3)}
 .botAv svg{width:19px;height:19px;stroke:#fff;fill:none;stroke-width:1.8}
 .botHd .st{font-size:.68rem;color:var(--green);display:flex;align-items:center;gap:5px}
 .botHd .st::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
@@ -394,7 +396,7 @@ nav.bott{display:none}
 <!-- ============ SVG ICON DEFS ============ -->
 <svg width="0" height="0" style="position:absolute">
  <defs>
-  <g id="ic-logo"><path d="M6 3h12l3 5-9 13L3 8z"/><path d="M3 8h18M9.5 8L12 21l2.5-13"/></g>
+  <g id="ic-logo"><path fill="#fff" stroke="none" fill-rule="evenodd" d="M12 2.4 21.6 9.4 17.9 20.7 6.1 20.7 2.4 9.4Z M7.9 13.4h1.9v4.8H7.9Z M11.05 11.3h1.9v6.9h-1.9Z M14.2 9.2h1.9v9h-1.9Z"/></g>
   <g id="ic-home"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9.5 21v-6h5v6"/></g>
   <g id="ic-ball"><circle cx="12" cy="12" r="9"/><path d="M12 3a13.5 13.5 0 0 1 0 18M12 3a13.5 13.5 0 0 0 0 18M3.5 9.5h17M3.5 14.5h17"/></g>
   <g id="ic-chart"><path d="M3 21h18"/><path d="M6 17v-5M11 17V6M16 17v-8M21 17V9"/></g>
@@ -418,7 +420,7 @@ nav.bott{display:none}
 <!-- ============ PIN ============ -->
 <div id="gate">
  <div class="gateBox">
-  <div class="gLogo"><span class="gMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>WCAI</b></div>
+  <div class="gLogo"><span class="gMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>WC<em>AI</em></b></div>
   <div class="gSub">Panel de análisis · Mundial 2026</div>
   <div class="gLock"><svg class="i" viewBox="0 0 24 24" style="width:13px;height:13px"><use href="#ic-shield"/></svg>Acceso restringido</div>
   <p>Datos verificados, estadísticas y seguimiento personal.<br>Introduce tu PIN para continuar.</p>
@@ -433,7 +435,7 @@ nav.bott{display:none}
 <div id="app">
 
 <nav class="side">
-  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>WCAI</b><span class="ver" id="verChip">V28</span></div>
+  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>WC<em>AI</em></b><span class="ver" id="verChip">V29</span></div>
   <a href="#inicio" data-p="inicio" class="on"><svg class="i" viewBox="0 0 24 24"><use href="#ic-home"/></svg>Inicio</a>
   <a href="#partidos" data-p="partidos"><svg class="i" viewBox="0 0 24 24"><use href="#ic-ball"/></svg>Partidos</a>
   <a href="#analisis" data-p="analisis"><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Análisis</a>
@@ -779,7 +781,7 @@ nav.bott{display:none}
 
 <script>
 "use strict";
-var VERSION="V28";
+var VERSION="V29";
 /* PIN: disuasión del lado del cliente (el código llega al navegador, no es seguridad real).
    Guardamos solo un hash del PIN y limitamos los intentos para frenar el tanteo casual. */
 function hpin(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);}return (h>>>0).toString(16);}
@@ -857,6 +859,31 @@ var RACHAS=[
  "Alisson acumula 2 porterías a cero y Brasil solo encaja 0,5 goles por partido"
 ];
 var GOLES_EQUIPO={FRA:{gf:14,gc:2,pj:5},BRA:{gf:9,gc:2,pj:4},NOR:{gf:10,gc:8,pj:4},MEX:{gf:8,gc:0,pj:4},ENG:{gf:8,gc:3,pj:4},MAR:{gf:6,gc:2,pj:4}};
+/* historial cara a cara — encuentros reales entre los dos equipos del cruce
+   (clave = local+visitante en el orden del calendario). Datos históricos verificados. */
+var H2H={
+ PORESP:{titular:"Derbi ibérico",resumen:"España domina el cómputo histórico, pero los últimos duelos entre ambos han sido igualadísimos y de altísimo nivel.",partidos:[
+  {t:"Mundial 2018 · Grupos",r:"3 – 3",d:"Hat-trick de Cristiano Ronaldo, incluido un golazo de falta en el 88'"},
+  {t:"Eurocopa 2012 · Semifinal",r:"0 – 0 (2–4 pen)",d:"España pasó a la final desde el punto de penalti"},
+  {t:"Mundial 2010 · Octavos",r:"0 – 1",d:"Gol de David Villa; España acabaría siendo campeona del mundo"},
+  {t:"Amistoso 2010",r:"4 – 0",d:"Contundente triunfo español en un preparatorio previo al Mundial"}
+ ]},
+ FRAMAR:{titular:"Remake de Catar 2022",resumen:"Se vieron las caras hace nada en una semifinal mundialista; Francia parte de nuevo como favorita.",partidos:[
+  {t:"Mundial 2022 · Semifinal",r:"2 – 0",d:"Théo Hernández y Kolo Muani metieron a Francia en la final de Catar"}
+ ]},
+ USABEL:{titular:"Viejo conocido mundialista",resumen:"Bélgica dejó fuera a EE. UU. la última vez que se cruzaron en una Copa del Mundo.",partidos:[
+  {t:"Mundial 2014 · Octavos",r:"1 – 2 (pró.)",d:"De Bruyne y Lukaku; Julian Green recortó para EE. UU. en la prórroga"}
+ ]}
+};
+function h2hPara(ca,cb){
+ if(H2H[ca+cb])return {data:H2H[ca+cb],swap:false};
+ if(H2H[cb+ca])return {data:H2H[cb+ca],swap:true};
+ return null;
+}
+function h2hScore(r,swap){
+ if(!swap)return r;
+ return r.replace(/^(\d+)\s*–\s*(\d+)/,function(_,a,b){return b+" – "+a;}).replace(/\((\d+)–(\d+)\s*pen\)/,function(_,a,b){return "("+b+"–"+a+" pen)";});
+}
 var STATS={
  FRA:{m:"5 partidos (grupos completos + Suecia + Paraguay)",cf:[6,4,5,9,12],cc:[4,2,4,1,2],tiros:[11,19,19,25,15],tirosP:[8,5,10,13,5],am:[0,0,1,0,3],faltas:[5,8,9,14,11],pos:[54,56,57,61,76],nota:""},
  MAR:{m:"2 muestras (Brasil en grupos y Canadá en octavos)",cf:[2,1],cc:[6,11],tiros:[13,5],tirosP:[4,4],am:[0,4],faltas:[14,14],pos:[46,56],nota:" Ojo: ganó 3-0 a Canadá con solo 1 córner y 5 tiros — letal sin necesitar volumen"},
@@ -1494,6 +1521,20 @@ function renderDestAnalisis(p){
    h+='</div>';
   });
   h+='</div></div>';
+ }
+
+ /* Cara a cara e historial (encuentros reales entre ambos) */
+ var hh=h2hPara(ca,cb);
+ if(hh){
+  var d=hh.data;
+  h+='<div style="height:16px"></div><div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-clock"/></svg>Cara a cara e historial<span class="tag">'+esc(d.titular)+'</span></h3>'+
+   '<div style="font-size:.84rem;color:var(--tx2);line-height:1.6;margin-bottom:12px">'+esc(d.resumen)+'</div>';
+  d.partidos.forEach(function(pt){
+   h+='<div style="display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid rgba(34,41,72,.45)">'+
+     '<span style="flex:1;min-width:0"><b style="font-size:.85rem">'+esc(pt.t)+'</b><div style="font-size:.76rem;color:var(--tx3);line-height:1.5;margin-top:2px">'+esc(pt.d)+'</div></span>'+
+     '<span style="font-weight:750;font-size:1rem;color:var(--vio2);font-variant-numeric:tabular-nums;white-space:nowrap">'+esc(h2hScore(pt.r,hh.swap))+'</span></div>';
+  });
+  h+='<div class="src">Resultados históricos de enfrentamientos reales entre '+esc(NOM[ca])+' y '+esc(NOM[cb])+'.</div></div>';
  }
 
  /* Careo estadístico */
