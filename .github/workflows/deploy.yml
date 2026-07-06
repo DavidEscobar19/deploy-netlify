@@ -19,7 +19,8 @@ jobs:
           node-version: 20
 
       - name: Deploy to Netlify (prod)
-        run: npx --yes netlify-cli@26 deploy --prod --dir=. --message "CI: ${GITHUB_SHA}"
+        run: |
+          npx --yes netlify-cli@26 deploy --prod --dir=. --message "Deploy ${GITHUB_SHA}"
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
