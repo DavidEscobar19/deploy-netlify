@@ -435,7 +435,7 @@ nav.bott{display:none}
 <div id="app">
 
 <nav class="side">
-  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>WC<em>AI</em></b><span class="ver" id="verChip">V30</span></div>
+  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>WC<em>AI</em></b><span class="ver" id="verChip">V31</span></div>
   <a href="#inicio" data-p="inicio" class="on"><svg class="i" viewBox="0 0 24 24"><use href="#ic-home"/></svg>Inicio</a>
   <a href="#partidos" data-p="partidos"><svg class="i" viewBox="0 0 24 24"><use href="#ic-ball"/></svg>Partidos</a>
   <a href="#analisis" data-p="analisis"><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Análisis</a>
@@ -456,6 +456,7 @@ nav.bott{display:none}
 <nav class="bott">
   <a href="#inicio" data-p="inicio" class="on"><svg viewBox="0 0 24 24"><use href="#ic-home"/></svg>Inicio</a>
   <a href="#partidos" data-p="partidos"><svg viewBox="0 0 24 24"><use href="#ic-ball"/></svg>Partidos</a>
+  <a href="#analisis" data-p="analisis"><svg viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Análisis</a>
   <a href="#valor" data-p="valor"><svg viewBox="0 0 24 24"><use href="#ic-target"/></svg>Cuotas</a>
   <a href="#combinadas" data-p="combinadas"><svg viewBox="0 0 24 24"><use href="#ic-stack"/></svg>Combi</a>
   <a href="#cuadro" data-p="cuadro"><svg viewBox="0 0 24 24"><use href="#ic-trophy"/></svg>Cuadro</a>
@@ -473,7 +474,6 @@ nav.bott{display:none}
 
 <!-- ---------- INICIO ---------- -->
 <section class="page on" id="p-inicio">
-  <div class="card" id="liveCard" style="display:none;margin-bottom:16px"></div>
   <div class="grid g32">
     <div class="card hl" id="destCard"></div>
     <div class="card">
@@ -758,7 +758,7 @@ nav.bott{display:none}
 
 <script>
 "use strict";
-var VERSION="V30";
+var VERSION="V31";
 /* PIN: disuasión del lado del cliente (el código llega al navegador, no es seguridad real).
    Guardamos solo un hash del PIN y limitamos los intentos para frenar el tanteo casual. */
 function hpin(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);}return (h>>>0).toString(16);}
@@ -1485,6 +1485,25 @@ function analisisCards(p,opt){
  var ca=p.home,cb=p.away,od=oddsPara(ca,cb),m=modeloPartido(p,od),h="";
  var _first=true; function sep(){var s=_first?"":'<div style="height:16px"></div>';_first=false;return s;}
 
+ /* (full) Veredicto del análisis — síntesis de los números en lenguaje claro */
+ if(opt.full){
+  var favEs=m.pw>=m.pl, favC=favEs?ca:cb, favP=Math.max(m.pw,m.pl)*100, dP=m.pd*100;
+  var goleador=m.lh>=m.la?ca:cb;
+  var chips="";
+  chips+='<span class="chip v">'+esc(NOM[favC])+' favorito · '+coma(favP,0)+'%</span>';
+  chips+='<span class="chip">Empate '+coma(dP,0)+'%</span>';
+  chips+='<span class="chip '+(m.over[2.5]>=0.5?"g":"")+'">'+(m.over[2.5]>=0.5?"Tiende a +2,5":"Tiende a −2,5")+' goles</span>';
+  chips+='<span class="chip '+(m.btts>=0.5?"g":"")+'">Ambos marcan '+coma(m.btts*100,0)+'%</span>';
+  var txt="El modelo hace favorito a <b>"+esc(NOM[favC])+"</b> ("+coma(favP,0)+"%), con "+
+   (favP-dP<12?"un empate muy en juego":"cierto margen sobre el empate")+". Espera un partido de <b>"+coma(m.L,1)+" goles</b> ("+
+   coma(m.lh,1)+" de "+esc(NOM[ca])+" · "+coma(m.la,1)+" de "+esc(NOM[cb])+"), con "+esc(NOM[goleador])+" como equipo que más marcaría. "+
+   (m.btts>=0.55?"Escenario propicio a que ambos marquen.":m.over[2.5]<0.45?"Pinta a partido cerrado y de pocos goles.":"Partido de goles en la media.");
+  h+=sep()+'<div class="card hl"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-check"/></svg>Veredicto del modelo</h3>'+
+   '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:11px">'+chips+'</div>'+
+   '<div style="font-size:.86rem;color:var(--tx2);line-height:1.65">'+txt+'</div>'+
+   '<div class="src">Síntesis automática del modelo de goles. No es una recomendación de apuesta: es lo que dicen los números.</div></div>';
+ }
+
  /* Cómo llegan + bajas/dudas + últimos resultados */
  var fa=FICHAS[ca],fb=FICHAS[cb];
  if(fa||fb){
@@ -1532,7 +1551,23 @@ function analisisCards(p,opt){
   h+='<div class="src">Recuento por partido (SportRadar). Muestra pequeña en eliminatorias: tendencia, no certeza.</div></div>';
  }
 
- /* (full) Modelo vs mercado */
+ /* (full) Proyección de córners y tarjetas (de las medias de ambos) */
+ if(opt.full&&sa&&sb){
+  var corA=(media(sa.cf)+media(sb.cc))/2, corB=(media(sb.cf)+media(sa.cc))/2, corT=corA+corB;
+  var tarA=media(sa.am), tarB=media(sb.am), tarT=tarA+tarB;
+  function nearLine(x,step){var half=Math.floor(x/step)*step+step/2;return half;}
+  var lineaCor=nearLine(corT,1), lineaTar=nearLine(tarT,1);
+  h+=sep()+'<div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-target"/></svg>Proyección de córners y tarjetas<span class="tag">de las medias</span></h3>'+
+   '<div class="oddsRow"><div class="o"><div class="l">Córners '+esc(NOM[ca])+'</div><div class="v">'+coma(corA,1)+'</div></div>'+
+   '<div class="o"><div class="l">Córners '+esc(NOM[cb])+'</div><div class="v">'+coma(corB,1)+'</div></div>'+
+   '<div class="o"><div class="l">Total córners</div><div class="v">'+coma(corT,1)+'</div></div></div>'+
+   '<div class="oddsRow" style="margin-top:8px"><div class="o"><div class="l">Amarillas '+esc(NOM[ca])+'</div><div class="v">'+coma(tarA,1)+'</div></div>'+
+   '<div class="o"><div class="l">Amarillas '+esc(NOM[cb])+'</div><div class="v">'+coma(tarB,1)+'</div></div>'+
+   '<div class="o"><div class="l">Total amarillas</div><div class="v">'+coma(tarT,1)+'</div></div></div>'+
+   '<div class="src">Estimación de la media de córners de cada equipo (a favor) cruzada con los que concede el rival. Referencia de línea: ~'+coma(lineaCor,1)+' córners y ~'+coma(lineaTar,1)+' amarillas. No hay cuota oficial verificable de estos mercados; es una proyección estadística.</div></div>';
+ }
+
+ /* (full) Modelo vs mercado + apuestas de valor */
  if(opt.full&&od&&od.h2h){
   var o=od.h2h,inv=[1/o.home,(o.draw?1/o.draw:0),1/o.away],si=inv[0]+inv[1]+inv[2],impl=inv.map(function(x){return x/si*100});
   h+=sep()+'<div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Modelo vs mercado<span class="tag">1X2</span></h3>';
@@ -1542,6 +1577,20 @@ function analisisCards(p,opt){
     '<div class="bar"><i style="width:'+r[2]+'%;background:'+r[3]+';opacity:.38"></i></div></div></div>';
   });
   h+='<div class="src">Barra superior: modelo SportRadar. Barra inferior: implícita del mercado sin margen. Donde difieren hay información.</div></div>';
+
+  /* Apuestas de valor: EV = prob_modelo × cuota_real − 1 */
+  var evItems=[{t:"1 · "+NOM[ca],pr:p.prob[0]/100,c:o.home},{t:"X · Empate",pr:p.prob[1]/100,c:o.draw},{t:"2 · "+NOM[cb],pr:p.prob[2]/100,c:o.away}];
+  if(od.tot){evItems.push({t:"Más de "+coma(od.tot.punto),pr:m.over[2.5],c:od.tot.over});evItems.push({t:"Menos de "+coma(od.tot.punto),pr:1-m.over[2.5],c:od.tot.under});}
+  h+=sep()+'<div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-check"/></svg>Apuestas de valor<span class="tag">modelo vs cuota real</span></h3>';
+  evItems.forEach(function(it){
+   if(!it.c)return;
+   var ev=it.pr*it.c-1, val=ev>0.02;
+   h+='<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(34,41,72,.45);font-size:.84rem">'+
+     '<span style="flex:1">'+esc(it.t)+' <span style="color:var(--tx3);font-size:.76rem">· cuota '+coma(it.c,2)+'</span></span>'+
+     '<span style="width:66px;text-align:right;font-variant-numeric:tabular-nums;color:'+(ev>=0?"var(--green)":"var(--tx3)")+'">'+(ev>=0?"+":"")+coma(ev*100,1)+'%</span>'+
+     '<span class="chip '+(val?"g":"")+'" style="width:74px;justify-content:center">'+(val?"Valor":"Sin valor")+'</span></div>';
+  });
+  h+='<div class="src">Valor esperado = probabilidad del modelo × cuota real − 1. Positivo = la casa paga por encima de lo que el modelo estima. El modelo puede equivocarse: es una guía, no una certeza.</div></div>';
  }
 
  /* Pronóstico de goles + marcadores probables */
