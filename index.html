@@ -435,7 +435,7 @@ nav.bott{display:none}
 <div id="app">
 
 <nav class="side">
-  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip">V34</span></div>
+  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip">V35</span></div>
   <a href="#inicio" data-p="inicio" class="on"><svg class="i" viewBox="0 0 24 24"><use href="#ic-home"/></svg>Inicio</a>
   <a href="#partidos" data-p="partidos"><svg class="i" viewBox="0 0 24 24"><use href="#ic-ball"/></svg>Partidos</a>
   <a href="#analisis" data-p="analisis"><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Análisis</a>
@@ -468,7 +468,7 @@ nav.bott{display:none}
 <main>
 
 <div class="topbar">
-  <div class="hi">Bienvenido de nuevo, David<span id="hoyFecha"></span></div>
+  <div class="hi">Bienvenido<span id="hoyFecha"></span></div>
   <div class="saldoChip"><div class="lb">Saldo disponible</div><div class="v" id="saldoTop">—</div></div>
 </div>
 
@@ -758,7 +758,7 @@ nav.bott{display:none}
 
 <script>
 "use strict";
-var VERSION="V34";
+var VERSION="V35";
 /* PIN: disuasión del lado del cliente (el código llega al navegador, no es seguridad real).
    Guardamos solo un hash del PIN y limitamos los intentos para frenar el tanteo casual. */
 function hpin(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);}return (h>>>0).toString(16);}
@@ -2685,7 +2685,7 @@ function botResponde(qRaw){
 
  /* cortesía */
  if(/^(gracias|muchas gracias|genial|perfecto|vale gracias|crack|eres un crack|de lujo|mil gracias)\b/.test(q))return pick(["De nada, para eso estoy.","Un placer.","Cuando quieras."])+" Aquí sigo: equipos, jugadores, cuotas de hoy, combinadas o tu balance — lo que necesites.";
- if(/^(adios|hasta luego|chao|chau|buenas noches|me voy|nos vemos|hasta mañana)\b/.test(q))return pick(["Hasta luego, David.","Nos vemos.","Cuídate."])+" Y recuerda: si registras lo que apuestes, tu balance real siempre estará esperándote aquí.";
+ if(/^(adios|hasta luego|chao|chau|buenas noches|me voy|nos vemos|hasta mañana)\b/.test(q))return pick(["Hasta luego.","Nos vemos.","Cuídate."])+" Y recuerda: si registras lo que apuestes, tu balance real siempre estará esperándote aquí.";
 
  /* identidad del asistente */
  if(tiene("quien eres","que eres","eres una ia","eres un bot","eres humano","como funcionas","como te llamas","que modelo eres")){
@@ -2870,7 +2870,7 @@ function botResponde(qRaw){
    return "No tengo partido programado de "+NOM[eqs[0]]+" en esta versión.";
   }
  }
- if(/^(hola|buenas|hey|que tal|ey|holaa|buenos dias|buenas tardes|saludos)/.test(q))return pick(["¡Hola, David!","¡Ey! ¿Qué miramos hoy?","¡Buenas!"])+" Razono con datos reales de los 15 equipos vivos (act. 5 jul): córners, tarjetas, tiros y posesión de cada uno, jugadores («¿ves factible que marque Haaland?»), cuotas verificadas del partido de hoy, resultados, bajas, cuadro y tu balance. Yo no elijo apuestas — te doy los números y decides tú.";
+ if(/^(hola|buenas|hey|que tal|ey|holaa|buenos dias|buenas tardes|saludos)/.test(q))return pick(["¡Hola!","¡Ey! ¿Qué miramos hoy?","¡Buenas!"])+" Razono con datos reales de los 15 equipos vivos (act. 5 jul): córners, tarjetas, tiros y posesión de cada uno, jugadores («¿ves factible que marque Haaland?»), cuotas verificadas del partido de hoy, resultados, bajas, cuadro y tu balance. Yo no elijo apuestas — te doy los números y decides tú.";
  if(tiene("ayuda","que sabes","que puedes"))return "Puedo responder sobre: horarios y agenda · resultados · probabilidades del modelo · córners, tarjetas, tiros y posesión de los 15 vivos · jugadores con argumentos a favor y en contra · cuotas verificadas de hoy (incluido más/menos de 2,5) · bajas y forma · cuadro · tu balance y bankroll · simulaciones («simula 20 a 2.5»). Recuerdo de qué equipo hablamos, así que puedes encadenar («¿y sus tarjetas?»). Lo que nunca hago: elegir apuestas por ti.";
  /* fallback consciente del equipo detectado (did-you-mean) */
  if(eqs.length){
@@ -3108,7 +3108,7 @@ function initApp(){
  fetchLive(); fetchFootball();
  if(liveTimer)clearInterval(liveTimer); liveTimer=setInterval(function(){fetchLive();fetchFootball();},5*60*1000);
  var _d0=partidoDestacado();
- pushMsg("Hola, David. Los resultados y las cuotas se actualizan solos desde el feed en vivo. El siguiente cruce del calendario es "+NOM[_d0.home]+" – "+NOM[_d0.away]+" ("+_d0.dt+"). Pregúntame por córners, tarjetas, jugadores o tu balance, pulsa cualquier partido para ver su careo, y mira «Datos y cuotas» para las cuotas reales al minuto del próximo partido.","b");
+ pushMsg("Hola. Los resultados y las cuotas se actualizan solos desde el feed en vivo. El siguiente cruce del calendario es "+NOM[_d0.home]+" – "+NOM[_d0.away]+" ("+_d0.dt+"). Pregúntame por córners, tarjetas, jugadores o tu balance, pulsa cualquier partido para ver su careo, y mira «Datos y cuotas» para las cuotas reales al minuto del próximo partido.","b");
  var h=(location.hash||"#inicio").slice(1);
  if($("#p-"+h))nav(h);
 }
