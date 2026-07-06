@@ -435,7 +435,7 @@ nav.bott{display:none}
 <div id="app">
 
 <nav class="side">
-  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>WC<em>AI</em></b><span class="ver" id="verChip">V29</span></div>
+  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>WC<em>AI</em></b><span class="ver" id="verChip">V30</span></div>
   <a href="#inicio" data-p="inicio" class="on"><svg class="i" viewBox="0 0 24 24"><use href="#ic-home"/></svg>Inicio</a>
   <a href="#partidos" data-p="partidos"><svg class="i" viewBox="0 0 24 24"><use href="#ic-ball"/></svg>Partidos</a>
   <a href="#analisis" data-p="analisis"><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Análisis</a>
@@ -515,34 +515,11 @@ nav.bott{display:none}
 
 <!-- ---------- ANALISIS ---------- -->
 <section class="page" id="p-analisis">
-  <h2 class="pageT">Análisis</h2>
-  <div class="pageSub">Rankings y probabilidades del modelo — solo datos verificados</div>
-  <div class="grid g2">
-    <div class="card">
-      <h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-trophy"/></svg>Bota de Oro<span class="tag">pulsa un jugador: análisis a favor / en contra</span></h3>
-      <div id="tblGoles"></div>
-      <div class="src">Desempate: 1.º asistencias, 2.º minutos jugados.</div>
-    </div>
-    <div class="card">
-      <h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Máximos asistentes</h3>
-      <div id="tblAsis"></div>
-      <div style="height:18px"></div>
-      <h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-warn"/></svg>Rachas y datos calientes</h3>
-      <div id="rachasBox" style="font-size:.83rem;color:var(--tx2);line-height:1.7"></div>
-    </div>
-  </div>
+  <h2 class="pageT">Análisis del partido</h2>
+  <div class="pageSub">Todo sobre el próximo cruce a jugarse: histórico, forma, careo, modelo, mercados y datos — se actualiza solo</div>
+  <div id="analisisHero"></div>
   <div style="height:16px"></div>
-  <div class="card">
-    <h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Ranking estadístico<span class="tag">pulsa una columna para ordenar · medias por partido</span></h3>
-    <div id="rankBox"></div>
-    <div class="src">Recuento oficial por partido (SportRadar). Muestras de 1 a 5 partidos por equipo: pregunta al asistente por el tamaño de muestra de cada uno. CÓR córners a favor · C.C. concedidos · T.PTA tiros a puerta · AMAR amarillas · POS posesión.</div>
-  </div>
-  <div style="height:16px"></div>
-  <div class="card">
-    <h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-target"/></svg>Duelos de octavos — forma y bajas</h3>
-    <div id="duelosBox"></div>
-    <div class="src">Bajas y dudas según partes médicos y prensa a 5 de julio. Revisa siempre las alineaciones oficiales, que se confirman una hora antes.</div>
-  </div>
+  <div id="analisisBox"></div>
 </section>
 
 <!-- ---------- VALOR ---------- -->
@@ -781,7 +758,7 @@ nav.bott{display:none}
 
 <script>
 "use strict";
-var VERSION="V29";
+var VERSION="V30";
 /* PIN: disuasión del lado del cliente (el código llega al navegador, no es seguridad real).
    Guardamos solo un hash del PIN y limitamos los intentos para frenar el tanteo casual. */
 function hpin(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);}return (h>>>0).toString(16);}
@@ -1052,6 +1029,7 @@ function nav(p){
  /* al entrar a una vista dinámica, refréscala con lo último del feed */
  if(p==="partidos")safe(renderPartidos);
  else if(p==="valor")safe(renderValor);
+ else if(p==="analisis")safe(renderAnalisis);
  else if(p==="combinadas"){safe(rebuildLegs);safe(renderCombiTop);safe(renderCombiLegs);}
  else if(p==="cuadro")safe(renderCuadro);
  window.scrollTo(0,0);
@@ -1167,6 +1145,7 @@ function refreshDinamico(){
  safe(renderInicio); safe(renderCuadro);
  if(PAGINA==="partidos")safe(renderPartidos);
  else if(PAGINA==="valor")safe(renderValor);
+ else if(PAGINA==="analisis")safe(renderAnalisis);
  else if(PAGINA==="combinadas"){safe(rebuildLegs);safe(renderCombiTop);safe(renderCombiLegs);}
 }
 function h2hDe(ev){
@@ -1499,14 +1478,17 @@ function resultadosDe(c){
  (RESULTADOS||[]).forEach(function(r){if(r.home===c||r.away===c)out.push({txt:team(r.home)+" "+r.s+" "+team(r.away),dt:r.dt});});
  return out.slice(0,4);
 }
-function renderDestAnalisis(p){
- var el=$("#destAnalisis"); if(!el)return;
+/* Devuelve el HTML con todos los bloques de analítica del partido p.
+   opt.full añade extras (modelo vs mercado, jugadores con análisis, ranking del torneo). */
+function analisisCards(p,opt){
+ opt=opt||{};
  var ca=p.home,cb=p.away,od=oddsPara(ca,cb),m=modeloPartido(p,od),h="";
+ var _first=true; function sep(){var s=_first?"":'<div style="height:16px"></div>';_first=false;return s;}
 
- /* Cómo llegan + bajas/dudas */
+ /* Cómo llegan + bajas/dudas + últimos resultados */
  var fa=FICHAS[ca],fb=FICHAS[cb];
  if(fa||fb){
-  h+='<div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-shield"/></svg>Cómo llegan<span class="tag">forma, bajas y dudas</span></h3><div class="grid g2">';
+  h+=sep()+'<div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-shield"/></svg>Cómo llegan<span class="tag">forma, bajas y dudas</span></h3><div class="grid g2">';
   [[ca,fa],[cb,fb]].forEach(function(x){
    var c=x[0],f=x[1];
    h+='<div><b style="font-size:.9rem">'+team(c)+'</b>';
@@ -1523,11 +1505,11 @@ function renderDestAnalisis(p){
   h+='</div></div>';
  }
 
- /* Cara a cara e historial (encuentros reales entre ambos) */
+ /* Cara a cara e historial */
  var hh=h2hPara(ca,cb);
  if(hh){
   var d=hh.data;
-  h+='<div style="height:16px"></div><div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-clock"/></svg>Cara a cara e historial<span class="tag">'+esc(d.titular)+'</span></h3>'+
+  h+=sep()+'<div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-clock"/></svg>Cara a cara e historial<span class="tag">'+esc(d.titular)+'</span></h3>'+
    '<div style="font-size:.84rem;color:var(--tx2);line-height:1.6;margin-bottom:12px">'+esc(d.resumen)+'</div>';
   d.partidos.forEach(function(pt){
    h+='<div style="display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid rgba(34,41,72,.45)">'+
@@ -1540,7 +1522,7 @@ function renderDestAnalisis(p){
  /* Careo estadístico */
  var sa=STATS[ca],sb=STATS[cb];
  if(sa&&sb){
-  h+='<div style="height:16px"></div><div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Careo estadístico<span class="tag">medias por partido</span></h3>'+
+  h+=sep()+'<div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Careo estadístico<span class="tag">medias por partido</span></h3>'+
    '<div style="display:flex;justify-content:space-between;font-size:.75rem;color:var(--tx3);margin-bottom:6px"><span>'+team(ca)+'</span><span>'+team(cb)+'</span></div>';
   [["Córners a favor","cf",1],["Córners concedidos","cc",0],["Tiros","tiros",1],["Tiros a puerta","tirosP",1],["Amarillas","am",0],["Faltas","faltas",0],["Posesión","pos",1]].forEach(function(r){
    var va=media(sa[r[1]]),vb=media(sb[r[1]]);
@@ -1550,8 +1532,20 @@ function renderDestAnalisis(p){
   h+='<div class="src">Recuento por partido (SportRadar). Muestra pequeña en eliminatorias: tendencia, no certeza.</div></div>';
  }
 
+ /* (full) Modelo vs mercado */
+ if(opt.full&&od&&od.h2h){
+  var o=od.h2h,inv=[1/o.home,(o.draw?1/o.draw:0),1/o.away],si=inv[0]+inv[1]+inv[2],impl=inv.map(function(x){return x/si*100});
+  h+=sep()+'<div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Modelo vs mercado<span class="tag">1X2</span></h3>';
+  [["1 · "+NOM[ca],p.prob[0],impl[0],"var(--vio)"],["X · Empate",p.prob[1],impl[1],"var(--tx3)"],["2 · "+NOM[cb],p.prob[2],impl[2],"#2f8f6b"]].forEach(function(r){
+   h+='<div class="cmp"><div class="l"><span><b>'+esc(r[0])+'</b></span><span>modelo '+coma(r[1],1)+'% · mercado '+coma(r[2],1)+'%</span></div>'+
+    '<div class="duo"><div class="bar"><i style="width:'+r[1]+'%;background:'+r[3]+'"></i></div>'+
+    '<div class="bar"><i style="width:'+r[2]+'%;background:'+r[3]+';opacity:.38"></i></div></div></div>';
+  });
+  h+='<div class="src">Barra superior: modelo SportRadar. Barra inferior: implícita del mercado sin margen. Donde difieren hay información.</div></div>';
+ }
+
  /* Pronóstico de goles + marcadores probables */
- h+='<div style="height:16px"></div><div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-ball"/></svg>Pronóstico de goles<span class="tag">modelo</span></h3>'+
+ h+=sep()+'<div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-ball"/></svg>Pronóstico de goles<span class="tag">modelo</span></h3>'+
   '<div class="oddsRow"><div class="o"><div class="l">Goles esp. '+esc(NOM[ca])+'</div><div class="v">'+coma(m.lh,2)+'</div></div>'+
   '<div class="o"><div class="l">Goles esp. '+esc(NOM[cb])+'</div><div class="v">'+coma(m.la,2)+'</div></div>'+
   '<div class="o"><div class="l">Total esperado</div><div class="v">'+coma(m.L,2)+'</div></div></div>'+
@@ -1561,28 +1555,56 @@ function renderDestAnalisis(p){
 
  /* Todos los mercados con probabilidades */
  var G=mercadosDe(p,od,m),nMkt=G.reduce(function(a,g){return a+g.items.length;},0);
- h+='<div style="height:16px"></div><div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-list"/></svg>Mercados y probabilidades<span class="tag">'+nMkt+' mercados</span></h3>'+mercadosHTML(G)+
-  '<div class="src">Compara la «cuota justa» del modelo con la de tu casa. Análisis y cuotas en directo completos en «Datos y cuotas».</div></div>';
+ h+=sep()+'<div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-list"/></svg>Mercados y probabilidades<span class="tag">'+nMkt+' mercados</span></h3>'+mercadosHTML(G)+
+  '<div class="src">Compara la «cuota justa» del modelo con la de tu casa. Cuotas en directo completas en «Datos y cuotas».</div></div>';
 
- /* Jugadores a seguir (goleadores y asistentes de estos dos equipos) */
+ /* Jugadores a seguir */
  var jug=[];
  (GOLEADORES||[]).forEach(function(g){if(g.eq===ca||g.eq===cb)jug.push({n:g.n.split(" — ")[0],eq:g.eq,v:g.g+" goles"});});
  (ASISTENCIAS||[]).forEach(function(g){if(g.eq===ca||g.eq===cb)jug.push({n:g.n,eq:g.eq,v:g.a+" asist."});});
  if(jug.length){
-  h+='<div style="height:16px"></div><div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-trophy"/></svg>Jugadores a seguir</h3>';
-  jug.forEach(function(j){h+='<div style="display:flex;gap:9px;align-items:center;padding:6px 0;border-bottom:1px solid rgba(34,41,72,.4);font-size:.85rem"><span>'+FLAGS[j.eq]+'</span><span style="flex:1">'+esc(j.n)+'</span><b class="vio">'+esc(j.v)+'</b></div>';});
-  h+='<div class="src">Máximos goleadores y asistentes del torneo que juegan este partido.</div></div>';
+  h+=sep()+'<div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-trophy"/></svg>Jugadores a seguir</h3>';
+  jug.forEach(function(j){
+   h+='<div style="padding:8px 0;border-bottom:1px solid rgba(34,41,72,.4)"><div style="display:flex;gap:9px;align-items:center;font-size:.85rem"><span>'+FLAGS[j.eq]+'</span><span style="flex:1"><b>'+esc(j.n)+'</b></span><b class="vio">'+esc(j.v)+'</b></div>';
+   if(opt.full){var k=GOL_KEY[j.n];if(k&&JUGADORES[k]){var jj=JUGADORES[k];
+    h+='<div style="font-size:.76rem;line-height:1.55;margin-top:5px"><span style="color:var(--green)">A favor:</span> <span style="color:var(--tx2)">'+esc(jj.favor.join(" · "))+'</span><br><span style="color:var(--red)">En contra:</span> <span style="color:var(--tx2)">'+esc(jj.contra.join(" · "))+'</span></div>';
+   }}
+   h+='</div>';
+  });
+  h+='<div class="src">Máximos goleadores y asistentes del torneo que juegan este partido'+(opt.full?', con sus argumentos a favor y en contra':'')+'.</div></div>';
+ }
+
+ /* (full) Dónde rankean en el torneo */
+ if(opt.full&&sa&&sb){
+  var equipos=Object.keys(STATS);
+  function rankDe(c,key,mayorMejor){
+   var arr=equipos.map(function(e){return {e:e,v:media(STATS[e][key])};}).sort(function(x,y){return mayorMejor?y.v-x.v:x.v-y.v;});
+   for(var i=0;i<arr.length;i++)if(arr[i].e===c)return {pos:i+1,total:arr.length};
+   return {pos:"—",total:arr.length};
+  }
+  h+=sep()+'<div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Dónde rankean en el torneo<span class="tag">'+equipos.length+' equipos vivos</span></h3>';
+  [["Córners a favor","cf",true],["Tiros a puerta","tirosP",true],["Posesión","pos",true],["Menos córners concedidos","cc",false]].forEach(function(r){
+   var ra=rankDe(ca,r[1],r[2]),rb=rankDe(cb,r[1],r[2]);
+   h+='<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(34,41,72,.45);font-size:.83rem">'+
+     '<span style="flex:1;color:var(--tx2)">'+esc(r[0])+'</span>'+
+     '<span style="width:96px;text-align:right"><b>'+esc(NOM[ca])+'</b> <span class="vio">'+ra.pos+'º</span></span>'+
+     '<span style="width:96px;text-align:right"><b>'+esc(NOM[cb])+'</b> <span class="vio">'+rb.pos+'º</span></span></div>';
+  });
+  h+='<div class="src">Posición de cada equipo entre los que siguen vivos, por medias por partido.</div></div>';
  }
 
  /* Rachas y datos históricos relevantes */
  var re=new RegExp(NOM[ca]+"|"+NOM[cb],"i"), rr=(RACHAS||[]).filter(function(r){return re.test(r);});
  if(rr.length){
-  h+='<div style="height:16px"></div><div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-warn"/></svg>Rachas y datos históricos</h3>';
+  h+=sep()+'<div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-warn"/></svg>Rachas y datos históricos</h3>';
   rr.forEach(function(r){h+='<div style="font-size:.83rem;color:var(--tx2);line-height:1.6;padding:6px 0;border-bottom:1px solid rgba(34,41,72,.4)">'+esc(r)+'</div>';});
   h+='</div>';
  }
-
- el.innerHTML=h;
+ return h;
+}
+function renderDestAnalisis(p){
+ var el=$("#destAnalisis"); if(!el)return;
+ el.innerHTML=analisisCards(p,{full:false});
 }
 function renderInicio(){
  var hoy=new Date();
@@ -1885,26 +1907,33 @@ function renderDuelos(){
  });
  $("#duelosBox").innerHTML=h;
 }
+/* La página Análisis es un dossier de analítica completa dedicado al próximo partido a jugarse */
 function renderAnalisis(){
- renderGoles();
- var a='<table><tr><th>#</th><th>Jugador</th><th>Asist.</th></tr>';
- ASISTENCIAS.forEach(function(g,i){
-  a+='<tr><td class="mut">'+(i+1)+'</td><td><b>'+FLAGS[g.eq]+' '+esc(g.n)+'</b> <span style="font-size:.72rem;color:var(--tx3)">'+esc(g.d)+'</span></td><td><b class="vio">'+g.a+'</b></td></tr>';
- });
- a+='</table>';
- /* goles por equipo, compacto */
- a+='<div class="kLb" style="margin-top:14px">Goles por equipo (verificado)</div><table><tr><th>Equipo</th><th>GF</th><th>GC</th><th>GF/PJ</th></tr>';
- Object.keys(GOLES_EQUIPO).forEach(function(c){
-  var g=GOLES_EQUIPO[c];
-  a+='<tr><td>'+team(c)+'</td><td><b class="pos">'+g.gf+'</b></td><td><b class="neg">'+g.gc+'</b></td><td class="mut">'+(g.gf/g.pj).toFixed(1)+'</td></tr>';
- });
- a+='</table>';
- $("#tblAsis").innerHTML=a;
- var rh="";
- RACHAS.forEach(function(r){rh+='<div style="padding:6px 0;border-bottom:1px solid rgba(34,41,72,.4)">'+esc(r)+'</div>'});
- $("#rachasBox").innerHTML=rh;
- renderRank();
- renderDuelos();
+ var box=$("#analisisBox"); if(!box)return;
+ var p=partidoDestacado(),e=estadoPartido(p),od=oddsPara(p.home,p.away),ca=p.home,cb=p.away;
+ var estadoTag=e.live
+   ?'<span class="tag" style="color:#ff7b7b"><span class="live" style="margin-right:5px"></span>En juego'+(e.score?" · "+esc(e.score):"")+'</span>'
+   :e.fin?'<span class="tag chip g" style="border:none">Finalizado'+(e.score?" · "+esc(e.score):"")+'</span>'
+   :'<span class="tag">'+esc(p.dt)+'</span>';
+ var hero='<div class="card hl">'+
+  '<h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-ball"/></svg>Partido a analizar'+estadoTag+'</h3>'+
+  '<div class="vsRow">'+
+   '<div class="tm"><div style="font-size:1.8rem">'+FLAGS[ca]+'</div><div class="n">'+esc(NOM[ca])+'</div><div class="c">'+ca+'</div></div>'+
+   '<div class="vs">VS</div>'+
+   '<div class="tm"><div style="font-size:1.8rem">'+FLAGS[cb]+'</div><div class="n">'+esc(NOM[cb])+'</div><div class="c">'+cb+'</div></div>'+
+  '</div>'+
+  probBar(p.prob,ca,cb);
+ if(od&&od.h2h){
+  var o=od.h2h,tt=od.tot;
+  hero+='<div class="oddsRow"><div class="o"><div class="l">1 · '+esc(NOM[ca])+'</div><div class="v">'+coma(o.home,2)+'</div></div>'+
+   '<div class="o"><div class="l">X · Empate</div><div class="v">'+(o.draw?coma(o.draw,2):'—')+'</div></div>'+
+   '<div class="o"><div class="l">2 · '+esc(NOM[cb])+'</div><div class="v">'+coma(o.away,2)+'</div></div></div>';
+  if(tt)hero+='<div class="oddsRow" style="margin-top:8px"><div class="o"><div class="l">Más de '+coma(tt.punto)+'</div><div class="v">'+coma(tt.over,2)+'</div></div><div class="o"><div class="l">Menos de '+coma(tt.punto)+'</div><div class="v">'+coma(tt.under,2)+'</div></div></div>';
+ }
+ hero+='<div class="src">'+(p.sede?esc(p.sede)+' · ':'')+(p.ronda==="CUARTOS"?"Cuartos de final":"Octavos de final")+' · '+esc(p.dt)+'. Cuotas reales en directo (The Odds API) · modelo SportRadar.</div>'+
+  '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm" onclick="nav(\'valor\')">Cuotas y combinadas</button><button class="btn ghost sm" onclick="openMatch(\''+ca+cb+'\')">Careo rápido</button></div>';
+ var heroEl=$("#analisisHero"); if(heroEl)heroEl.innerHTML=hero;
+ box.innerHTML=analisisCards(p,{full:true});
 }
 
 /* ================= RENDER: VALOR (previa + cuotas del destacado) ================= */
@@ -2849,7 +2878,7 @@ function mostrarUpd(v){
   '<button class="btn ghost sm" onclick="this.parentNode.remove()">Luego</button>';
  document.body.appendChild(d);
 }
-function tickRefresco(){safe(renderInicio);safe(renderFeeds);safe(renderCuadro);if(PAGINA==="partidos")safe(renderPartidos);else if(PAGINA==="valor")safe(renderValor);}
+function tickRefresco(){safe(renderInicio);safe(renderFeeds);safe(renderCuadro);if(PAGINA==="partidos")safe(renderPartidos);else if(PAGINA==="valor")safe(renderValor);else if(PAGINA==="analisis")safe(renderAnalisis);}
 document.addEventListener("visibilitychange",function(){if(!document.hidden)checkNuevaVersion();});
 
 /* ================= COMBINADAS (laboratorio) ================= */
