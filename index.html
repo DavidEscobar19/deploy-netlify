@@ -11,19 +11,26 @@
 try{if(window.top!==window.self){window.top.location=window.self.location;}}catch(e){document.documentElement.style.display="none";}</script>
 <style>
 :root{
-  --bg:#08090f; --bg2:#0d0f1a; --panel:#10121f; --card:#141828; --card2:#1a1f33; --hover:#1e2440;
-  --border:#222948; --border2:#2d3660;
-  --tx:#eceef6; --tx2:#9aa3c0; --tx3:#5f6890;
+  --bg:#07080e; --bg2:#0c0e18; --panel:#0f1220; --card:#151a2b; --card2:#1b2138; --hover:#212847;
+  --border:#232b4a; --border2:#333d6b;
+  --tx:#eef0f8; --tx2:#9aa3c0; --tx3:#616a92;
   --vio:#7c5cff; --vio2:#a78bfa; --vioD:#4c3a99;
   --green:#22c55e; --greenD:rgba(34,197,94,.12);
   --red:#ef4444; --redD:rgba(239,68,68,.12);
   --amber:#f5a623; --amberD:rgba(245,166,35,.12);
-  --r:14px; --r2:10px;
+  --r:16px; --r2:11px;
+  --shadow:0 1px 2px rgba(0,0,0,.28), 0 10px 30px -16px rgba(0,0,0,.55);
+  --shadow-lg:0 2px 6px rgba(0,0,0,.32), 0 22px 50px -22px rgba(0,0,0,.6);
+  --glow:0 0 0 1px rgba(124,92,255,.16), 0 18px 46px -22px rgba(124,92,255,.4);
+  --sheen:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,0) 40%);
 }
+/* Inter variable auto-alojada (subset latino) — se ve igual en todos los dispositivos */
+@font-face{font-family:"Inter";font-style:normal;font-weight:100 900;font-display:swap;src:url("fonts/inter.woff2") format("woff2")}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{font-size:15px;scroll-behavior:smooth}
-body{background:var(--bg);color:var(--tx);font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;min-height:100vh;
- background-image:radial-gradient(ellipse 60% 40% at 70% -10%,rgba(124,92,255,.09),transparent),radial-gradient(ellipse 40% 30% at 10% 110%,rgba(124,92,255,.05),transparent)}
+body{background:var(--bg);color:var(--tx);font-family:"Inter","SF Pro Text",-apple-system,BlinkMacSystemFont,"Segoe UI Variable","Segoe UI",Roboto,system-ui,sans-serif;min-height:100vh;
+ -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;
+ background-image:radial-gradient(ellipse 62% 42% at 72% -12%,rgba(124,92,255,.12),transparent),radial-gradient(ellipse 44% 34% at 8% 112%,rgba(124,92,255,.07),transparent),radial-gradient(ellipse 50% 40% at 50% 50%,rgba(20,24,44,.25),transparent)}
 button{font-family:inherit;cursor:pointer}
 input,textarea,select{font-family:inherit}
 ::selection{background:rgba(124,92,255,.4)}
@@ -74,11 +81,12 @@ main{margin-left:224px;padding:26px 32px 100px;max-width:1240px}
 .topbar{display:flex;align-items:center;gap:16px;margin-bottom:24px;animation:fadeUp .4s ease}
 .topbar .hi{font-size:1.28rem;font-weight:700}
 .topbar .hi span{color:var(--tx2);font-weight:400;font-size:.85rem;display:block;margin-top:3px}
-.saldoChip{margin-left:auto;background:var(--card);border:1px solid var(--border);border-radius:13px;padding:9px 18px;text-align:right}
+.topbar .hi{letter-spacing:-.02em}
+.saldoChip{margin-left:auto;background:linear-gradient(180deg,rgba(255,255,255,.03),transparent),var(--card);border:1px solid var(--border);border-radius:14px;padding:9px 18px;text-align:right;box-shadow:var(--shadow)}
 .saldoChip .lb{font-size:.62rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.08em}
-.saldoChip .v{font-size:1.12rem;font-weight:700;color:#fff}
+.saldoChip .v{font-size:1.14rem;font-weight:700;color:#fff;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
 
-h2.pageT{font-size:1.32rem;font-weight:700;margin-bottom:4px}
+h2.pageT{font-size:1.34rem;font-weight:700;letter-spacing:-.02em;margin-bottom:4px}
 .pageSub{color:var(--tx2);font-size:.85rem;margin-bottom:22px}
 section.page{display:none}
 section.page.on{display:block;animation:fadeUp .35s ease}
@@ -88,12 +96,13 @@ section.page.on{display:block;animation:fadeUp .35s ease}
 .g2{grid-template-columns:1fr 1fr}
 .g3{grid-template-columns:repeat(3,1fr)}
 .g32{grid-template-columns:1.6fr 1fr}
-.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;transition:border .2s}
-.card.hl{border-color:var(--border2)}
-.card h3{font-size:.92rem;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:9px}
-.card h3 svg.i{color:var(--vio2)}
-.card h3 .tag{margin-left:auto;font-size:.64rem;font-weight:500;color:var(--tx3);text-transform:none}
-.kpi{font-size:1.55rem;font-weight:700;letter-spacing:-.01em}
+.card{position:relative;background:linear-gradient(180deg,rgba(255,255,255,.02),transparent 42%),var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;box-shadow:var(--shadow);transition:border .2s,transform .2s,box-shadow .2s}
+.card:hover{border-color:var(--border2);box-shadow:var(--shadow-lg)}
+.card.hl{border-color:var(--border2);box-shadow:var(--glow)}
+.card h3{font-size:.94rem;font-weight:650;letter-spacing:-.01em;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.card h3 svg.i{color:var(--vio2);width:17px;height:17px;padding:6px;box-sizing:content-box;background:rgba(124,92,255,.12);border:1px solid var(--vioD);border-radius:9px}
+.card h3 .tag{margin-left:auto;font-size:.64rem;font-weight:500;color:var(--tx3);text-transform:none;letter-spacing:0}
+.kpi{font-size:1.58rem;font-weight:750;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
 .kpi.small{font-size:1.18rem}
 .kLb{font-size:.64rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.08em;margin-top:3px}
 .pos{color:var(--green)}.neg{color:var(--red)}.mut{color:var(--tx2)}.vio{color:var(--vio2)}
@@ -102,8 +111,8 @@ section.page.on{display:block;animation:fadeUp .35s ease}
 .chip.g{background:var(--greenD);border-color:rgba(34,197,94,.35);color:var(--green)}
 .chip.r{background:var(--redD);border-color:rgba(239,68,68,.35);color:var(--red)}
 .chip.a{background:var(--amberD);border-color:rgba(245,166,35,.35);color:var(--amber)}
-.btn{display:inline-flex;align-items:center;gap:7px;background:linear-gradient(135deg,var(--vio),#5b3fe0);color:#fff;border:none;padding:9px 18px;border-radius:10px;font-size:.84rem;font-weight:600;transition:filter .2s,transform .1s}
-.btn:hover{filter:brightness(1.12)}
+.btn{display:inline-flex;align-items:center;gap:7px;background:linear-gradient(135deg,var(--vio),#5b3fe0);color:#fff;border:none;padding:9px 18px;border-radius:11px;font-size:.84rem;font-weight:600;box-shadow:0 6px 18px -8px rgba(124,92,255,.6),inset 0 1px 0 rgba(255,255,255,.12);transition:filter .2s,transform .1s,box-shadow .2s}
+.btn:hover{filter:brightness(1.1);box-shadow:0 10px 26px -8px rgba(124,92,255,.7),inset 0 1px 0 rgba(255,255,255,.16)}
 .btn:active{transform:scale(.98)}
 .btn.sec{background:var(--card2);color:var(--tx);border:1px solid var(--border)}
 .btn.sec:hover{background:var(--hover);filter:none}
@@ -143,8 +152,8 @@ input[type=checkbox].sw:checked::after{left:19px;background:#fff}
 
 /* countdown */
 .count{display:flex;gap:9px;margin:14px 0}
-.count div{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:9px 0;text-align:center;flex:1}
-.count b{font-size:1.3rem;display:block;font-variant-numeric:tabular-nums}
+.count div{background:linear-gradient(180deg,rgba(124,92,255,.05),transparent),var(--bg2);border:1px solid var(--border);border-radius:12px;padding:10px 0;text-align:center;flex:1}
+.count b{font-size:1.34rem;display:block;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
 .count span{font-size:.6rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em}
 
 /* matches */
@@ -153,13 +162,28 @@ input[type=checkbox].sw:checked::after{left:19px;background:#fff}
 .vsRow .tm .n{font-size:1.05rem;font-weight:700}
 .vsRow .tm .c{font-size:.64rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
 .vsRow .vs{font-size:.7rem;color:var(--tx3);font-weight:700;background:var(--card2);border:1px solid var(--border);border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center}
-.oddsRow{display:flex;gap:8px;margin-top:12px}
-.oddsRow .o{flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:8px 4px;text-align:center;transition:border .2s}
-.oddsRow .o:hover{border-color:var(--vioD)}
-.oddsRow .o .l{font-size:.6rem;color:var(--tx3);text-transform:uppercase}
-.oddsRow .o .v{font-size:.98rem;font-weight:700;margin-top:2px}
-.match{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;margin-bottom:11px;cursor:pointer;transition:border .2s,transform .15s}
-.match:hover{border-color:var(--border2);transform:translateY(-1px)}
+.oddsRow{display:flex;gap:9px;margin-top:12px}
+.oddsRow .o{flex:1;background:linear-gradient(180deg,rgba(124,92,255,.05),transparent),var(--bg2);border:1px solid var(--border);border-radius:12px;padding:10px 4px;text-align:center;transition:border .2s,transform .15s,box-shadow .2s}
+.oddsRow .o:hover{border-color:var(--vioD);transform:translateY(-2px);box-shadow:var(--glow)}
+.oddsRow .o .l{font-size:.6rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.04em}
+.oddsRow .o .v{font-size:1.05rem;font-weight:750;margin-top:3px;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+/* mercados y probabilidades */
+.mktG{margin-top:16px}
+.mktG:first-child{margin-top:2px}
+.mktT{font-size:.68rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:8px}
+.mktRow{display:flex;align-items:center;gap:11px;padding:7px 0;border-bottom:1px solid rgba(34,41,72,.45)}
+.mktRow:last-child{border-bottom:none}
+.mktName{flex:1;min-width:0;font-size:.83rem;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mktBar{width:78px;height:6px;border-radius:6px;background:var(--card2);overflow:hidden;flex-shrink:0}
+.mktBar i{display:block;height:100%;background:linear-gradient(90deg,var(--vio),var(--vio2));border-radius:6px}
+.mktProb{width:34px;text-align:right;font-size:.78rem;color:var(--tx2);font-variant-numeric:tabular-nums;flex-shrink:0}
+.mktOdd{width:52px;text-align:right;flex-shrink:0;font-variant-numeric:tabular-nums}
+.mktReal{font-weight:750;color:var(--vio2)}
+.mktFair{font-weight:600;color:var(--tx3)}
+.mktLeg{display:flex;gap:16px;flex-wrap:wrap;font-size:.68rem;color:var(--tx3);margin-top:12px}
+.mktLeg b{font-weight:700}
+.match{background:linear-gradient(180deg,rgba(255,255,255,.02),transparent 42%),var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;margin-bottom:11px;cursor:pointer;box-shadow:var(--shadow);transition:border .2s,transform .15s,box-shadow .2s}
+.match:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:var(--shadow-lg)}
 .match .row{display:flex;align-items:center;gap:11px}
 .match .tms{flex:1;font-weight:600;font-size:.95rem}
 .match .meta{color:var(--tx3);font-size:.73rem;margin-top:5px}
@@ -200,9 +224,9 @@ input[type=checkbox].sw:checked::after{left:19px;background:#fff}
 .brk{display:flex;gap:16px;overflow-x:auto;padding-bottom:10px}
 .brkCol{min-width:216px;flex-shrink:0}
 .brkCol h4{font-size:.68rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.09em;margin-bottom:12px;text-align:center;font-weight:600}
-.brkM{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:11px 14px;margin-bottom:11px;font-size:.84rem;transition:border .2s}
-.brkM:hover{border-color:var(--border2)}
-.brkM .t{display:flex;justify-content:space-between;padding:3px 0}
+.brkM{background:linear-gradient(180deg,rgba(255,255,255,.02),transparent 42%),var(--card);border:1px solid var(--border);border-radius:13px;padding:11px 14px;margin-bottom:11px;font-size:.84rem;box-shadow:var(--shadow);transition:border .2s,transform .15s,box-shadow .2s}
+.brkM:hover{border-color:var(--border2);transform:translateY(-1px);box-shadow:var(--shadow-lg)}
+.brkM .t{display:flex;justify-content:space-between;padding:3px 0;font-variant-numeric:tabular-nums}
 .brkM .t.win{font-weight:700}
 .brkM .t.win .s{color:var(--green)}
 .brkM .t .s{color:var(--tx2);font-variant-numeric:tabular-nums}
@@ -248,12 +272,13 @@ input[type=checkbox].sw:checked::after{left:19px;background:#fff}
 
 /* sim */
 .simOut{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin-top:18px}
-.simOut .box{background:var(--bg2);border:1px solid var(--border);border-radius:12px;text-align:center;padding:15px 8px}
+.simOut .box{background:linear-gradient(180deg,rgba(124,92,255,.05),transparent),var(--bg2);border:1px solid var(--border);border-radius:13px;text-align:center;padding:15px 8px}
 .simOut .box .lb{font-size:.62rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px}
+.simOut .box .v,.simOut .box>div:not(.lb){font-variant-numeric:tabular-nums}
 .mcGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-top:18px}
-.mcGrid .box{background:var(--bg2);border:1px solid var(--border);border-radius:12px;text-align:center;padding:14px 6px}
+.mcGrid .box{background:linear-gradient(180deg,rgba(124,92,255,.05),transparent),var(--bg2);border:1px solid var(--border);border-radius:13px;text-align:center;padding:14px 6px}
 .mcGrid .box .lb{font-size:.6rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
-.mcGrid .box .v{font-size:1.05rem;font-weight:700}
+.mcGrid .box .v{font-size:1.06rem;font-weight:750;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
 #histo{margin-top:16px}
 
 /* feed / alerts */
@@ -408,7 +433,7 @@ nav.bott{display:none}
 <div id="app">
 
 <nav class="side">
-  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>WCAI</b><span class="ver" id="verChip">V27</span></div>
+  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>WCAI</b><span class="ver" id="verChip">V28</span></div>
   <a href="#inicio" data-p="inicio" class="on"><svg class="i" viewBox="0 0 24 24"><use href="#ic-home"/></svg>Inicio</a>
   <a href="#partidos" data-p="partidos"><svg class="i" viewBox="0 0 24 24"><use href="#ic-ball"/></svg>Partidos</a>
   <a href="#analisis" data-p="analisis"><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Análisis</a>
@@ -446,7 +471,6 @@ nav.bott{display:none}
 
 <!-- ---------- INICIO ---------- -->
 <section class="page on" id="p-inicio">
-  <div class="card" id="realCard" style="display:none;margin-bottom:16px"></div>
   <div class="card" id="liveCard" style="display:none;margin-bottom:16px"></div>
   <div class="grid g32">
     <div class="card hl" id="destCard"></div>
@@ -455,6 +479,8 @@ nav.bott{display:none}
       <div id="resumenHome"></div>
     </div>
   </div>
+  <div style="height:16px"></div>
+  <div id="destAnalisis"></div>
   <div style="height:16px"></div>
   <div class="grid g2">
     <div class="card">
@@ -533,7 +559,7 @@ nav.bott{display:none}
   <div class="card hl">
     <h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-stack"/></svg>Las que el mercado señala como más probables<span class="tag">ordenadas por prob. conjunta</span></h3>
     <div id="combiTop"></div>
-    <div class="src">Cuota teórica = multiplicación de las cuotas reales del feed en vivo. La probabilidad conjunta multiplica las implícitas, que ya incluyen el margen de la casa — y al combinar, ese margen se acumula. Mercados del mismo partido están correlacionados: una casa real las cotiza como «crea tu apuesta», con precio distinto. Esto no es una recomendación: es el mapa de lo que pagas y lo que implica.</div>
+    <div class="src">Cuota teórica = multiplicación de las cuotas de cada selección (reales del feed donde las hay, cuota justa del modelo en el resto). La probabilidad conjunta multiplica las implícitas. Ojo: los mercados del mismo partido están correlacionados, así que una casa real las cotiza como «crea tu apuesta» con un precio más bajo que esta cuota teórica. Esto no es una recomendación: es el mapa de lo que pagas y lo que implica.</div>
   </div>
   <div style="height:16px"></div>
   <div class="card">
@@ -753,7 +779,7 @@ nav.bott{display:none}
 
 <script>
 "use strict";
-var VERSION="V27";
+var VERSION="V28";
 /* PIN: disuasión del lado del cliente (el código llega al navegador, no es seguridad real).
    Guardamos solo un hash del PIN y limitamos los intentos para frenar el tanteo casual. */
 function hpin(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);}return (h>>>0).toString(16);}
@@ -1330,6 +1356,104 @@ function oddsPara(ca,cb){
 }
 function coma(n,d){return (typeof d==="number"?n.toFixed(d):n).toString().replace(".",",");}
 
+/* ============ MOTOR DE ANALÍTICAS (Poisson) ============
+   Deriva un modelo de goles del partido a partir de dos anclas REALES/verificadas:
+   1) la línea de goles del mercado (over/under) → goles totales esperados (λ)
+   2) el 1X2 del modelo SportRadar → reparto local/visitante de esos goles
+   Con λ_local y λ_visitante calcula el resto de mercados (doble oportunidad,
+   O/U 1.5-3.5, ambos marcan, portería a cero, marcador exacto…). Todo coherente
+   entre sí y anclado a datos reales, no inventado. */
+function _poisP(k,l){var e=Math.exp(-l),f=1;for(var i=2;i<=k;i++)f*=i;return e*Math.pow(l,k)/f;}
+function _poisCdf(k,l){var s=0;for(var i=0;i<=k;i++)s+=_poisP(i,l);return s;}
+function _lambdaTotal(od,prob){
+ /* de la línea over/under real → λ total; si no hay, estima por el 1X2 del modelo */
+ if(od&&od.tot&&od.tot.over&&od.tot.under){
+  var pOver=(1/od.tot.over)/((1/od.tot.over)+(1/od.tot.under)); /* de-marginada */
+  var line=od.tot.punto||2.5, kU=Math.floor(line), target=1-pOver, lo=0.3,hi=6.5;
+  for(var it=0;it<44;it++){var m=(lo+hi)/2;if(_poisCdf(kU,m)>target)lo=m;else hi=m;}
+  return (lo+hi)/2;
+ }
+ /* sin línea real: media entre expectativa por favoritismo (2.3–3.1) */
+ var s=prob[0]+prob[1]+prob[2], fav=Math.max(prob[0],prob[2])/s;
+ return 2.35+ (0.5-Math.abs(fav-0.5))*1.4;
+}
+function modeloPartido(p,od){
+ var L=_lambdaTotal(od,p.prob);
+ var s=p.prob[0]+p.prob[1]+p.prob[2], p1=p.prob[0]/s, p2=p.prob[2]/s;
+ /* reparte λ en local/visitante para casar P(gana local) y P(gana visitante) del modelo */
+ var best=null;
+ for(var lh=0.15;lh<L;lh+=0.03){
+  var la=L-lh; if(la<=0.05)continue;
+  var pw=0,pd=0,pl=0;
+  for(var i=0;i<=8;i++){var ph=_poisP(i,lh);for(var j=0;j<=8;j++){var pr=ph*_poisP(j,la);if(i>j)pw+=pr;else if(i===j)pd+=pr;else pl+=pr;}}
+  var err=Math.abs(pw-p1)+Math.abs(pl-p2);
+  if(!best||err<best.err)best={lh:lh,la:la,err:err,pw:pw,pd:pd,pl:pl};
+ }
+ var lh=best.lh,la=best.la;
+ var over={1.5:0,2.5:0,3.5:0},btts=0,csH=0,csA=0,scores=[];
+ for(var i=0;i<=8;i++){var ph=_poisP(i,lh);for(var j=0;j<=8;j++){
+  var pr=ph*_poisP(j,la),tot=i+j; scores.push({h:i,a:j,p:pr});
+  if(tot>1.5)over[1.5]+=pr; if(tot>2.5)over[2.5]+=pr; if(tot>3.5)over[3.5]+=pr;
+  if(i>0&&j>0)btts+=pr; if(j===0)csH+=pr; if(i===0)csA+=pr;
+ }}
+ scores.sort(function(a,b){return b.p-a.p;});
+ return {lh:lh,la:la,L:L,pw:best.pw,pd:best.pd,pl:best.pl,over:over,btts:btts,csH:csH,csA:csA,scores:scores.slice(0,6)};
+}
+/* construye la lista de mercados (prob + cuota justa 1/p + cuota real si el feed la trae) */
+function mercadosDe(p,od,m){
+ var ca=p.home,cb=p.away,real=od&&od.h2h?od.h2h:null,realT=od&&od.tot?od.tot:null;
+ function mk(t,prob,realOdd,grp,extra){return {t:t,prob:prob,fair:prob>0?1/prob:null,real:realOdd||null,grp:grp||"",extra:extra||""};}
+ var G=[];
+ G.push({titulo:"Resultado (1X2)",items:[
+  mk("1 · "+NOM[ca],m.pw,real?real.home:null,"1x2"),
+  mk("X · Empate",m.pd,real?real.draw:null,"1x2"),
+  mk("2 · "+NOM[cb],m.pl,real?real.away:null,"1x2")
+ ]});
+ G.push({titulo:"Doble oportunidad",items:[
+  mk("1X · "+NOM[ca]+" o empate",m.pw+m.pd,null,"dc"),
+  mk("12 · Sin empate",m.pw+m.pl,null,"dc"),
+  mk("X2 · Empate o "+NOM[cb],m.pd+m.pl,null,"dc")
+ ]});
+ var lineTxt=realT?coma(realT.punto):"2,5";
+ G.push({titulo:"Goles (más/menos)",items:[
+  mk("Más de 1,5",m.over[1.5],null,"ou"),
+  mk("Menos de 1,5",1-m.over[1.5],null,"ou"),
+  mk("Más de 2,5",m.over[2.5],realT?realT.over:null,"ou"),
+  mk("Menos de 2,5",1-m.over[2.5],realT?realT.under:null,"ou"),
+  mk("Más de 3,5",m.over[3.5],null,"ou"),
+  mk("Menos de 3,5",1-m.over[3.5],null,"ou")
+ ]});
+ G.push({titulo:"Goles de cada equipo",items:[
+  mk("Ambos marcan — Sí",m.btts,null,"btts"),
+  mk("Ambos marcan — No",1-m.btts,null,"btts"),
+  mk("Portería a cero "+NOM[ca],m.csH,null,"cs"),
+  mk("Portería a cero "+NOM[cb],m.csA,null,"cs")
+ ]});
+ G.push({titulo:"Marcador exacto — más probables",items:m.scores.map(function(sc){
+  return mk(NOM[ca]+" "+sc.h+"–"+sc.a+" "+NOM[cb],sc.p,null,"cs-exact");
+ })});
+ return G;
+}
+/* HTML de la lista de mercados: nombre · barra de prob · % · cuota (real o justa) */
+function mercadosHTML(G){
+ var h="";
+ G.forEach(function(g){
+  h+='<div class="mktG"><div class="mktT">'+esc(g.titulo)+'</div>';
+  g.items.forEach(function(it){
+   var pct=Math.max(0,Math.min(100,it.prob*100));
+   var cuota=it.real?('<span class="mktReal">'+coma(it.real,2)+'</span>'):(it.fair?('<span class="mktFair">'+coma(it.fair,2)+'</span>'):'—');
+   h+='<div class="mktRow">'+
+     '<span class="mktName">'+esc(it.t)+'</span>'+
+     '<span class="mktBar"><i style="width:'+pct+'%"></i></span>'+
+     '<span class="mktProb">'+coma(pct,0)+'%</span>'+
+     '<span class="mktOdd">'+cuota+'</span></div>';
+  });
+  h+='</div>';
+ });
+ h+='<div class="mktLeg"><span><b class="vio">Cuota violeta</b> = casa real (The Odds API)</span><span><b style="color:var(--tx3)">Cuota gris</b> = cuota justa del modelo (prob. sin margen)</span></div>';
+ return h;
+}
+
 /* partido destacado dinámico: el primer cruce del calendario que aún no ha terminado
    (en juego o próximo). Salta solo al siguiente en cuanto el feed lo da por finalizado. */
 function partidoDestacado(){
@@ -1338,6 +1462,87 @@ function partidoDestacado(){
  return lista[lista.length-1];
 }
 function esFull(p){return p&&p.home===ELPARTIDO.home&&p.away===ELPARTIDO.away&&p.ts===ELPARTIDO.ts;}
+/* ===== ANÁLISIS COMPLETO DEL PRÓXIMO PARTIDO (Inicio) =====
+   Reúne todo lo que ayuda a anticipar el partido: forma y bajas, careo estadístico,
+   pronóstico de goles (modelo), marcadores probables, todos los mercados con sus
+   probabilidades, jugadores a seguir y rachas/datos históricos relevantes. */
+function resultadosDe(c){
+ /* últimos resultados reales del equipo: del feed FB y del histórico RESULTADOS */
+ var out=[];
+ (RESULTADOS||[]).forEach(function(r){if(r.home===c||r.away===c)out.push({txt:team(r.home)+" "+r.s+" "+team(r.away),dt:r.dt});});
+ return out.slice(0,4);
+}
+function renderDestAnalisis(p){
+ var el=$("#destAnalisis"); if(!el)return;
+ var ca=p.home,cb=p.away,od=oddsPara(ca,cb),m=modeloPartido(p,od),h="";
+
+ /* Cómo llegan + bajas/dudas */
+ var fa=FICHAS[ca],fb=FICHAS[cb];
+ if(fa||fb){
+  h+='<div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-shield"/></svg>Cómo llegan<span class="tag">forma, bajas y dudas</span></h3><div class="grid g2">';
+  [[ca,fa],[cb,fb]].forEach(function(x){
+   var c=x[0],f=x[1];
+   h+='<div><b style="font-size:.9rem">'+team(c)+'</b>';
+   if(f){
+    h+='<div style="font-size:.82rem;color:var(--tx2);line-height:1.6;margin:6px 0">'+esc(f.forma)+'</div>';
+    (f.bajas||[]).forEach(function(b){h+='<div style="font-size:.78rem;color:var(--red);padding:2px 0">− '+esc(b)+'</div>';});
+    (f.dudas||[]).forEach(function(d){h+='<div style="font-size:.78rem;color:var(--amber);padding:2px 0">? '+esc(d)+' <span style="color:var(--tx3)">duda</span></div>';});
+    if(!(f.bajas||[]).length&&!(f.dudas||[]).length)h+='<div style="font-size:.78rem;color:var(--green)">Plantilla completa</div>';
+   }else h+='<div style="font-size:.8rem;color:var(--tx3);margin-top:6px">Sin parte de bajas cargado.</div>';
+   var res=resultadosDe(c);
+   if(res.length){h+='<div style="font-size:.7rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.05em;margin-top:10px">Últimos resultados</div>';res.forEach(function(r){h+='<div style="font-size:.76rem;color:var(--tx2);padding:2px 0">'+r.txt+' <span style="color:var(--tx3)">· '+esc(r.dt)+'</span></div>';});}
+   h+='</div>';
+  });
+  h+='</div></div>';
+ }
+
+ /* Careo estadístico */
+ var sa=STATS[ca],sb=STATS[cb];
+ if(sa&&sb){
+  h+='<div style="height:16px"></div><div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Careo estadístico<span class="tag">medias por partido</span></h3>'+
+   '<div style="display:flex;justify-content:space-between;font-size:.75rem;color:var(--tx3);margin-bottom:6px"><span>'+team(ca)+'</span><span>'+team(cb)+'</span></div>';
+  [["Córners a favor","cf",1],["Córners concedidos","cc",0],["Tiros","tiros",1],["Tiros a puerta","tirosP",1],["Amarillas","am",0],["Faltas","faltas",0],["Posesión","pos",1]].forEach(function(r){
+   var va=media(sa[r[1]]),vb=media(sb[r[1]]);
+   var ta=r[1]==="pos"?va.toFixed(0)+"%":va.toFixed(1),tb=r[1]==="pos"?vb.toFixed(0)+"%":vb.toFixed(1);
+   h+=statRow(r[0],ta,tb,r[2]?va>vb:va<vb,r[2]?vb>va:vb<va);
+  });
+  h+='<div class="src">Recuento por partido (SportRadar). Muestra pequeña en eliminatorias: tendencia, no certeza.</div></div>';
+ }
+
+ /* Pronóstico de goles + marcadores probables */
+ h+='<div style="height:16px"></div><div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-ball"/></svg>Pronóstico de goles<span class="tag">modelo</span></h3>'+
+  '<div class="oddsRow"><div class="o"><div class="l">Goles esp. '+esc(NOM[ca])+'</div><div class="v">'+coma(m.lh,2)+'</div></div>'+
+  '<div class="o"><div class="l">Goles esp. '+esc(NOM[cb])+'</div><div class="v">'+coma(m.la,2)+'</div></div>'+
+  '<div class="o"><div class="l">Total esperado</div><div class="v">'+coma(m.L,2)+'</div></div></div>'+
+  '<div class="mktT" style="margin-top:14px">Marcadores más probables</div><div class="oddsRow" style="flex-wrap:wrap">';
+ m.scores.slice(0,5).forEach(function(sc){h+='<div class="o" style="min-width:74px"><div class="l">'+esc(ca)+' '+sc.h+'–'+sc.a+' '+esc(cb)+'</div><div class="v">'+coma(sc.p*100,0)+'%</div></div>';});
+ h+='</div><div class="src">Goles esperados y marcadores de un modelo Poisson anclado a la línea real del mercado y al 1X2 del modelo.</div></div>';
+
+ /* Todos los mercados con probabilidades */
+ var G=mercadosDe(p,od,m),nMkt=G.reduce(function(a,g){return a+g.items.length;},0);
+ h+='<div style="height:16px"></div><div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-list"/></svg>Mercados y probabilidades<span class="tag">'+nMkt+' mercados</span></h3>'+mercadosHTML(G)+
+  '<div class="src">Compara la «cuota justa» del modelo con la de tu casa. Análisis y cuotas en directo completos en «Datos y cuotas».</div></div>';
+
+ /* Jugadores a seguir (goleadores y asistentes de estos dos equipos) */
+ var jug=[];
+ (GOLEADORES||[]).forEach(function(g){if(g.eq===ca||g.eq===cb)jug.push({n:g.n.split(" — ")[0],eq:g.eq,v:g.g+" goles"});});
+ (ASISTENCIAS||[]).forEach(function(g){if(g.eq===ca||g.eq===cb)jug.push({n:g.n,eq:g.eq,v:g.a+" asist."});});
+ if(jug.length){
+  h+='<div style="height:16px"></div><div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-trophy"/></svg>Jugadores a seguir</h3>';
+  jug.forEach(function(j){h+='<div style="display:flex;gap:9px;align-items:center;padding:6px 0;border-bottom:1px solid rgba(34,41,72,.4);font-size:.85rem"><span>'+FLAGS[j.eq]+'</span><span style="flex:1">'+esc(j.n)+'</span><b class="vio">'+esc(j.v)+'</b></div>';});
+  h+='<div class="src">Máximos goleadores y asistentes del torneo que juegan este partido.</div></div>';
+ }
+
+ /* Rachas y datos históricos relevantes */
+ var re=new RegExp(NOM[ca]+"|"+NOM[cb],"i"), rr=(RACHAS||[]).filter(function(r){return re.test(r);});
+ if(rr.length){
+  h+='<div style="height:16px"></div><div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-warn"/></svg>Rachas y datos históricos</h3>';
+  rr.forEach(function(r){h+='<div style="font-size:.83rem;color:var(--tx2);line-height:1.6;padding:6px 0;border-bottom:1px solid rgba(34,41,72,.4)">'+esc(r)+'</div>';});
+  h+='</div>';
+ }
+
+ el.innerHTML=h;
+}
 function renderInicio(){
  var hoy=new Date();
  var meses=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
@@ -1379,6 +1584,7 @@ function renderInicio(){
   cuerpo+='<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm" onclick="nav(\'valor\')">Ver cuotas y análisis</button><button class="btn ghost sm" onclick="openMatch(\''+p.home+p.away+'\')">Careo de datos</button></div>';
  }
  $("#destCard").innerHTML=cuerpo;
+ safe(function(){renderDestAnalisis(p);});
  tickCd();
  if(cdTimer)clearInterval(cdTimer);
  cdTimer=setInterval(tickCd,1000);
@@ -1711,6 +1917,13 @@ function renderValorDinamico(p,e){
   h+='<div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-target"/></svg>Cuotas en directo</h3>'+
     '<div class="empty">'+(e.fin?"Partido finalizado.":"Aún no hay cuotas publicadas para este cruce en el feed en vivo.")+' En cuanto las casas abran mercado aparecerán aquí solas.</div></div>';
  }
+
+ /* Mercados y probabilidades (motor de goles Poisson anclado a datos reales) */
+ var model=modeloPartido(p,od),G=mercadosDe(p,od,model);
+ var nMkt=G.reduce(function(a,g){return a+g.items.length;},0);
+ h+='<div style="height:16px"></div><div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-list"/></svg>Mercados y probabilidades<span class="tag">'+nMkt+' mercados</span></h3>'+
+   mercadosHTML(G)+
+   '<div class="src">Probabilidades de un modelo de goles (Poisson) anclado a dos datos reales: la línea de goles del mercado y el 1X2 del modelo. La «cuota justa» es 1÷probabilidad, sin margen — compárala con la de tu casa: si la de la casa es más alta, pagan de más; si es más baja, pagan de menos.</div></div>';
 
  /* Cómo llegan + bajas (fichas del proyecto, existen para todos los equipos vivos) */
  var fa=FICHAS[ca],fb=FICHAS[cb];
@@ -2603,22 +2816,41 @@ document.addEventListener("visibilitychange",function(){if(!document.hidden)chec
    Solo mercados con precio publicado: 1X2 y línea de goles (más/menos). */
 var LEGS=[], LEG_CONF=[];
 function rebuildLegs(){
- var p=partidoDestacado(),od=oddsPara(p.home,p.away),ca=p.home,cb=p.away,legs=[];
- if(od&&od.h2h){
-  var o=od.h2h;
-  legs.push({id:"1",t:"Gana "+NOM[ca]+" (90')",c:o.home,grp:"res"});
-  if(o.draw)legs.push({id:"X",t:"Empate (90')",c:o.draw,grp:"res"});
-  legs.push({id:"2",t:"Gana "+NOM[cb]+" (90')",c:o.away,grp:"res"});
- }
- if(od&&od.tot){
-  legs.push({id:"O",t:"Más de "+coma(od.tot.punto)+" goles",c:od.tot.over,grp:"gol"});
-  legs.push({id:"U",t:"Menos de "+coma(od.tot.punto)+" goles",c:od.tot.under,grp:"gol"});
- }
+ var p=partidoDestacado(),od=oddsPara(p.home,p.away),ca=p.home,cb=p.away;
+ var m=modeloPartido(p,od),realT=od&&od.tot?od.tot:null,oh=od&&od.h2h?od.h2h:null,legs=[];
+ function fair(prob){return prob>0?1/prob:99;}
+ /* Resultado 1X2 — cuota real del feed si existe, si no la justa del modelo */
+ legs.push({id:"1",t:"Gana "+NOM[ca],c:oh?oh.home:fair(m.pw),grp:"res",real:!!oh});
+ legs.push({id:"X",t:"Empate",c:(oh&&oh.draw)?oh.draw:fair(m.pd),grp:"res",real:!!(oh&&oh.draw)});
+ legs.push({id:"2",t:"Gana "+NOM[cb],c:oh?oh.away:fair(m.pl),grp:"res",real:!!oh});
+ /* Doble oportunidad — modelo */
+ legs.push({id:"1X",t:NOM[ca]+" o empate",c:fair(m.pw+m.pd),grp:"dc"});
+ legs.push({id:"12",t:"Gana "+NOM[ca]+" o "+NOM[cb],c:fair(m.pw+m.pl),grp:"dc"});
+ legs.push({id:"X2",t:"Empate o "+NOM[cb],c:fair(m.pd+m.pl),grp:"dc"});
+ /* Goles — 2,5 real del feed, el resto del modelo */
+ legs.push({id:"O15",t:"Más de 1,5 goles",c:fair(m.over[1.5]),grp:"gol"});
+ legs.push({id:"U15",t:"Menos de 1,5 goles",c:fair(1-m.over[1.5]),grp:"gol"});
+ legs.push({id:"O25",t:"Más de 2,5 goles",c:realT?realT.over:fair(m.over[2.5]),grp:"gol",real:!!realT});
+ legs.push({id:"U25",t:"Menos de 2,5 goles",c:realT?realT.under:fair(1-m.over[2.5]),grp:"gol",real:!!realT});
+ legs.push({id:"O35",t:"Más de 3,5 goles",c:fair(m.over[3.5]),grp:"gol"});
+ legs.push({id:"U35",t:"Menos de 3,5 goles",c:fair(1-m.over[3.5]),grp:"gol"});
+ /* Ambos marcan — modelo */
+ legs.push({id:"BS",t:"Ambos marcan — Sí",c:fair(m.btts),grp:"btts"});
+ legs.push({id:"BN",t:"Ambos marcan — No",c:fair(1-m.btts),grp:"btts"});
  LEGS=legs;
- LEG_CONF=[["1","X"],["1","2"],["X","2"],["O","U"]];  /* 1X2 y O/U son excluyentes */
+ /* conflictos: contradicciones + líneas O/U incompatibles + una sola por grupo */
+ var C=[];function ad(a,b){C.push([a,b]);}
+ ad("1","X");ad("1","2");ad("X","2");
+ ad("1X","2");ad("12","X");ad("X2","1");
+ ad("1X","12");ad("1X","X2");ad("12","X2");
+ ad("O15","O25");ad("O15","O35");ad("O25","O35");
+ ad("U15","U25");ad("U15","U35");ad("U25","U35");
+ ad("O15","U15");ad("O25","U15");ad("O25","U25");ad("O35","U15");ad("O35","U25");ad("O35","U35");
+ ad("BS","BN");
+ LEG_CONF=C;
  if(typeof combiSel!=="undefined")combiSel=combiSel.filter(function(id){return legById(id);});
  var sub=document.querySelector('#p-combinadas .pageSub');
- if(sub)sub.textContent=NOM[ca]+" – "+NOM[cb]+" · construidas con las cuotas reales del feed en vivo — el azar decide, los números no mienten";
+ if(sub)sub.textContent=NOM[ca]+" – "+NOM[cb]+" · "+legs.length+" mercados (cuotas reales + modelo) — el azar decide, los números no mienten";
  return LEGS;
 }
 function legConflicto(ids){
@@ -2683,14 +2915,20 @@ function renderCombiLegs(){
  var box=$("#combiLegs"); if(!box)return;
  if(!LEGS.length){box.innerHTML='<div class="empty">Sin cuotas publicadas todavía para el próximo cruce.</div>';var o0=$("#combiOut");if(o0)o0.innerHTML="";return;}
  var h="";
- LEGS.forEach(function(l){
-  var on=combiSel.indexOf(l.id)>-1;
-  var conf=!on&&legConflicto(combiSel.concat([l.id]));
-  h+='<div class="sel '+(on?"ok":"")+'" style="'+(conf?"opacity:.35;pointer-events:none;":"")+'padding:7px 5px" onclick="toggleLeg(\''+l.id+'\')">'+
-   '<span class="st">'+(on?"✓":"")+'</span>'+
-   '<span style="flex:1">'+esc(l.t)+'</span>'+
-   '<span class="chip">'+l.c.toFixed(2).replace(".",",")+'</span>'+
-   '<span class="chip" style="border:none;color:var(--tx3)">'+(100/l.c).toFixed(0)+'%</span></div>';
+ var grupos=[["res","Resultado"],["dc","Doble oportunidad"],["gol","Goles"],["btts","Ambos marcan"]];
+ grupos.forEach(function(gr){
+  var enG=LEGS.filter(function(l){return l.grp===gr[0];});
+  if(!enG.length)return;
+  h+='<div class="mktT" style="margin:14px 0 6px">'+gr[1]+'</div>';
+  enG.forEach(function(l){
+   var on=combiSel.indexOf(l.id)>-1;
+   var conf=!on&&legConflicto(combiSel.concat([l.id]));
+   h+='<div class="sel '+(on?"ok":"")+'" style="'+(conf?"opacity:.32;pointer-events:none;":"")+'padding:7px 5px" onclick="toggleLeg(\''+l.id+'\')">'+
+    '<span class="st">'+(on?"✓":"")+'</span>'+
+    '<span style="flex:1">'+esc(l.t)+' '+(l.real?'<span class="chip v" style="font-size:.56rem;padding:1px 6px">real</span>':'<span class="chip" style="font-size:.56rem;padding:1px 6px;border:none;color:var(--tx3)">modelo</span>')+'</span>'+
+    '<span class="chip">'+l.c.toFixed(2).replace(".",",")+'</span>'+
+    '<span class="chip" style="border:none;color:var(--tx3)">'+(100/l.c).toFixed(0)+'%</span></div>';
+  });
  });
  box.innerHTML=h;
  var out=$("#combiOut"); if(!out)return;
