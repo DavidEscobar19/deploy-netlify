@@ -51,8 +51,8 @@ svg.i{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 .gLogo{display:inline-flex;align-items:center;gap:11px;margin-bottom:8px}
 .gMark{width:54px;height:54px;border-radius:16px;background:linear-gradient(145deg,#9a7cff,#6b4bef 46%,#4325c4);display:flex;align-items:center;justify-content:center;box-shadow:0 10px 34px -8px rgba(124,92,255,.6),inset 0 1px 0 rgba(255,255,255,.35),inset 0 -8px 18px -8px rgba(0,0,0,.35);position:relative}
 .gMark::after{content:"";position:absolute;inset:0;border-radius:16px;border:1px solid rgba(255,255,255,.18);pointer-events:none}
-.gMark svg{width:28px;height:28px;fill:#fff;stroke:none}
-.gLogo b{font-size:1.35rem;letter-spacing:.3px}
+.gMark svg{width:30px;height:30px}
+.gLogo b{font-size:1.5rem;font-weight:700;letter-spacing:-.02em}
 .gLogo b em{font-style:normal;color:var(--vio2)}
 #gate p{color:var(--tx2);font-size:.85rem;margin:6px 0 26px;line-height:1.5}
 #pinIn{background:var(--bg2);border:1px solid var(--border);color:var(--tx);font-size:1.5rem;letter-spacing:.55em;text-align:center;width:100%;padding:13px 0 13px 14px;border-radius:12px;outline:none;transition:border .2s,box-shadow .2s}
@@ -67,8 +67,8 @@ svg.i{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 nav.side{width:224px;background:var(--bg2);border-right:1px solid var(--border);padding:20px 12px;position:fixed;top:0;bottom:0;left:0;overflow-y:auto;z-index:50;display:flex;flex-direction:column}
 .sLogo{display:flex;align-items:center;gap:10px;padding:2px 8px 20px}
 .sMark{width:36px;height:36px;border-radius:11px;background:linear-gradient(145deg,#9a7cff,#6b4bef 46%,#4325c4);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px -6px rgba(124,92,255,.5),inset 0 1px 0 rgba(255,255,255,.3)}
-.sMark svg{width:20px;height:20px;fill:#fff;stroke:none}
-.sLogo b{font-size:1.1rem;letter-spacing:.2px}
+.sMark svg{width:21px;height:21px}
+.sLogo b{font-size:1.18rem;font-weight:700;letter-spacing:-.02em}
 .sLogo b em{font-style:normal;color:var(--vio2)}
 .sLogo .ver{font-size:.62rem;background:rgba(124,92,255,.14);color:var(--vio2);border:1px solid var(--vioD);padding:2px 8px;border-radius:20px;margin-left:auto;font-weight:600}
 nav.side a{display:flex;align-items:center;gap:11px;color:var(--tx2);text-decoration:none;padding:10px 12px;border-radius:11px;font-size:.87rem;font-weight:500;margin-bottom:3px;transition:background .18s,color .18s;position:relative}
@@ -396,7 +396,7 @@ nav.bott{display:none}
 <!-- ============ SVG ICON DEFS ============ -->
 <svg width="0" height="0" style="position:absolute">
  <defs>
-  <g id="ic-logo"><path fill="#fff" stroke="none" fill-rule="evenodd" d="M12 2.4 21.6 9.4 17.9 20.7 6.1 20.7 2.4 9.4Z M7.9 13.4h1.9v4.8H7.9Z M11.05 11.3h1.9v6.9h-1.9Z M14.2 9.2h1.9v9h-1.9Z"/></g>
+  <g id="ic-logo"><path d="M4.6 12.5 9.7 17.6 19 6.7" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="19" cy="6.7" r="2.15" fill="#fff"/></g>
   <g id="ic-home"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9.5 21v-6h5v6"/></g>
   <g id="ic-ball"><circle cx="12" cy="12" r="9"/><path d="M12 3a13.5 13.5 0 0 1 0 18M12 3a13.5 13.5 0 0 0 0 18M3.5 9.5h17M3.5 14.5h17"/></g>
   <g id="ic-chart"><path d="M3 21h18"/><path d="M6 17v-5M11 17V6M16 17v-8M21 17V9"/></g>
@@ -435,7 +435,7 @@ nav.bott{display:none}
 <div id="app">
 
 <nav class="side">
-  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio</b><span class="ver" id="verChip">V32</span></div>
+  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio</b><span class="ver" id="verChip">V33</span></div>
   <a href="#inicio" data-p="inicio" class="on"><svg class="i" viewBox="0 0 24 24"><use href="#ic-home"/></svg>Inicio</a>
   <a href="#partidos" data-p="partidos"><svg class="i" viewBox="0 0 24 24"><use href="#ic-ball"/></svg>Partidos</a>
   <a href="#analisis" data-p="analisis"><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Análisis</a>
@@ -758,7 +758,7 @@ nav.bott{display:none}
 
 <script>
 "use strict";
-var VERSION="V32";
+var VERSION="V33";
 /* PIN: disuasión del lado del cliente (el código llega al navegador, no es seguridad real).
    Guardamos solo un hash del PIN y limitamos los intentos para frenar el tanteo casual. */
 function hpin(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);}return (h>>>0).toString(16);}
