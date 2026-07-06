@@ -397,7 +397,7 @@ nav.bott{display:none}
 <div id="app">
 
 <nav class="side">
-  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>WCAI</b><span class="ver" id="verChip">V23</span></div>
+  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>WCAI</b><span class="ver" id="verChip">V25</span></div>
   <a href="#inicio" data-p="inicio" class="on"><svg class="i" viewBox="0 0 24 24"><use href="#ic-home"/></svg>Inicio</a>
   <a href="#partidos" data-p="partidos"><svg class="i" viewBox="0 0 24 24"><use href="#ic-ball"/></svg>Partidos</a>
   <a href="#analisis" data-p="analisis"><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Análisis</a>
@@ -435,6 +435,7 @@ nav.bott{display:none}
 
 <!-- ---------- INICIO ---------- -->
 <section class="page on" id="p-inicio">
+  <div class="card" id="realCard" style="display:none;margin-bottom:16px"></div>
   <div class="card" id="liveCard" style="display:none;margin-bottom:16px"></div>
   <div class="grid g32">
     <div class="card hl" id="destCard"></div>
@@ -509,6 +510,7 @@ nav.bott{display:none}
 <section class="page" id="p-valor">
   <h2 class="pageT">Datos y cuotas del partido</h2>
   <div class="pageSub">La previa completa del partido destacado: mercados verificados, modelo, onces, bajas e historial</div>
+  <div id="valorLive" style="display:none;margin-bottom:16px"></div>
   <div id="valorBox"></div>
   <div class="note v"><b>Este panel no elige por ti.</b> Muestra cuotas verificadas con fuente y fecha, su probabilidad implícita (incluye el margen de la casa) y lo que dice el modelo. La conclusión es siempre tuya. A largo plazo el balance apostando suele ser negativo; las combinadas multiplican el margen de la casa.</div>
 </section>
@@ -740,7 +742,7 @@ nav.bott{display:none}
 
 <script>
 "use strict";
-var VERSION="V23";
+var VERSION="V25";
 /* PIN: disuasión del lado del cliente (el código llega al navegador, no es seguridad real).
    Guardamos solo un hash del PIN y limitamos los intentos para frenar el tanteo casual. */
 function hpin(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);}return (h>>>0).toString(16);}
@@ -1104,7 +1106,48 @@ function h2hDe(ev){
  }
  return null;
 }
+function totalsDe(ev){
+ /* línea de goles más cercana a 2.5 del primer bookmaker con "totals" → {punto,over,under} */
+ if(!ev.bookmakers)return null;
+ for(var i=0;i<ev.bookmakers.length;i++){
+  var mk=(ev.bookmakers[i].markets||[]).filter(function(m){return m.key==="totals"})[0];
+  if(!mk||!mk.outcomes)continue;
+  var puntos={};
+  mk.outcomes.forEach(function(x){puntos[x.point]=puntos[x.point]||{};puntos[x.point][x.name.toLowerCase()]=x.price;});
+  var mejor=null,dif=99;
+  Object.keys(puntos).forEach(function(p){var d=Math.abs(parseFloat(p)-2.5);if(d<dif&&puntos[p].over&&puntos[p].under){dif=d;mejor=p;}});
+  if(mejor)return {punto:parseFloat(mejor),over:puntos[mejor].over,under:puntos[mejor].under};
+ }
+ return null;
+}
+function proxOddsEvento(){
+ var now=Date.now();
+ return ((LIVE&&LIVE.odds)||[]).filter(function(e){return new Date(e.commence_time).getTime()>now}).sort(function(a,b){return new Date(a.commence_time)-new Date(b.commence_time)})[0]||null;
+}
+function renderValorLive(){
+ var el=$("#valorLive"); if(!el)return;
+ var ev=(LIVE&&LIVE.ok)?proxOddsEvento():null;
+ if(!ev){el.style.display="none";return;}
+ var o=h2hDe(ev),tt=totalsDe(ev);
+ var ca=nombreACodigo(ev.home_team),cb=nombreACodigo(ev.away_team);
+ var na=ca?FLAGS[ca]+" "+NOM[ca]:esc(ev.home_team),nb=cb?FLAGS[cb]+" "+NOM[cb]:esc(ev.away_team);
+ var fecha=new Date(LIVE.updated||Date.now()),hh=("0"+fecha.getHours()).slice(-2)+":"+("0"+fecha.getMinutes()).slice(-2);
+ var h='<div class="card hl"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-bell"/></svg>Cuotas en directo · próximo cruce<span class="tag">datos reales · '+hh+'</span></h3>'+
+  '<div style="font-size:1.05rem;font-weight:700;margin-bottom:10px">'+na+' vs '+nb+'</div>';
+ if(o){
+  h+='<div class="oddsRow"><div class="o"><div class="l">1 · '+(ca?esc(NOM[ca]):"local")+'</div><div class="v">'+o.home.toFixed(2).replace(".",",")+'</div></div>'+
+   '<div class="o"><div class="l">X · Empate</div><div class="v">'+(o.draw?o.draw.toFixed(2).replace(".",","):"—")+'</div></div>'+
+   '<div class="o"><div class="l">2 · '+(cb?esc(NOM[cb]):"visitante")+'</div><div class="v">'+o.away.toFixed(2).replace(".",",")+'</div></div></div>';
+ }
+ if(tt){
+  h+='<div class="oddsRow" style="margin-top:8px"><div class="o"><div class="l">Más de '+String(tt.punto).replace(".",",")+'</div><div class="v">'+tt.over.toFixed(2).replace(".",",")+'</div></div>'+
+   '<div class="o"><div class="l">Menos de '+String(tt.punto).replace(".",",")+'</div><div class="v">'+tt.under.toFixed(2).replace(".",",")+'</div></div></div>';
+ }
+ h+='<div class="src" style="margin-top:10px">Cuotas de casas reales (The Odds API), se actualizan solas cada pocos minutos. El análisis detallado de abajo (onces, bajas, historial) es contenido verificado del proyecto y puede referirse a otro partido.</div></div>';
+ el.innerHTML=h; el.style.display="";
+}
 function renderLive(flag){
+ renderValorLive();
  var el=$("#liveCard"); if(!el)return;
  if(!LIVE){
   if(flag==="nokey"){
@@ -1155,6 +1198,60 @@ function renderLive(flag){
  el.innerHTML='<h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-bell"/></svg>En directo<span class="tag">datos reales · '+hh+'</span></h3>'+html+
   '<div class="src" style="margin-top:10px">Fuente: The Odds API · se actualiza solo. Las cuotas son de casas reales y cambian a cada minuto.'+(LIVE.remaining?' · consultas restantes: '+esc(LIVE.remaining):"")+'</div>';
 }
+
+/* ============ RESULTADOS Y CALENDARIO REALES (API-Football) ============ */
+var FB_URL="/.netlify/functions/football", FB=null;
+function fetchFootball(){
+ if(typeof fetch!=="function")return;
+ fetch(FB_URL,{cache:"no-store"}).then(function(r){return r.json()}).then(function(j){
+  if(j&&j.ok&&j.response&&j.response.length){FB=j;renderReal();}
+  else renderReal(j&&j.error==="NO_API_KEY"?"nokey":null);
+ }).catch(function(){renderReal(null);});
+}
+function fbEquipo(t){var c=nombreACodigo(t&&t.name);return c?FLAGS[c]+" "+NOM[c]:esc((t&&t.name)||"—");}
+function fbFila(fx,tipo){
+ var g=fx.goals||{},st=fx.fixture&&fx.fixture.status||{},min=st.elapsed;
+ var marca=(g.home!=null&&g.away!=null)?('<b>'+g.home+'</b> – <b>'+g.away+'</b>'):'vs';
+ var badge=tipo==="live"?'<span class="live" title="'+esc(st.short||"")+'"></span><span style="color:#ff7b7b;font-size:.68rem;font-weight:700">'+(min!=null?min+"'":"EN VIVO")+'</span>'
+   :tipo==="fin"?'<span style="color:var(--tx3);font-size:.68rem">Final</span>'
+   :'<span style="color:var(--tx3);font-size:.68rem">'+esc(fbHora(fx))+'</span>';
+ return '<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(34,41,72,.5);font-size:.88rem">'+
+  '<span style="width:52px;flex-shrink:0;text-align:right">'+badge+'</span>'+
+  '<span style="flex:1">'+fbEquipo(fx.teams&&fx.teams.home)+' '+marca+' '+fbEquipo(fx.teams&&fx.teams.away)+'</span></div>';
+}
+function fbHora(fx){
+ try{var d=new Date(fx.fixture.date);return ("0"+d.getDate()).slice(-2)+"/"+("0"+(d.getMonth()+1)).slice(-2)+" "+("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2);}catch(e){return "";}
+}
+function renderReal(flag){
+ var el=$("#realCard"); if(!el)return;
+ if(!FB){
+  if(flag==="nokey"){
+   el.style.display="";
+   el.innerHTML='<h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-trophy"/></svg>Resultados reales<span class="tag">sin configurar</span></h3>'+
+    '<div style="font-size:.84rem;color:var(--tx2);line-height:1.6">Conexión de estadísticas desplegada; falta la clave. Añade <b>API_FOOTBALL_KEY</b> en Netlify → Environment variables y vuelve a publicar.</div>';
+  }else el.style.display="none";
+  return;
+ }
+ var LIVEc={"1H":1,"2H":1,"HT":1,"ET":1,"BT":1,"P":1,"LIVE":1,"INT":1},
+     FINc={"FT":1,"AET":1,"PEN":1};
+ var live=[],fin=[],prox=[];
+ FB.response.forEach(function(fx){
+  var sh=fx.fixture&&fx.fixture.status&&fx.fixture.status.short;
+  if(LIVEc[sh])live.push(fx); else if(FINc[sh])fin.push(fx); else prox.push(fx);
+ });
+ var byDate=function(a,b){return new Date(a.fixture.date)-new Date(b.fixture.date);};
+ fin.sort(byDate).reverse(); prox.sort(byDate);
+ var h="";
+ if(live.length){h+='<div class="kLb" style="margin:2px 0 6px">En juego ahora</div>';live.forEach(function(f){h+=fbFila(f,"live")});}
+ if(fin.length){h+='<div class="kLb" style="margin:12px 0 6px">Últimos resultados</div>';fin.slice(0,5).forEach(function(f){h+=fbFila(f,"fin")});}
+ if(prox.length){h+='<div class="kLb" style="margin:12px 0 6px">Próximos</div>';prox.slice(0,5).forEach(function(f){h+=fbFila(f,"prox")});}
+ if(!h){el.style.display="none";return;}
+ var fecha=new Date(FB.updated||Date.now()),hh=("0"+fecha.getHours()).slice(-2)+":"+("0"+fecha.getMinutes()).slice(-2);
+ el.style.display="";
+ el.innerHTML='<h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-trophy"/></svg>Resultados reales · en directo<span class="tag">API-Football · '+hh+'</span></h3>'+h+
+  '<div class="src" style="margin-top:10px">Marcadores y calendario reales, se actualizan solos. Fuente: API-Football.</div>';
+}
+
 function agendaOrden(){return OCTAVOS.concat(CUARTOS_PROX).slice().sort(function(a,b){return a.ts-b.ts;});}
 /* partido destacado dinámico: el que está en juego ahora o el siguiente por orden;
    cuando uno termina (saque + FIN_MS), avanza solo al próximo del calendario */
@@ -2445,8 +2542,9 @@ function initApp(){
  setInterval(tickRefresco,UPD_TICK_MS);
  setInterval(checkNuevaVersion,UPD_CHECK_MS);
  setTimeout(checkNuevaVersion,5000);
- /* datos en vivo: al arrancar y cada 5 min (si la función está desplegada) */
- fetchLive(); if(liveTimer)clearInterval(liveTimer); liveTimer=setInterval(fetchLive,5*60*1000);
+ /* datos en vivo: al arrancar y cada 5 min (si las funciones están desplegadas) */
+ fetchLive(); fetchFootball();
+ if(liveTimer)clearInterval(liveTimer); liveTimer=setInterval(function(){fetchLive();fetchFootball();},5*60*1000);
  var _d0=partidoDestacado();
  pushMsg("Hola, David. Trabajo con los datos verificados cargados en la web (al cierre del 5 de julio). El siguiente cruce del calendario es "+NOM[_d0.home]+" – "+NOM[_d0.away]+" ("+_d0.dt+"). Pregúntame por córners, tarjetas, jugadores o tu balance, y pulsa cualquier partido para ver su careo. Un apunte honesto: las cuotas verificadas cargadas eran del Brasil–Noruega, que ya se jugó; para cuotas al minuto haría falta conectar una fuente en directo.","b");
  var h=(location.hash||"#inicio").slice(1);
