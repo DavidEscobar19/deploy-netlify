@@ -126,6 +126,34 @@ main{margin-left:224px;padding:54px 32px 100px;max-width:1240px}
 .siteFoot .fLinks a{color:var(--tx3);font-size:.78rem;cursor:pointer;text-decoration:none;transition:color .15s}
 .siteFoot .fLinks a:hover{color:var(--vio2)}
 .siteFoot .fCopy{margin-top:12px;font-size:.72rem;color:var(--tx3);line-height:1.6}
+/* ===== Onboarding: bienvenida + tour ===== */
+#welcomeModal{position:fixed;inset:0;z-index:210;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(4,5,10,.82);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+#welcomeModal.on{display:flex}
+.welcomeBox{width:100%;max-width:460px;background:linear-gradient(180deg,rgba(255,255,255,.03),transparent 40%),var(--panel);border:1px solid var(--border2);border-radius:22px;padding:30px 26px 26px;text-align:center;box-shadow:0 30px 90px -30px rgba(0,0,0,.8),var(--glow);animation:fadeUp .35s ease;max-height:92vh;overflow-y:auto}
+.welcomeBox .wMark{width:56px;height:56px;border-radius:16px;background:linear-gradient(145deg,#9a7cff,#6b4bef 46%,#4325c4);display:inline-flex;align-items:center;justify-content:center;box-shadow:0 10px 30px -8px rgba(124,92,255,.6),inset 0 1px 0 rgba(255,255,255,.3)}
+.welcomeBox .wMark svg{width:30px;height:30px;fill:#fff;stroke:none}
+.welcomeBox .wTitle{font-size:1.4rem;font-weight:750;letter-spacing:-.02em;margin-top:14px}
+.welcomeBox .wSub{color:var(--tx2);font-size:.88rem;line-height:1.55;margin-top:6px}
+.welcomeFeat{text-align:left;margin:20px 0 6px;display:flex;flex-direction:column;gap:11px}
+.welcomeFeat>div{display:flex;gap:11px;align-items:flex-start;background:var(--card);border:1px solid var(--border);border-radius:13px;padding:11px 13px}
+.welcomeFeat>div span{font-size:1.1rem;line-height:1.3}
+.welcomeFeat>div p{font-size:.82rem;color:var(--tx2);line-height:1.55;margin:0}
+.welcomeFeat b{color:var(--tx)}
+.wAsk{font-size:.9rem;font-weight:600;margin-top:16px}
+.welcomeBtns{display:flex;gap:10px;margin-top:14px}
+.welcomeBtns .btn{flex:1;justify-content:center;padding:12px}
+/* tour */
+#tourBlocker{position:fixed;inset:0;z-index:211;display:none;cursor:default}
+#tourSpot{position:fixed;z-index:212;border-radius:12px;pointer-events:none;display:none;box-shadow:0 0 0 3px var(--vio),0 0 0 6px rgba(124,92,255,.35),0 0 0 9999px rgba(4,5,10,.76);transition:left .28s ease,top .28s ease,width .28s ease,height .28s ease}
+#tourPop{position:fixed;z-index:214;width:280px;max-width:calc(100vw - 24px);background:var(--panel);border:1px solid var(--border2);border-radius:15px;padding:15px 16px;box-shadow:0 24px 60px -18px rgba(0,0,0,.75);display:none;animation:fadeUp .2s ease}
+#tourPop .tStep{font-size:.64rem;color:var(--vio2);text-transform:uppercase;letter-spacing:.08em;font-weight:700}
+#tourPop .tTitle{font-size:1.02rem;font-weight:750;letter-spacing:-.01em;margin-top:4px}
+#tourPop .tDesc{font-size:.83rem;color:var(--tx2);line-height:1.55;margin-top:6px}
+#tourPop .tBtns{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:14px}
+#tourPop .tArrow{position:absolute;width:0;height:0}
+#tourPop .tArrow.down{border-left:9px solid transparent;border-right:9px solid transparent;border-top:9px solid var(--panel)}
+#tourPop .tArrow.up{border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:9px solid var(--panel)}
+#tourPop .tArrow.left{border-top:9px solid transparent;border-bottom:9px solid transparent;border-right:9px solid var(--panel)}
 
 h2.pageT{font-size:1.34rem;font-weight:700;letter-spacing:-.02em;margin-bottom:4px}
 .pageSub{color:var(--tx2);font-size:.85rem;margin-bottom:22px}
@@ -457,7 +485,7 @@ nav.bott{display:none}
 <div id="app">
 
 <nav class="side">
-  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip">V45</span></div>
+  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip">V46</span></div>
   <a href="#inicio" data-p="inicio" class="on"><svg class="i" viewBox="0 0 24 24"><use href="#ic-home"/></svg>Inicio</a>
   <a href="#partidos" data-p="partidos"><svg class="i" viewBox="0 0 24 24"><use href="#ic-ball"/></svg>Partidos</a>
   <a href="#analisis" data-p="analisis"><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Análisis</a>
@@ -843,11 +871,12 @@ nav.bott{display:none}
     <span>Juega con responsabilidad · El azar decide, ninguna predicción garantiza resultados.</span>
   </div>
   <div class="fLinks">
+    <a onclick="openWelcome()">¿Cómo funciona?</a>
     <a onclick="nav('legal')">Aviso legal</a>
     <a onclick="nav('legal')">Privacidad y cookies</a>
     <a onclick="nav('legal')">Juego responsable</a>
     <a onclick="nav('reportar')">Reportar un fallo</a>
-    <a href="https://www.fejar.org" target="_blank" rel="noopener nofollow">Juego responsable (FEJAR)</a>
+    <a href="https://www.fejar.org" target="_blank" rel="noopener nofollow">FEJAR</a>
   </div>
   <div class="fCopy">© 2026 Criterio · Datos y análisis del Mundial 2026. Herramienta informativa; no es una casa de apuestas.</div>
 </footer>
@@ -890,7 +919,7 @@ nav.bott{display:none}
 
 <script>
 "use strict";
-var VERSION="V45";
+var VERSION="V46";
 /* PIN: disuasión del lado del cliente (el código llega al navegador, no es seguridad real).
    Guardamos solo un hash del PIN y limitamos los intentos para frenar el tanteo casual. */
 function hpin(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);}return (h>>>0).toString(16);}
@@ -1168,6 +1197,66 @@ function enviarFallo(e){
  return false;
 }
 function resetFallo(){var f=$("#formFallo"),ok=$("#falloOk");if(ok)ok.style.display="none";if(f){f.reset();f.style.display="";}}
+
+/* ===== Onboarding: bienvenida para usuarios nuevos + tour guiado con flechas ===== */
+function isNewUser(){try{return localStorage.getItem("criterio_onboarded")!=="1";}catch(e){return false;}}
+function markOnboarded(){try{localStorage.setItem("criterio_onboarded","1");}catch(e){}}
+function initOnboarding(){if(isNewUser())setTimeout(openWelcome,450);}
+function openWelcome(){var m=$("#welcomeModal");if(m){m.classList.add("on");document.body.style.overflow="hidden";}}
+function closeWelcome(){var m=$("#welcomeModal");if(m)m.classList.remove("on");document.body.style.overflow="";}
+function skipOnboarding(){closeWelcome();markOnboarded();}
+function beginTour(){closeWelcome();startTour();}
+var TOUR=[
+ {p:"inicio",t:"Pantalla principal",d:"Tu resumen de un vistazo: el próximo partido ya analizado y tu rendimiento."},
+ {p:"partidos",t:"Partidos",d:"Todos los cruces: próximos, en juego y finalizados, con resultados reales."},
+ {p:"analisis",t:"Análisis",d:"El dossier completo del próximo partido: forma, careo, modelo, mercados y datos."},
+ {p:"valor",t:"Datos y cuotas",d:"Cuotas reales en directo y muchos mercados con su probabilidad."},
+ {p:"combinadas",t:"Combinadas",d:"Monta tu combinada y comprueba su probabilidad real y su cuota."},
+ {p:"cuadro",t:"Cuadro",d:"El cuadro del Mundial, que se rellena solo con cada resultado."},
+ {p:"bankroll",t:"Bankroll · tu banca",d:"Fija tu saldo inicial y tu límite de stake para jugar con cabeza."},
+ {p:"apuestas",t:"Mis apuestas",d:"Registra tus apuestas y sigue tu balance real."},
+ {p:"asistente",t:"Asistente",d:"Pregúntale por datos, jugadores, cuotas o tu balance."}
+];
+var _tourIdx=0;
+function tourTarget(p){return Array.prototype.slice.call(document.querySelectorAll('[data-p="'+p+'"]')).filter(function(a){return a.offsetParent!==null&&a.getBoundingClientRect().width>0;})[0];}
+function startTour(){_tourIdx=0;document.body.style.overflow="hidden";var b=$("#tourBlocker");if(b)b.style.display="block";showTourStep();}
+function nextTour(){_tourIdx++;showTourStep();}
+function prevTour(){_tourIdx=Math.max(0,_tourIdx-1);showTourStep();}
+function endTour(){["tourSpot","tourPop","tourBlocker"].forEach(function(id){var e=$("#"+id);if(e)e.style.display="none";});document.body.style.overflow="";markOnboarded();}
+function showTourStep(){
+ if(_tourIdx>=TOUR.length)return endTour();
+ var step=TOUR[_tourIdx],el=tourTarget(step.p);
+ if(!el){_tourIdx++;return showTourStep();}
+ positionTour(el,step);
+}
+function positionTour(el,step){
+ var r=el.getBoundingClientRect(),pad=6,vw=window.innerWidth,vh=window.innerHeight;
+ var spot=$("#tourSpot");
+ spot.style.display="block";
+ spot.style.left=(r.left-pad)+"px";spot.style.top=(r.top-pad)+"px";
+ spot.style.width=(r.width+pad*2)+"px";spot.style.height=(r.height+pad*2)+"px";
+ var pop=$("#tourPop"),last=_tourIdx===TOUR.length-1;
+ pop.innerHTML='<div class="tArrow"></div><div class="tStep">Paso '+(_tourIdx+1)+' de '+TOUR.length+'</div>'+
+  '<div class="tTitle">'+esc(step.t)+'</div><div class="tDesc">'+esc(step.d)+'</div>'+
+  '<div class="tBtns"><button class="btn ghost sm" onclick="endTour()">Omitir</button>'+
+  '<span style="display:flex;gap:8px">'+(_tourIdx>0?'<button class="btn sec sm" onclick="prevTour()">Anterior</button>':'')+
+  '<button class="btn sm" onclick="nextTour()">'+(last?"Terminar":"Siguiente")+'</button></span></div>';
+ pop.style.display="block";pop.style.left="0px";pop.style.top="0px";
+ var pr=pop.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,left,top,arr=pop.querySelector(".tArrow");
+ function clamp(v,mn,mx){return Math.max(mn,Math.min(v,mx));}
+ if(r.top>vh*0.55){ /* barra inferior → globo arriba */
+  top=r.top-pr.height-14;left=clamp(cx-pr.width/2,8,vw-pr.width-8);
+  arr.className="tArrow down";arr.style.cssText="left:"+clamp(cx-left-8,12,pr.width-24)+"px;bottom:-8px";
+ }else if(r.left<vw*0.34){ /* barra lateral → globo a la derecha */
+  left=r.right+16;top=clamp(cy-pr.height/2,8,vh-pr.height-8);
+  arr.className="tArrow left";arr.style.cssText="top:"+clamp(cy-top-8,12,pr.height-24)+"px;left:-8px";
+ }else{ /* debajo */
+  top=r.bottom+16;left=clamp(r.left,8,vw-pr.width-8);
+  arr.className="tArrow up";arr.style.cssText="left:"+clamp(cx-left-8,12,pr.width-24)+"px;top:-8px";
+ }
+ pop.style.left=left+"px";pop.style.top=top+"px";
+}
+window.addEventListener("resize",function(){var s=$("#tourSpot");if(s&&s.style.display==="block")showTourStep();});
 
 /* ===== Google AdSense (preparado) =====
    Rellena ADSENSE_CLIENT con tu ID de editor (ca-pub-…) cuando Google apruebe tu
@@ -3289,7 +3378,30 @@ function initApp(){
  pushMsg("Hola. Los resultados y las cuotas se actualizan solos desde el feed en vivo. El siguiente cruce del calendario es "+NOM[_d0.home]+" – "+NOM[_d0.away]+" ("+_d0.dt+"). Pregúntame por córners, tarjetas, jugadores o tu balance, pulsa cualquier partido para ver su careo, y mira «Datos y cuotas» para las cuotas reales al minuto del próximo partido.","b");
  var h=(location.hash||"#inicio").slice(1);
  if($("#p-"+h))nav(h);
+ safe(initOnboarding);
 }
 </script>
+
+<!-- ===== Onboarding: bienvenida + tour ===== -->
+<div id="welcomeModal">
+  <div class="welcomeBox">
+    <span class="wMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span>
+    <h2 class="wTitle">Bienvenido a Criterio</h2>
+    <div class="wSub">Datos y análisis del Mundial 2026 para decidir tus apuestas con criterio.</div>
+    <div class="welcomeFeat">
+      <div><span>📊</span><p><b>Qué es:</b> una herramienta de estadísticas, cuotas reales y probabilidades de un modelo. <b>No</b> es una casa de apuestas y <b>no elige por ti</b>.</p></div>
+      <div><span>🎯</span><p><b>Para quién:</b> para quien sigue el Mundial y quiere decidir con datos, no por impulso. Solo mayores de 18.</p></div>
+      <div><span>🧭</span><p><b>Para qué:</b> ver el próximo partido analizado, cuotas y mercados, montar combinadas, seguir el cuadro y controlar tu banca.</p></div>
+    </div>
+    <div class="wAsk">¿Quieres que te enseñe cómo se usa?</div>
+    <div class="welcomeBtns">
+      <button class="btn ghost" onclick="skipOnboarding()">Omitir</button>
+      <button class="btn" onclick="beginTour()">Ver cómo se usa</button>
+    </div>
+  </div>
+</div>
+<div id="tourBlocker"></div>
+<div id="tourSpot"></div>
+<div id="tourPop"></div>
 </body>
 </html>
