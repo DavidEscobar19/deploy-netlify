@@ -458,7 +458,7 @@ nav.bott{display:none}
 <div id="app">
 
 <nav class="side">
-  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip">V42</span></div>
+  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip">V43</span></div>
   <a href="#inicio" data-p="inicio" class="on"><svg class="i" viewBox="0 0 24 24"><use href="#ic-home"/></svg>Inicio</a>
   <a href="#partidos" data-p="partidos"><svg class="i" viewBox="0 0 24 24"><use href="#ic-ball"/></svg>Partidos</a>
   <a href="#analisis" data-p="analisis"><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Análisis</a>
@@ -801,7 +801,7 @@ nav.bott{display:none}
       <p><b>Solo para mayores de 18 años.</b> El acceso a esta web está reservado a personas adultas. Las apuestas están prohibidas a menores de edad y a las personas inscritas en el <b>Registro General de Interdicciones de Acceso al Juego (RGIAJ)</b> o autoprohibidas.</p>
       <p><b>Criterio es una herramienta de datos y análisis.</b> No es una casa de apuestas ni un operador de juego, no acepta apuestas, no gestiona dinero y no organiza juego de ningún tipo. No publicita operadores concretos, bonos ni promociones de juego: solo muestra información, estadísticas y probabilidades de un modelo.</p>
       <p><b>Apostar conlleva riesgo y puede generar adicción.</b> Ninguna predicción garantiza resultados: el azar decide cada partido. A largo plazo, el balance de las apuestas suele ser negativo. No apuestes dinero que no puedas permitirte perder y nunca intentes «recuperar» pérdidas.</p>
-      <p><b>¿Necesitas ayuda?</b> En España: <a href="https://www.jugarbien.es" target="_blank" rel="noopener nofollow">jugarbien.es</a> (Dirección General de Ordenación del Juego) · Línea de atención al jugador <b>900 200 225</b> (gratuita y confidencial). Puedes solicitar tu <b>autoprohibición</b> en el RGIAJ. Fuera de España, busca el servicio de juego responsable de tu país.</p>
+      <p><b>¿Necesitas ayuda?</b> En España, la <b>FEJAR</b> (Federación Española de Jugadores de Azar Rehabilitados): <a href="https://www.fejar.org" target="_blank" rel="noopener nofollow">fejar.org</a> · Línea de atención al jugador <b>900 200 225</b> (gratuita y confidencial). Puedes solicitar tu <b>autoprohibición</b> en el RGIAJ a través de la Dirección General de Ordenación del Juego. Fuera de España, busca el servicio de juego responsable de tu país.</p>
     </div>
   </div>
 
@@ -847,7 +847,7 @@ nav.bott{display:none}
     <a onclick="nav('legal')">Privacidad y cookies</a>
     <a onclick="nav('legal')">Juego responsable</a>
     <a onclick="nav('reportar')">Reportar un fallo</a>
-    <a href="https://www.jugarbien.es" target="_blank" rel="noopener nofollow">jugarbien.es</a>
+    <a href="https://www.fejar.org" target="_blank" rel="noopener nofollow">Juego responsable (FEJAR)</a>
   </div>
   <div class="fCopy">© 2026 Criterio · Datos y análisis del Mundial 2026. Herramienta informativa; no es una casa de apuestas.</div>
 </footer>
@@ -890,7 +890,7 @@ nav.bott{display:none}
 
 <script>
 "use strict";
-var VERSION="V42";
+var VERSION="V43";
 /* PIN: disuasión del lado del cliente (el código llega al navegador, no es seguridad real).
    Guardamos solo un hash del PIN y limitamos los intentos para frenar el tanteo casual. */
 function hpin(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);}return (h>>>0).toString(16);}
