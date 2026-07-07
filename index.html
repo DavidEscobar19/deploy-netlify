@@ -94,9 +94,11 @@ main{margin-left:224px;padding:26px 32px 100px;max-width:1240px}
 
 /* topbar */
 .topbar{display:flex;align-items:center;gap:16px;margin-bottom:24px;animation:fadeUp .4s ease}
-.topbar .hi{font-size:1.28rem;font-weight:700}
+.topbar .hi{font-size:1.28rem;font-weight:700;transition:opacity .3s ease,max-width .4s ease,transform .35s ease}
 .topbar .hi span{color:var(--tx2);font-weight:400;font-size:.85rem;display:block;margin-top:3px}
 .topbar .hi{letter-spacing:-.02em}
+/* el saludo se retira al bajar y no vuelve hasta recargar; el saldo se mantiene */
+.topbar.greetGone .hi{opacity:0;max-width:0;transform:translateX(-10px);overflow:hidden;white-space:nowrap;pointer-events:none;gap:0}
 .saldoChip{margin-left:auto;background:linear-gradient(180deg,rgba(255,255,255,.03),transparent),var(--card);border:1px solid var(--border);border-radius:14px;padding:9px 18px;text-align:right;box-shadow:var(--shadow)}
 .saldoChip .lb{font-size:.62rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.08em}
 .saldoChip .v{font-size:1.14rem;font-weight:700;color:#fff;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
@@ -458,7 +460,7 @@ nav.bott{display:none}
 <div id="app">
 
 <nav class="side">
-  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip">V43</span></div>
+  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip">V44</span></div>
   <a href="#inicio" data-p="inicio" class="on"><svg class="i" viewBox="0 0 24 24"><use href="#ic-home"/></svg>Inicio</a>
   <a href="#partidos" data-p="partidos"><svg class="i" viewBox="0 0 24 24"><use href="#ic-ball"/></svg>Partidos</a>
   <a href="#analisis" data-p="analisis"><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Análisis</a>
@@ -890,7 +892,7 @@ nav.bott{display:none}
 
 <script>
 "use strict";
-var VERSION="V43";
+var VERSION="V44";
 /* PIN: disuasión del lado del cliente (el código llega al navegador, no es seguridad real).
    Guardamos solo un hash del PIN y limitamos los intentos para frenar el tanteo casual. */
 function hpin(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);}return (h>>>0).toString(16);}
@@ -1211,13 +1213,15 @@ document.addEventListener("click",function(e){
  var a=e.target.closest("nav a"); if(!a)return;
  e.preventDefault(); nav(a.dataset.p);
 });
-/* difuminado sutil del saludo al bajar (móvil) */
-var _sTick=false;
+/* Al bajar por primera vez, el saludo «Bienvenido» se oculta y NO vuelve a
+   aparecer hasta recargar la página (cerrar y abrir). El saldo se mantiene. */
+var _sTick=false,_greetGone=false;
 window.addEventListener("scroll",function(){
  if(_sTick)return;_sTick=true;
  requestAnimationFrame(function(){
   _sTick=false;
   var tb=$(".topbar"); if(!tb)return;
+  if(!_greetGone&&window.scrollY>40){_greetGone=true;tb.classList.add("greetGone");}
   tb.classList.toggle("scrolled",window.scrollY>24);
  });
 },{passive:true});
