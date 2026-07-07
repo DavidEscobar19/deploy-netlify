@@ -90,7 +90,7 @@ nav.side a.on{background:linear-gradient(90deg,rgba(124,92,255,.18),rgba(124,92,
 nav.side a.on::before{content:"";position:absolute;left:-12px;top:8px;bottom:8px;width:3px;border-radius:3px;background:var(--vio)}
 nav.side .sep{font-size:.62rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.1em;padding:16px 12px 8px}
 .sFoot{margin-top:auto;padding:14px 10px 4px;font-size:.68rem;color:var(--tx3);line-height:1.6;border-top:1px solid var(--border)}
-main{margin-left:224px;padding:26px 32px 100px;max-width:1240px}
+main{margin-left:224px;padding:54px 32px 100px;max-width:1240px}
 
 /* topbar */
 .topbar{display:flex;align-items:center;gap:16px;margin-bottom:24px;animation:fadeUp .4s ease}
@@ -345,7 +345,10 @@ svg text{font-family:inherit}
 .gSub{color:var(--tx2);font-size:.8rem;margin-top:2px;letter-spacing:.04em}
 .gLock{display:inline-flex;align-items:center;gap:6px;font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--vio2);background:rgba(124,92,255,.1);border:1px solid var(--vioD);border-radius:20px;padding:5px 13px;margin-top:16px}
 .gFoot{font-size:.66rem;color:var(--tx3);margin-top:16px}
-.topbar{position:sticky;top:0;z-index:45;background:rgba(8,9,15,.72);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);margin:-26px -32px 24px;padding:16px 32px;border-bottom:1px solid rgba(34,41,72,.6)}
+/* saldo flotante (sustituye a la antigua barra superior) */
+.saldoFloat{position:fixed;top:16px;right:24px;z-index:70;display:inline-flex;align-items:center;gap:9px;background:linear-gradient(180deg,rgba(255,255,255,.05),transparent),var(--card);border:1px solid var(--border2);border-radius:22px;padding:8px 16px;box-shadow:0 12px 30px -12px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.08);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.saldoFloat .lb{font-size:.58rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.09em;font-weight:600}
+.saldoFloat .v{font-size:1rem;font-weight:750;color:#fff;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
 .card{box-shadow:0 1px 0 rgba(255,255,255,.02) inset}
 .card.hl{box-shadow:0 0 0 1px rgba(124,92,255,.14),0 14px 40px -18px rgba(124,92,255,.25)}
 .match:hover{box-shadow:0 12px 32px -16px rgba(0,0,0,.6)}
@@ -381,7 +384,7 @@ svg text{font-family:inherit}
 nav.bott{display:none}
 @media(max-width:900px){
   nav.side{display:none}
-  main{margin-left:0;padding:18px 15px 100px}
+  main{margin-left:0;padding:46px 15px 100px}
   .g2,.g3,.g32{grid-template-columns:1fr}
   .simOut{grid-template-columns:1fr 1fr 1fr}
   .mcGrid{grid-template-columns:1fr 1fr}
@@ -390,16 +393,10 @@ nav.bott{display:none}
   nav.bott a svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.8;display:block;margin:0 auto 3px}
   nav.bott a.on{color:var(--vio2)}
   .chatWrap{height:480px}
-  .topbar{flex-wrap:nowrap;align-items:center;margin:-18px -15px 18px;padding:14px 15px;background:rgba(8,9,15,.72);transition:padding .28s ease,background .28s ease,box-shadow .28s ease,backdrop-filter .28s ease}
-  .topbar .hi{transition:font-size .28s ease;min-width:0}
-  .topbar .hi span{transition:opacity .22s ease,max-height .28s ease,margin-top .28s ease;overflow:hidden;max-height:2.2em}
-  .topbar .saldoChip{transition:padding .28s ease;flex-shrink:0}
-  .topbar.scrolled{padding:7px 15px;background:rgba(8,9,15,.94);backdrop-filter:blur(24px) saturate(140%);-webkit-backdrop-filter:blur(24px) saturate(140%);box-shadow:0 10px 26px -14px rgba(0,0,0,.75)}
-  .topbar.scrolled .hi{font-size:1rem}
-  .topbar.scrolled .hi span{opacity:0;max-height:0;margin-top:0}
-  .topbar.scrolled .saldoChip{padding:6px 13px}
-  .topbar.scrolled .saldoChip .lb{font-size:.55rem}
-  .topbar.scrolled .saldoChip .v{font-size:.98rem}
+  .topbar{align-items:flex-start;min-width:0}
+  .topbar .hi span{overflow:hidden}
+  .saldoFloat{top:12px;right:12px;padding:7px 13px}
+  .saldoFloat .v{font-size:.94rem}
 }
 
 /* ---- V21: toasts, revisión de apuesta, efectos ---- */
@@ -460,7 +457,7 @@ nav.bott{display:none}
 <div id="app">
 
 <nav class="side">
-  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip">V44</span></div>
+  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip">V45</span></div>
   <a href="#inicio" data-p="inicio" class="on"><svg class="i" viewBox="0 0 24 24"><use href="#ic-home"/></svg>Inicio</a>
   <a href="#partidos" data-p="partidos"><svg class="i" viewBox="0 0 24 24"><use href="#ic-ball"/></svg>Partidos</a>
   <a href="#analisis" data-p="analisis"><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Análisis</a>
@@ -493,6 +490,8 @@ nav.bott{display:none}
 
 <main>
 
+<div class="saldoFloat" aria-label="Saldo disponible"><span class="lb">Saldo</span><span class="v" id="saldoTop">—</span></div>
+
 <div id="betaBar" class="betaBar" style="display:none">
   <span class="betaTag">BETA</span>
   <span class="betaTxt"><b>Página en pruebas.</b> Si ves algún fallo, cuéntanoslo en <a onclick="nav('reportar')">Reportar un fallo</a> y nos ayudas a mejorarla.</span>
@@ -501,7 +500,6 @@ nav.bott{display:none}
 
 <div class="topbar">
   <div class="hi">Bienvenido<span id="hoyFecha"></span></div>
-  <div class="saldoChip"><div class="lb">Saldo disponible</div><div class="v" id="saldoTop">—</div></div>
 </div>
 
 <!-- ---------- INICIO ---------- -->
@@ -892,7 +890,7 @@ nav.bott{display:none}
 
 <script>
 "use strict";
-var VERSION="V44";
+var VERSION="V45";
 /* PIN: disuasión del lado del cliente (el código llega al navegador, no es seguridad real).
    Guardamos solo un hash del PIN y limitamos los intentos para frenar el tanteo casual. */
 function hpin(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);}return (h>>>0).toString(16);}
@@ -1144,8 +1142,9 @@ function checkPin(){
  }
 }
 function openApp(){var g=$("#gate");if(g)g.style.display="none";$("#app").style.display="block";initApp();}
-/* App pública: entra directo, sin PIN. */
-document.addEventListener("DOMContentLoaded",function(){ openApp(); });
+/* App pública: entra directo, sin PIN. Empezamos siempre arriba (para que el
+   saludo se muestre en cada carga y no lo oculte la restauración de scroll). */
+document.addEventListener("DOMContentLoaded",function(){ try{if("scrollRestoration" in history)history.scrollRestoration="manual";}catch(e){} window.scrollTo(0,0); openApp(); });
 
 /* ===== Aviso beta (dismissible) ===== */
 function cerrarBeta(){var b=$("#betaBar");if(b)b.style.display="none";try{localStorage.setItem("criterio_beta_ok","1")}catch(e){}}
