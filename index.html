@@ -19,6 +19,26 @@
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Criterio · Mundial 2026">
 <meta name="twitter:description" content="Datos y análisis del Mundial 2026 para apostar con criterio. Solo +18.">
+<meta property="og:image" content="https://criteriofootball.es/og-cover.svg">
+<meta property="og:image:alt" content="Criterio · Datos y análisis del Mundial 2026">
+<meta name="twitter:image" content="https://criteriofootball.es/og-cover.svg">
+<meta name="theme-color" content="#07080e">
+<meta name="color-scheme" content="dark">
+<meta name="author" content="Criterio">
+<meta name="google-adsense-account" content="ca-pub-7724031547464587">
+<meta name="format-detection" content="telephone=no">
+<link rel="apple-touch-icon" href="/icon.svg">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="preconnect" href="https://pagead2.googlesyndication.com" crossorigin>
+<link rel="preload" href="fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+{"@type":"Organization","@id":"https://criteriofootball.es/#org","name":"Criterio","url":"https://criteriofootball.es/","logo":"https://criteriofootball.es/icon.svg","description":"Datos, estadísticas y análisis del Mundial 2026 para decidir apuestas con criterio. Herramienta informativa; no es una casa de apuestas."},
+{"@type":"WebSite","@id":"https://criteriofootball.es/#website","url":"https://criteriofootball.es/","name":"Criterio","inLanguage":"es-ES","publisher":{"@id":"https://criteriofootball.es/#org"}},
+{"@type":"WebPage","@id":"https://criteriofootball.es/#webpage","url":"https://criteriofootball.es/","name":"Criterio · Datos y análisis del Mundial 2026","description":"Estadísticas, cuotas reales, probabilidades y análisis del Mundial 2026 para decidir tus apuestas con criterio. Solo +18. Juega con responsabilidad.","inLanguage":"es-ES","isPartOf":{"@id":"https://criteriofootball.es/#website"},"about":{"@id":"https://criteriofootball.es/#event"}},
+{"@type":"SportsEvent","@id":"https://criteriofootball.es/#event","name":"Copa Mundial de la FIFA 2026","sport":"Fútbol","startDate":"2026-06-11","endDate":"2026-07-19","eventStatus":"https://schema.org/EventScheduled","location":[{"@type":"Country","name":"Estados Unidos"},{"@type":"Country","name":"Canadá"},{"@type":"Country","name":"México"}]}
+]}
+</script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7724031547464587" crossorigin="anonymous"></script>
 <script>/* anti-clickjacking: si nos cargan dentro de un iframe, rompemos el marco */
 try{if(window.top!==window.self){window.top.location=window.self.location;}}catch(e){document.documentElement.style.display="none";}</script>
@@ -26,7 +46,7 @@ try{if(window.top!==window.self){window.top.location=window.self.location;}}catc
 :root{
   --bg:#07080e; --bg2:#0c0e18; --panel:#0f1220; --card:#151a2b; --card2:#1b2138; --hover:#212847;
   --border:#232b4a; --border2:#333d6b;
-  --tx:#eef0f8; --tx2:#9aa3c0; --tx3:#616a92;
+  --tx:#eef0f8; --tx2:#9aa3c0; --tx3:#7079a6;
   --vio:#7c5cff; --vio2:#a78bfa; --vioD:#4c3a99;
   --green:#22c55e; --greenD:rgba(34,197,94,.12);
   --red:#ef4444; --redD:rgba(239,68,68,.12);
@@ -40,6 +60,7 @@ try{if(window.top!==window.self){window.top.location=window.self.location;}}catc
 /* Inter variable auto-alojada (subset latino) — se ve igual en todos los dispositivos */
 @font-face{font-family:"Inter";font-style:normal;font-weight:100 900;font-display:swap;src:url("fonts/inter.woff2") format("woff2")}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+.srOnly{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 html{font-size:15px;scroll-behavior:smooth}
 body{background:var(--bg);color:var(--tx);font-family:"Inter","SF Pro Text",-apple-system,BlinkMacSystemFont,"Segoe UI Variable","Segoe UI",Roboto,system-ui,sans-serif;min-height:100vh;
  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;
@@ -491,8 +512,8 @@ nav.bott{display:none}
 <!-- ============ APP ============ -->
 <div id="app">
 
-<nav class="side">
-  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip">V48</span></div>
+<nav class="side" aria-label="Navegación principal">
+  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip">V49</span></div>
   <a href="#inicio" data-p="inicio" class="on"><svg class="i" viewBox="0 0 24 24"><use href="#ic-home"/></svg>Inicio</a>
   <a href="#partidos" data-p="partidos"><svg class="i" viewBox="0 0 24 24"><use href="#ic-ball"/></svg>Partidos</a>
   <a href="#analisis" data-p="analisis"><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Análisis</a>
@@ -511,7 +532,7 @@ nav.bott{display:none}
   <div class="sFoot">Datos verificados con fuente y fecha. Sin recomendaciones de apuesta: la decisión es siempre tuya.</div>
 </nav>
 
-<nav class="bott">
+<nav class="bott" aria-label="Navegación rápida">
   <a href="#inicio" data-p="inicio" class="on"><svg viewBox="0 0 24 24"><use href="#ic-home"/></svg>Inicio</a>
   <a href="#partidos" data-p="partidos"><svg viewBox="0 0 24 24"><use href="#ic-ball"/></svg>Partidos</a>
   <a href="#analisis" data-p="analisis"><svg viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Análisis</a>
@@ -524,6 +545,8 @@ nav.bott{display:none}
 </nav>
 
 <main>
+
+<h1 class="srOnly">Criterio — datos, estadísticas, cuotas reales y análisis del Mundial 2026 para apostar con criterio</h1>
 
 <div class="saldoFloat" aria-label="Saldo disponible"><span class="lb">Saldo</span><span class="v" id="saldoTop">—</span></div>
 
@@ -878,11 +901,11 @@ nav.bott{display:none}
     <span>Juega con responsabilidad · El azar decide, ninguna predicción garantiza resultados.</span>
   </div>
   <div class="fLinks">
-    <a onclick="openWelcome()">¿Cómo funciona?</a>
-    <a onclick="nav('legal')">Aviso legal</a>
-    <a onclick="nav('legal')">Privacidad y cookies</a>
-    <a onclick="nav('legal')">Juego responsable</a>
-    <a onclick="nav('reportar')">Reportar un fallo</a>
+    <a href="#inicio" onclick="event.preventDefault();openWelcome()">¿Cómo funciona?</a>
+    <a href="#legal" onclick="nav('legal')">Aviso legal</a>
+    <a href="#legal" onclick="nav('legal')">Privacidad y cookies</a>
+    <a href="#legal" onclick="nav('legal')">Juego responsable</a>
+    <a href="#reportar" onclick="nav('reportar')">Reportar un fallo</a>
     <a href="https://www.fejar.org" target="_blank" rel="noopener nofollow">FEJAR</a>
   </div>
   <div class="fCopy">© 2026 Criterio · Datos y análisis del Mundial 2026. Herramienta informativa; no es una casa de apuestas.</div>
@@ -926,7 +949,7 @@ nav.bott{display:none}
 
 <script>
 "use strict";
-var VERSION="V48";
+var VERSION="V49";
 /* PIN: disuasión del lado del cliente (el código llega al navegador, no es seguridad real).
    Guardamos solo un hash del PIN y limitamos los intentos para frenar el tanteo casual. */
 function hpin(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);}return (h>>>0).toString(16);}
@@ -1303,7 +1326,7 @@ function nav(p){
  pg.classList.add("on");
  /* re-dispara el fundido de entrada en cada cambio de pestaña */
  pg.style.animation="none"; void pg.offsetWidth; pg.style.animation="";
- $$("nav a").forEach(function(a){a.classList.toggle("on",a.dataset.p===p)});
+ $$("nav a").forEach(function(a){var on=a.dataset.p===p;a.classList.toggle("on",on);if(on){a.setAttribute("aria-current","page");}else{a.removeAttribute("aria-current");}});
  /* al entrar a una vista dinámica, refréscala con lo último del feed */
  if(p==="partidos")safe(renderPartidos);
  else if(p==="valor")safe(renderValor);

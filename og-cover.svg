@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" font-family="Segoe UI, Roboto, system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0c0e18"/>
+      <stop offset="1" stop-color="#07080e"/>
+    </linearGradient>
+    <linearGradient id="mk" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#9a7cff"/>
+      <stop offset="1" stop-color="#4325c4"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <circle cx="1080" cy="70" r="360" fill="#7c5cff" opacity="0.12"/>
+  <g transform="translate(92,232)">
+    <rect width="120" height="120" rx="30" fill="url(#mk)"/>
+    <path d="M87 37 A 36 36 0 1 0 87 83" fill="none" stroke="#fff" stroke-width="13" stroke-linecap="round"/>
+    <circle cx="87" cy="37" r="11" fill="#fff"/>
+  </g>
+  <text x="238" y="322" fill="#eef0f8" font-size="82" font-weight="800" letter-spacing="-3">Criterio</text>
+  <text x="94" y="424" fill="#c7cde6" font-size="35" font-weight="600">Datos, estadísticas y análisis del Mundial 2026</text>
+  <text x="94" y="476" fill="#9aa3c0" font-size="27">Cuotas reales y probabilidades para apostar con criterio · Solo +18</text>
+</svg>

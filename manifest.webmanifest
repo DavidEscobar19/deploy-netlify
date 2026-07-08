@@ -1,0 +1,16 @@
+{
+  "name": "Criterio · Datos y análisis del Mundial 2026",
+  "short_name": "Criterio",
+  "description": "Datos, estadísticas, cuotas reales y análisis del Mundial 2026 para decidir tus apuestas con criterio.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "lang": "es",
+  "dir": "ltr",
+  "background_color": "#07080e",
+  "theme_color": "#07080e",
+  "categories": ["sports", "news"],
+  "icons": [
+    { "src": "/icon.svg", "type": "image/svg+xml", "sizes": "any", "purpose": "any maskable" }
+  ]
+}
