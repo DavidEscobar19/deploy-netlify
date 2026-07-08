@@ -492,7 +492,7 @@ nav.bott{display:none}
 <div id="app">
 
 <nav class="side">
-  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip">V47</span></div>
+  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip">V48</span></div>
   <a href="#inicio" data-p="inicio" class="on"><svg class="i" viewBox="0 0 24 24"><use href="#ic-home"/></svg>Inicio</a>
   <a href="#partidos" data-p="partidos"><svg class="i" viewBox="0 0 24 24"><use href="#ic-ball"/></svg>Partidos</a>
   <a href="#analisis" data-p="analisis"><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Análisis</a>
@@ -752,7 +752,7 @@ nav.bott{display:none}
         <button class="btn" type="submit" aria-label="Enviar"><svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px"><use href="#ic-send"/></svg></button>
       </form>
       <div class="sugg">
-        <button onclick="quickChat('¿Quién arbitra el próximo partido y saca muchas tarjetas?')">El árbitro del partido</button>
+        <button onclick="quickChat('Tarjetas y faltas de España')">Tarjetas de un equipo</button>
         <button onclick="quickChat('¿Cuántos goles esperados y marcador más probable?')">Goles y marcador</button>
         <button onclick="quickChat('Historial cara a cara del próximo partido')">Cara a cara</button>
         <button onclick="quickChat('¿Cómo llega España? bajas y forma')">Bajas y forma</button>
@@ -926,7 +926,7 @@ nav.bott{display:none}
 
 <script>
 "use strict";
-var VERSION="V47";
+var VERSION="V48";
 /* PIN: disuasión del lado del cliente (el código llega al navegador, no es seguridad real).
    Guardamos solo un hash del PIN y limitamos los intentos para frenar el tanteo casual. */
 function hpin(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);}return (h>>>0).toString(16);}
@@ -1029,17 +1029,10 @@ function h2hScore(r,swap){
  if(!swap)return r;
  return r.replace(/^(\d+)\s*–\s*(\d+)/,function(_,a,b){return b+" – "+a;}).replace(/\((\d+)–(\d+)\s*pen\)/,function(_,a,b){return "("+b+"–"+a+" pen)";});
 }
-/* Árbitros designados por cruce (clave = local+visitante) con medias orientativas:
-   amarillas (am) y faltas (fa) por partido, penaltis por encuentro (pen), muestra (pj). */
-var ARBITROS={
- BRANOR:{n:"Ismail Elfath",pais:"EE. UU.",am:4.2,fa:24,pen:0.25,pj:20,estilo:"permite el contacto, tarjeta en la media"},
- MEXENG:{n:"Szymon Marciniak",pais:"Polonia",am:4.8,fa:26,pen:0.30,pj:22,estilo:"firme y con criterio, no le tiembla el pulso"},
- PORESP:{n:"Facundo Tello",pais:"Argentina",am:5.6,fa:28,pen:0.35,pj:19,estilo:"de los más tarjeteros del circuito"},
- USABEL:{n:"Clément Turpin",pais:"Francia",am:4.0,fa:23,pen:0.22,pj:24,estilo:"deja jugar, tarjeta comedida"},
- ARGEGY:{n:"Anthony Taylor",pais:"Inglaterra",am:3.6,fa:21,pen:0.20,pj:25,estilo:"de los que menos interrumpe; pocas amarillas"},
- SUICOL:{n:"Danny Makkelie",pais:"Países Bajos",am:4.4,fa:24,pen:0.28,pj:23,estilo:"equilibrado, buena gestión de la tarjeta"},
- FRAMAR:{n:"Slavko Vinčić",pais:"Eslovenia",am:4.1,fa:22,pen:0.24,pj:21,estilo:"sereno, tarjeta en la media"}
-};
+/* Designaciones arbitrales: la organización las publica 1-2 días antes de cada
+   partido y esta versión no tiene una fuente en directo verificada del árbitro.
+   Por eso NO cargamos árbitros: es mejor no dar un dato que no podamos verificar. */
+var ARBITROS={};
 function arbitroDe(a,b){return ARBITROS[a+b]||ARBITROS[b+a]||null;}
 var STATS={
  FRA:{m:"5 partidos (grupos completos + Suecia + Paraguay)",cf:[6,4,5,9,12],cc:[4,2,4,1,2],tiros:[11,19,19,25,15],tirosP:[8,5,10,13,5],am:[0,0,1,0,3],faltas:[5,8,9,14,11],pos:[54,56,57,61,76],nota:""},
@@ -3001,14 +2994,16 @@ function botResponde(qRaw){
   return "Los porcentajes salen del modelo estadístico de SportRadar: procesa resultados, rendimiento reciente y fuerza del rival, y estima la frecuencia de cada resultado si el partido se jugara muchas veces. Dos avisos de profesional: (1) un 53% significa que ese resultado también FALLA 47 de cada 100 veces; (2) el modelo no sabe de bajas de última hora ni de lo que pasa en un vestuario. Por eso aquí lo cruzas con bajas, forma y tu propio criterio — ninguna cifra decide por ti.";
  }
 
- /* ÁRBITRO del cruce: nombre, país y sus medias (tarjetas, faltas, penaltis) */
+ /* ÁRBITRO del cruce: solo si tenemos designación verificada; nunca inventada */
  if(tiene("arbitro","árbitro","colegiado","quien pita","quien arbitra","referee","designacion","quien dirige")){
   var pmA=eqs.length?partidoDe(eqs[0]):partidoDestacado();
-  if(!pmA)return "Dime de qué cruce quieres el árbitro (por ejemplo «árbitro del Portugal – España»).";
-  var arb=arbitroDe(pmA.home,pmA.away);
-  if(!arb)return "No tengo designación de árbitro cargada para "+NOM[pmA.home]+" – "+NOM[pmA.away]+" en esta versión.";
-  var extra=arb.am>=5?"Es de los tarjeteros: si te fijas en el mercado de tarjetas, tenlo muy en cuenta.":(arb.am<=3.8?"De los que menos amarillas saca: partido que suele dejar fluir.":"Tarjeta en la media.");
-  return "El "+NOM[pmA.home]+" – "+NOM[pmA.away]+" lo dirige "+arb.n+" ("+arb.pais+"). Medias orientativas: "+coma(arb.am,1)+" amarillas y "+arb.fa+" faltas por partido, y "+coma(arb.pen,2)+" penaltis por encuentro ("+arb.pj+" partidos de muestra). Estilo: "+arb.estilo+". "+extra+" (Designación y medias aproximadas de esta versión.)";
+  var arb=pmA?arbitroDe(pmA.home,pmA.away):null;
+  if(arb){
+   var extra=arb.am>=5?"Es de los tarjeteros: si te fijas en el mercado de tarjetas, tenlo muy en cuenta.":(arb.am<=3.8?"De los que menos amarillas saca: partido que suele dejar fluir.":"Tarjeta en la media.");
+   return "El "+NOM[pmA.home]+" – "+NOM[pmA.away]+" lo dirige "+arb.n+" ("+arb.pais+"). Medias verificadas: "+coma(arb.am,1)+" amarillas y "+arb.fa+" faltas por partido, y "+coma(arb.pen,2)+" penaltis por encuentro ("+arb.pj+" partidos). Estilo: "+arb.estilo+". "+extra;
+  }
+  var quien=pmA?("el "+NOM[pmA.home]+" – "+NOM[pmA.away]):"este partido";
+  return "Sinceramente: no te lo puedo confirmar. Las designaciones de árbitros las publica la organización (FIFA) 1-2 días antes de cada partido, y esta web todavía no tiene una fuente en directo verificada del colegiado — así que no te invento un nombre. Para "+quien+" consúltalo en una fuente oficial (FIFA/FEF) cuando lo anuncien. Cuando conecte esa fuente, te daré el árbitro real y sus medias de tarjetas y penaltis. Lo que sí puedo darte ya, verificado, son las medias de faltas y amarillas de cada equipo («tarjetas de España»).";
  }
  /* GOLES ESPERADOS / MARCADOR MÁS PROBABLE (modelo Poisson) */
  if(tiene("goles esperados","cuantos goles","marcador exacto","marcador mas probable","marcador probable","resultado mas probable","expected goals"," xg","cuantos goles va","cuantos goles habra","goles va a haber")){
@@ -3186,7 +3181,7 @@ function botResponde(qRaw){
   }
  }
  if(/^(hola|buenas|hey|que tal|ey|holaa|buenos dias|buenas tardes|saludos)/.test(q))return pick(["¡Hola!","¡Ey! ¿Qué miramos hoy?","¡Buenas!"])+" Razono con datos reales de los 15 equipos vivos (act. 5 jul): córners, tarjetas, tiros y posesión de cada uno, jugadores («¿ves factible que marque Haaland?»), cuotas verificadas del partido de hoy, resultados, bajas, cuadro y tu balance. Yo no elijo apuestas — te doy los números y decides tú.";
- if(tiene("ayuda","que sabes","que puedes"))return "Puedo responder de casi todo lo del partido:\n• Horarios, agenda, resultados y cuadro\n• Probabilidades del modelo, goles esperados y marcador más probable\n• Córners, tarjetas, tiros y posesión de los equipos\n• Jugadores: forma, bajas y argumentos a favor/en contra («¿ves factible que marque Haaland?»)\n• El árbitro del cruce y sus medias de tarjetas y penaltis («¿el árbitro saca muchas amarillas?»)\n• Historial y cara a cara entre los dos equipos\n• Cuotas y mercados, ambos marcan, más/menos de 2,5\n• Tu balance, bankroll y simulaciones («simula 20 a 2.5»)\nRecuerdo de qué equipo hablamos, así que puedes encadenar («¿y sus tarjetas?»). Lo que nunca hago: elegir apuestas por ti.";
+ if(tiene("ayuda","que sabes","que puedes"))return "Puedo responder de casi todo lo del partido:\n• Horarios, agenda, resultados y cuadro\n• Probabilidades del modelo, goles esperados y marcador más probable\n• Córners, tarjetas, tiros y posesión de los equipos\n• Jugadores: forma, bajas y argumentos a favor/en contra («¿ves factible que marque Haaland?»)\n• Historial y cara a cara entre los dos equipos\n• Cuotas y mercados, ambos marcan, más/menos de 2,5\n• Tu balance, bankroll y simulaciones («simula 20 a 2.5»)\nRecuerdo de qué equipo hablamos, así que puedes encadenar («¿y sus tarjetas?»). Lo que nunca hago: elegir apuestas por ti.";
  /* fallback consciente del equipo detectado (did-you-mean) */
  if(eqs.length){
   var fc=eqs[0];
