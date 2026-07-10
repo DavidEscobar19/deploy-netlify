@@ -153,6 +153,22 @@ main{margin-left:224px;padding:54px 32px 100px;max-width:1240px}
 .plHero b{font-size:1.05rem;letter-spacing:-.01em}
 .plHero .sub{font-size:.76rem;color:var(--tx3);margin-top:3px}
 .plFor{font-size:.68rem;color:var(--vio2);background:rgba(124,92,255,.14);border:1px solid var(--vioD);padding:2px 8px;border-radius:20px;font-weight:600}
+/* ---- Esqueletos de carga: dan la forma de lo que va a llegar, en vez de un «Cargando…» ---- */
+@keyframes shimmer{from{background-position:-460px 0}to{background-position:460px 0}}
+.sk{background:linear-gradient(90deg,var(--card) 0%,var(--card2) 42%,var(--card) 80%);background-size:460px 100%;animation:shimmer 1.15s linear infinite;border-radius:8px}
+.skRow{display:flex;align-items:center;gap:10px;padding:8px 10px;margin-bottom:6px;border:1px solid var(--border);border-radius:10px}
+.skDot{width:30px;height:30px;border-radius:50%;flex-shrink:0}
+.skLine{height:10px;flex:1}
+.skLine.s{flex:none;width:34%}
+.skHead{height:11px;width:118px;margin:14px 0 9px}
+/* ---- Cambio de pestaña del modal: el contenido entra, no salta ---- */
+@keyframes mIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.mBodyIn{animation:mIn .22s ease}
+#modal .mHd .x{transition:background .15s,color .15s,border-color .15s,transform .1s}
+#modal .mHd .x:hover{color:var(--tx);background:var(--hover);border-color:var(--border2)}
+#modal .mHd .x:active{transform:scale(.92)}
+.mTabs button:active{transform:translateY(1px)}
+@media(prefers-reduced-motion:reduce){.sk{animation:none}.mBodyIn{animation:none}.plRow{transition:none}}
 /* textos legales */
 .legalTxt{font-size:.86rem;color:var(--tx2);line-height:1.7}
 .legalTxt p{margin-bottom:11px}
@@ -531,7 +547,7 @@ nav.bott{display:none}
 <div id="app">
 
 <nav class="side" aria-label="Navegación principal">
-  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip">V53</span></div>
+  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip">V54</span></div>
   <a href="#inicio" data-p="inicio" class="on"><svg class="i" viewBox="0 0 24 24"><use href="#ic-home"/></svg>Inicio</a>
   <a href="#partidos" data-p="partidos"><svg class="i" viewBox="0 0 24 24"><use href="#ic-ball"/></svg>Partidos</a>
   <a href="#analisis" data-p="analisis"><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Análisis</a>
@@ -967,7 +983,7 @@ nav.bott{display:none}
 
 <script>
 "use strict";
-var VERSION="V53";
+var VERSION="V54";
 /* PIN: disuasión del lado del cliente (el código llega al navegador, no es seguridad real).
    Guardamos solo un hash del PIN y limitamos los intentos para frenar el tanteo casual. */
 function hpin(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);}return (h>>>0).toString(16);}
@@ -1385,6 +1401,27 @@ function afGet(qs){
  if(AF_CACHE[qs])return Promise.resolve(AF_CACHE[qs]);
  return fetch(AF_URL+"?"+qs).then(function(r){return r.json();}).then(function(j){AF_CACHE[qs]=j;return j;});
 }
+/* pinta el cuerpo del modal y re-dispara la animación de entrada */
+function mBodySet(h){
+ var b=$("#mBody"); if(!b)return;
+ b.innerHTML=h;
+ if(b.classList){b.classList.remove("mBodyIn");void b.offsetWidth;b.classList.add("mBodyIn");}
+}
+/* Esqueletos: mientras llegan los datos mostramos la FORMA de lo que va a venir.
+   Se ocultan a los lectores de pantalla, que reciben un aviso de texto. */
+function skPlantilla(){
+ var f='<div class="skRow"><div class="sk skDot"></div><div class="sk skLine"></div><div class="sk skLine s"></div></div>';
+ var col='<div class="sk skHead"></div>'+f+f+f+f+f;
+ return '<span class="srOnly">Cargando alineaciones y plantillas…</span>'+
+  '<div class="plGrid" aria-hidden="true"><div>'+col+'</div><div>'+col+'</div></div>';
+}
+function skFicha(){
+ return '<span class="srOnly">Cargando la ficha del jugador…</span><div aria-hidden="true">'+
+  '<div class="plHero"><div class="sk" style="width:66px;height:66px;border-radius:15px"></div>'+
+  '<div style="flex:1"><div class="sk skLine" style="width:170px;margin-bottom:9px"></div><div class="sk skLine s"></div></div></div>'+
+  '<div class="sk skHead"></div><div class="skRow"><div class="sk skLine"></div></div>'+
+  '<div class="skRow"><div class="sk skLine"></div></div><div class="skRow"><div class="sk skLine"></div></div></div>';
+}
 var _POS={Goalkeeper:"POR",Defender:"DEF",Midfielder:"MED",Attacker:"DEL",G:"POR",D:"DEF",M:"MED",F:"DEL"};
 function posCorta(p){return _POS[p]||(p||"");}
 function plFoto(u){return u?'<img src="'+esc(u)+'" alt="" loading="lazy" referrerpolicy="no-referrer">':'<img alt="" src="data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\'/%3E">';}
@@ -1405,12 +1442,12 @@ function grupoPlantilla(players){
  return h;
 }
 function renderOnce(m){
- var body=$("#mBody"),req=++_onceReq;
+ var req=++_onceReq;
  if(!m.fixtureId){
-  body.innerHTML='<div class="note">Este cruce no está enlazado al proveedor de datos en vivo, así que no puedo mostrarte su plantilla ni su alineación. Solo lo hacemos con datos reales.</div>';
+  mBodySet('<div class="note">Este cruce no está enlazado al proveedor de datos en vivo, así que no puedo mostrarte su plantilla ni su alineación. Solo lo hacemos con datos reales.</div>');
   return;
  }
- body.innerHTML='<div class="note">Cargando alineaciones y plantillas…</div>';
+ mBodySet(skPlantilla());
  Promise.all([
   afGet("a=lineups&fixture="+m.fixtureId),
   afGet("a=injuries&fixture="+m.fixtureId),
@@ -1450,20 +1487,20 @@ function renderOnce(m){
    });
   }
   h+='<div class="src">Fuente: API-Football. Pulsa cualquier jugador para ver sus estadísticas.</div>';
-  body.innerHTML=h;
+  mBodySet(h);
  }).catch(function(){
   if(req!==_onceReq)return;
-  body.innerHTML='<div class="note">No se han podido cargar las alineaciones ahora mismo. Inténtalo en un momento.</div>';
+  mBodySet('<div class="note">No se han podido cargar las alineaciones ahora mismo. Inténtalo en un momento.</div>');
  });
 }
 function openPlayer(id){
- var body=$("#mBody"),req=++_onceReq;
- body.innerHTML='<div class="note">Cargando ficha…</div>';
+ var req=++_onceReq;
+ mBodySet(skFicha());
  afGet("a=player&id="+id).then(function(j){
   if(req!==_onceReq)return;
   var volver='<button class="plBack" onclick="renderOnce(modalM)">← Volver a las alineaciones</button>';
   var P=j&&j.player;
-  if(!P||!P.player){body.innerHTML=volver+'<div class="note">No hay ficha publicada de este jugador para esta temporada.</div>';return;}
+  if(!P||!P.player){mBodySet(volver+'<div class="note">No hay ficha publicada de este jugador para esta temporada.</div>');return;}
   var pl=P.player,st=P.statistics||[];
   var h=volver+'<div class="plHero">'+plFoto(pl.photo)+
    '<div><b>'+esc(pl.name)+'</b><div class="sub">'+[pl.age?pl.age+" años":"",esc(pl.nationality||""),pl.height||"",pl.weight||""].filter(Boolean).join(" · ")+'</div></div></div>';
@@ -1496,10 +1533,10 @@ function openPlayer(id){
   }
   if(!ap&&!mi)h+='<div class="note">Sin minutos registrados esta temporada por el proveedor.</div>';
   h+='<div class="src">Fuente: API-Football · temporada 2026. Solo datos publicados, sin estimaciones.</div>';
-  body.innerHTML=h;
+  mBodySet(h);
  }).catch(function(){
   if(req!==_onceReq)return;
-  body.innerHTML='<button class="plBack" onclick="renderOnce(modalM)">← Volver</button><div class="note">No se ha podido cargar la ficha del jugador.</div>';
+  mBodySet('<button class="plBack" onclick="renderOnce(modalM)">← Volver</button><div class="note">No se ha podido cargar la ficha del jugador.</div>');
  });
 }
 function modalTab(t){
@@ -1543,7 +1580,7 @@ function modalTab(t){
    h+='<div class="note" style="margin-top:14px">Una probabilidad no es una certeza: el '+m.prob[2].toFixed(0)+'% ocurre '+m.prob[2].toFixed(0)+' de cada 100 veces. Paraguay aguantó 70 minutos a Francia siendo mucho menos favorita.</div>';
   }
  }
- $("#mBody").innerHTML=h;
+ mBodySet(h);
 }
 /* ================= RENDER: INICIO ================= */
 var cdTimer=null, DEST=null;
