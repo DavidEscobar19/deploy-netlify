@@ -133,7 +133,12 @@ exports.handler = async function (event) {
           : null,
         home: { id: f.teams.home.id, name: f.teams.home.name },
         away: { id: f.teams.away.id, name: f.teams.away.name },
-        goals: f.goals
+        goals: f.goals,
+        // Quién pasa lo dice la API, no lo deducimos del marcador: en una tanda de
+        // penaltis el resultado es 0–0 y aun así hay un clasificado.
+        winner: f.teams.home.winner === true ? "home" : (f.teams.away.winner === true ? "away" : null),
+        pen: (f.score && f.score.penalty && f.score.penalty.home != null) ? f.score.penalty : null,
+        et: (f.score && f.score.extratime && f.score.extratime.home != null) ? f.score.extratime : null
       }));
 
       // Solo pedimos cuotas de los cruces aún por jugar (hoy son 3 → 3 peticiones).

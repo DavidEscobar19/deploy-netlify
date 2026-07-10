@@ -531,7 +531,7 @@ nav.bott{display:none}
 <div id="app">
 
 <nav class="side" aria-label="Navegación principal">
-  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip">V52</span></div>
+  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip">V53</span></div>
   <a href="#inicio" data-p="inicio" class="on"><svg class="i" viewBox="0 0 24 24"><use href="#ic-home"/></svg>Inicio</a>
   <a href="#partidos" data-p="partidos"><svg class="i" viewBox="0 0 24 24"><use href="#ic-ball"/></svg>Partidos</a>
   <a href="#analisis" data-p="analisis"><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Análisis</a>
@@ -967,7 +967,7 @@ nav.bott{display:none}
 
 <script>
 "use strict";
-var VERSION="V52";
+var VERSION="V53";
 /* PIN: disuasión del lado del cliente (el código llega al navegador, no es seguridad real).
    Guardamos solo un hash del PIN y limitamos los intentos para frenar el tanteo casual. */
 function hpin(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);}return (h>>>0).toString(16);}
@@ -1162,32 +1162,6 @@ var ELPARTIDO={
   {mercado:"Hat-trick de Haaland",cuota:"37,0",imp:"3%",fuente:"BetMGM"}
  ],
  cuotasNota:"Cuotas publicadas entre el 3 y el 4 de julio — se mueven hasta el pitido inicial, comprueba el precio vivo antes de nada. Las probabilidades implícitas suman más de 100% porque llevan dentro el margen de la casa: ese margen es exactamente lo que la casa gana a largo plazo. De córners y tarjetas no encontré líneas publicadas verificables, así que no las invento. Y fíjate: Haaland lleva 13 partidos seguidos marcando con Noruega, y aun así su hat-trick paga 37 — las casas nunca regalan nada."
-};
-var CUADRO={
- octavos:[
-  {a:"CAN",b:"MAR",s:"0 – 3",estado:"Final",gana:"MAR"},
-  {a:"PAR",b:"FRA",s:"0 – 1",estado:"Final · gol de Mbappé",gana:"FRA"},
-  {a:"BRA",b:"NOR",s:"—",estado:"HOY · 22:00 · MetLife Stadium",vivo:true},
-  {a:"MEX",b:"ENG",s:"—",estado:"Lun 6 · 02:00 · Estadio Azteca"},
-  {a:"POR",b:"ESP",s:"—",estado:"Lun 6 · 21:00 · Dallas"},
-  {a:"USA",b:"BEL",s:"—",estado:"Mar 7 · 02:00 · Seattle"},
-  {a:"ARG",b:"EGY",s:"—",estado:"Mar 7 · 18:00 · Atlanta"},
-  {a:"SUI",b:"COL",s:"—",estado:"Mar 7 · 22:00 · Vancouver"}
- ],
- cuartos:[
-  {a:"FRA",b:"MAR",s:"—",estado:"Jue 9 · 22:00 · Boston — remake de la semifinal de Catar 2022"},
-  {a:"BRA / NOR",b:"MEX / ENG",estado:"Vie 10 · 21:00"},
-  {a:"POR / ESP",b:"USA / BEL",estado:"Sáb 11 · 23:00"},
-  {a:"ARG / EGY",b:"SUI / COL",estado:"Dom 12 · 03:00"}
- ],
- semis:[
-  {a:"Ganador C1",b:"Ganador C2",estado:"Mar 14 · 21:00 · Dallas"},
-  {a:"Ganador C3",b:"Ganador C4",estado:"Mié 15 · 21:00 · Atlanta"}
- ],
- final:[
-  {a:"3er puesto",b:"",estado:"Sáb 18 · 23:00 · Miami"},
-  {a:"GRAN FINAL",b:"",estado:"Dom 19 jul · MetLife Stadium · Nueva Jersey"}
- ]
 };
 var ALIAS={
  ESP:["espana","españa","spain","roja"],FRA:["francia","france","bleus","galos"],
@@ -2706,56 +2680,97 @@ function renderValorAutor(p){
  $("#valorBox").innerHTML=h;
 }
 
-/* ================= RENDER: CUADRO ================= */
 /* localiza el partido del calendario (en cualquier orden) para un cruce a–b */
-function calMatch(a,b){return todosPartidos().filter(function(o){return (o.home===a&&o.away===b)||(o.home===b&&o.away===a);})[0];}
-/* qué octavos alimentan cada cuarto (por índice en CUADRO.octavos) */
-var CUARTOS_SRC=[[1,0],[2,3],[4,5],[6,7]];
-function ganadorOctavo(idx){var m=CUADRO.octavos[idx];if(!m)return null;var cm=calMatch(m.a,m.b);return cm?estadoPartido(cm).gana:null;}
+/* ================= CUADRO DE ELIMINATORIAS =================
+   Se construye con el feed de API-Football: rondas, fechas, sedes, marcadores y
+   —lo importante— quién pasa, que en una tanda de penaltis NO se deduce del
+   marcador (Suiza–Colombia acabó 0–0 y pasó Suiza 4-3 en la tanda).
+   Las rondas que el proveedor todavía no ha creado se muestran como pendientes:
+   no inventamos los emparejamientos. */
+var _BR_RONDAS=[
+ {r:"Round of 16",t:"Octavos"},
+ {r:"Quarter-finals",t:"Cuartos"},
+ {r:"Semi-finals",t:"Semifinales"},
+ {r:"3rd Place Final",t:"Tercer puesto"},
+ {r:"Final",t:"Final"}
+];
+var _MESES=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+function brkRango(ms){
+ var ts=ms.map(function(f){return Date.parse(f.date);}).sort(function(a,b){return a-b;});
+ var d1=new Date(ts[0]),d2=new Date(ts[ts.length-1]);
+ var m1=_MESES[d1.getMonth()],m2=_MESES[d2.getMonth()],a=d1.getDate(),b=d2.getDate();
+ if(a===b&&m1===m2)return a+" "+m1;
+ return a+(m1!==m2?" "+m1:"")+"-"+b+" "+m2;
+}
+function brkFila(code,nombre,win,out,sc){
+ var txt=code?FLAGS[code]+" "+esc(NOM[code]):esc(nombre||"Por determinar");
+ return '<div class="t '+(win?"win":"")+(out?" out":"")+'"><span>'+txt+'</span><span class="s">'+(sc==null?"":sc)+'</span></div>';
+}
+function brkBloque(f,esFinal){
+ var ch=nombreACodigo(f.home&&f.home.name),ca=nombreACodigo(f.away&&f.away.name);
+ var fin=!!FIN_ST[f.status],vivo=!!LIVE_ST[f.status];
+ var gh=f.goals?f.goals.home:null,ga=f.goals?f.goals.away:null;
+ var winH=f.winner==="home",winA=f.winner==="away",ts=Date.parse(f.date);
+ var estado=vivo?"En juego ahora":(fin?"Final":fmtDt(ts));
+ if(fin&&f.pen)estado+=" · "+f.pen.home+"-"+f.pen.away+" en penaltis";
+ else if(fin&&f.et)estado+=" · tras prórroga";
+ if(!fin&&!vivo&&f.venue)estado+=" · "+f.venue.split(",")[0];
+ var pasa="";
+ if(fin&&(winH||winA)){
+  var g=winH?(ch?NOM[ch]:f.home.name):(ca?NOM[ca]:f.away.name);
+  pasa=' — <b style="color:var(--green)">'+esc(g)+(esFinal?" campeón":" pasa")+'</b>';
+ }
+ return '<div class="brkM'+(vivo?" vivo":"")+(fin?" res":"")+(esFinal?" gf":"")+'">'+
+  (vivo?'<div class="live" style="margin-bottom:6px">En juego</div>':"")+
+  brkFila(ch,f.home&&f.home.name,winH,fin&&winA,fin?gh:null)+
+  brkFila(ca,f.away&&f.away.name,winA,fin&&winH,fin?ga:null)+
+  '<div class="when">'+esc(estado)+pasa+'</div></div>';
+}
+/* API-Football todavía no ha creado semifinales, tercer puesto ni final. football-data
+   sí publica sus fechas (y a veces un equipo ya clasificado). Aprovechamos eso: fechas
+   reales, equipos solo si constan. Lo que no se sabe, se dice. */
+var _BR_PEND={"Semi-finals":"SEMIFINAL","3rd Place Final":"TERCER PUESTO","Final":"FINAL"};
+function brkPendientes(rKey){
+ var want=_BR_PEND[rKey];
+ if(!want||!FB||!FB.response)return [];
+ return FB.response.filter(function(fx){
+  var st=fx.fixture&&fx.fixture.status&&fx.fixture.status.short;
+  if(FIN_ST[st])return false;
+  var ts=Date.parse(fx.fixture.date);
+  return ts&&rondaDe(ts)===want;
+ }).sort(function(a,b){return Date.parse(a.fixture.date)-Date.parse(b.fixture.date);});
+}
+function brkBloquePend(fx,esFinal){
+ var hn=fx.teams&&fx.teams.home&&fx.teams.home.name,an=fx.teams&&fx.teams.away&&fx.teams.away.name;
+ var ts=Date.parse(fx.fixture.date);
+ return '<div class="brkM'+(esFinal?" gf":"")+'">'+
+  brkFila(nombreACodigo(hn),hn,false,false,null)+
+  brkFila(nombreACodigo(an),an,false,false,null)+
+  '<div class="when">'+esc(fmtDt(ts))+'</div></div>';
+}
 function renderCuadro(){
- function fila(x,win,out,marcador){
-  if(!x)return "";
-  var esC=FLAGS[x]!==undefined;
-  var nombre=esC?FLAGS[x]+" "+esc(NOM[x]):esc(x);
-  return '<div class="t '+(win?"win":"")+(out&&esC?" out":"")+'"><span>'+nombre+'</span><span class="s">'+(marcador||"")+'</span></div>';
+ var el=$("#bracket"); if(!el)return;
+ if(!AFX){
+  el.innerHTML='<div class="note">'+(LIVE_ERR?"No se ha podido cargar el cuadro desde el proveedor de datos.":"Cargando el cuadro desde el feed en vivo…")+'</div>';
+  return;
  }
- function partes(score){if(!score)return ["",""];var pp=score.split("–").map(function(s){return s.trim()});return [pp[0]||"",pp[1]||""];}
- /* bloque de octavos: estado y resultado reales del feed */
- function octavoBloque(m){
-  var cm=calMatch(m.a,m.b),e=cm?estadoPartido(cm):{prox:true};
-  var pp=partes(e.score),gana=e.gana||null,vivo=!!e.live;
-  var estadoTxt=vivo?"En juego ahora":e.fin?("Final"+(gana?"":" · pendiente de confirmar")):m.estado;
-  var cls="brkM"+(vivo?" vivo":"")+(gana?" res":"");
-  return '<div class="'+cls+'">'+
-   (vivo?'<div class="live" style="margin-bottom:6px">En juego'+(e.score?" · "+esc(e.score):"")+'</div>':"")+
-   fila(m.a,gana===m.a,gana&&gana!==m.a,pp[0])+fila(m.b,gana===m.b,gana&&gana!==m.b,pp[1])+
-   '<div class="when">'+esc(estadoTxt)+(gana?' — <b style="color:var(--green)">'+esc(NOM[gana])+' a cuartos</b>':"")+'</div></div>';
- }
- /* bloque de cuartos: participantes derivados de los ganadores de octavos + resultado real si lo hay */
- function cuartoBloque(m,i){
-  var src=CUARTOS_SRC[i];
-  var A=src?(ganadorOctavo(src[0])||m.a):m.a;
-  var B=src?(ganadorOctavo(src[1])||m.b):m.b;
-  var confirmados=FLAGS[A]!==undefined&&FLAGS[B]!==undefined;
-  var e=confirmados?estadoPartido({home:A,away:B,ts:9e15}):{prox:true};
-  var pp=partes(e.score),gana=e.gana||null,vivo=!!e.live;
-  var estadoTxt=vivo?"En juego ahora":e.fin?"Final":m.estado;
-  var cls="brkM"+(vivo?" vivo":"")+(gana?" res":"");
-  return '<div class="'+cls+'">'+
-   (vivo?'<div class="live" style="margin-bottom:6px">En juego</div>':"")+
-   fila(A,gana===A,gana&&gana!==A,pp[0])+fila(B,gana===B,gana&&gana!==B,pp[1])+
-   '<div class="when">'+esc(estadoTxt)+'</div></div>';
- }
- function colStatic(ms){var h="";ms.forEach(function(m){h+='<div class="brkM'+(m.a==="GRAN FINAL"?" gf":"")+'">'+fila(m.a,false,false,"")+fila(m.b,false,false,"")+'<div class="when">'+esc(m.estado)+'</div></div>';});return h;}
- function colWrap(t,inner){return '<div class="brkCol"><h4>'+esc(t)+'</h4>'+inner+'</div>';}
- var octH="";CUADRO.octavos.forEach(function(m){octH+=octavoBloque(m);});
- var cuaH="";CUADRO.cuartos.forEach(function(m,i){cuaH+=cuartoBloque(m,i);});
- $("#bracket").innerHTML=
-  colWrap("Octavos · 4-7 jul",octH)+
-  colWrap("Cuartos · 9-12 jul",cuaH)+
-  colWrap("Semifinales · 14-15 jul",colStatic(CUADRO.semis))+
-  colWrap("El desenlace",colStatic(CUADRO.final))+
-  '<div class="brkCol"><h4>Camino</h4><div class="brkM" style="font-size:.78rem;color:var(--tx2);line-height:1.7">Los 8 cruces de octavos alimentan los 4 cuartos: el cuadro se rellena solo con cada resultado del feed en vivo. La final se juega el 19 de julio en el MetLife, Nueva Jersey — el mismo estadio que abrió esta ronda.</div></div>';
+ var h="";
+ _BR_RONDAS.forEach(function(R){
+  var esF=R.r==="Final";
+  var ms=AFX.filter(function(f){return f.round===R.r;}).sort(function(a,b){return Date.parse(a.date)-Date.parse(b.date);});
+  if(ms.length){
+   h+='<div class="brkCol"><h4>'+esc(R.t+" · "+brkRango(ms))+'</h4>';
+   ms.forEach(function(f){h+=brkBloque(f,esF);});
+  }else{
+   var pend=brkPendientes(R.r);
+   h+='<div class="brkCol"><h4>'+esc(R.t+(pend.length?" · "+brkRango(pend.map(function(x){return{date:x.fixture.date};})):""))+'</h4>';
+   if(pend.length)pend.forEach(function(fx){h+=brkBloquePend(fx,esF);});
+   else h+='<div class="brkM'+(esF?" gf":"")+'"><div class="t"><span>Por determinar</span><span class="s"></span></div><div class="when">Se define con los resultados de la ronda anterior</div></div>';
+  }
+  h+='</div>';
+ });
+ h+='<div class="brkCol"><h4>Camino</h4><div class="brkM" style="font-size:.78rem;color:var(--tx2);line-height:1.7">El cuadro se genera solo con el feed en vivo: cruces, marcadores y quién pasa, incluidas las tandas de penaltis. Las rondas que todavía no existen aparecen como «por determinar»: no adivinamos los emparejamientos.</div></div>';
+ el.innerHTML=h;
 }
 
 /* ================= RENDER: CALENDARIO ================= */
