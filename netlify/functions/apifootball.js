@@ -20,7 +20,8 @@ const SEASON = 2026;
 // Caché en memoria del contenedor caliente. Cada acción con su propio TTL:
 // una plantilla no cambia en todo el torneo; una alineación sí.
 const TTL = { live: 15 * 60e3, lineups: 60e3, squad: 24 * 3600e3, player: 12 * 3600e3, injuries: 30 * 60e3, topscorers: 30 * 60e3,
-              fixstats: 6 * 3600e3, events: 6 * 3600e3, fixplayers: 6 * 3600e3, h2h: 24 * 3600e3 };
+              fixstats: 6 * 3600e3, events: 6 * 3600e3, fixplayers: 6 * 3600e3, h2h: 24 * 3600e3, teamstats: 6 * 3600e3 };
+const LIVE_ST = { "1H":1, "2H":1, "HT":1, "ET":1, "BT":1, "P":1, "LIVE":1, "INT":1 };
 const cache = new Map();
 
 function fromCache(k) {
@@ -154,6 +155,25 @@ exports.handler = async function (event) {
         pen: (f.score && f.score.penalty && f.score.penalty.home != null) ? f.score.penalty : null,
         comp: (f.league && f.league.name ? f.league.name : "") + (f.league && f.league.season ? " " + f.league.season : "")
       })) };
+    } else if (a === "teamstats") {
+      // Números del equipo en el torneo: forma, victorias, goles, porterías a cero…
+      const r = await af(`/teams/statistics?league=${LEAGUE}&season=${SEASON}&team=${encodeURIComponent(q.team)}`, key);
+      const t = Array.isArray(r) ? r[0] : r;   // este endpoint devuelve objeto, no lista
+      payload = { ok: true, ts: t ? {
+        form: t.form || null,
+        pj: t.fixtures && t.fixtures.played ? t.fixtures.played.total : null,
+        v: t.fixtures && t.fixtures.wins ? t.fixtures.wins.total : null,
+        e: t.fixtures && t.fixtures.draws ? t.fixtures.draws.total : null,
+        d: t.fixtures && t.fixtures.loses ? t.fixtures.loses.total : null,
+        gf: t.goals && t.goals.for ? t.goals.for.total.total : null,
+        gc: t.goals && t.goals.against ? t.goals.against.total.total : null,
+        gfAvg: t.goals && t.goals.for ? t.goals.for.average.total : null,
+        gcAvg: t.goals && t.goals.against ? t.goals.against.average.total : null,
+        cs: t.clean_sheet ? t.clean_sheet.total : null,
+        sinMarcar: t.failed_to_score ? t.failed_to_score.total : null,
+        penMar: t.penalty && t.penalty.scored ? t.penalty.scored.total : null,
+        penFall: t.penalty && t.penalty.missed ? t.penalty.missed.total : null
+      } : null };
     } else if (a === "topscorers") {
       // Bota de Oro real del torneo, reducida a lo que pinta la web.
       const r = await af(`/players/topscorers?league=${LEAGUE}&season=${SEASON}`, key);
@@ -171,6 +191,7 @@ exports.handler = async function (event) {
         id: f.fixture.id,
         date: f.fixture.date,
         status: f.fixture.status.short,
+        elapsed: f.fixture.status.elapsed,     // minuto de juego cuando está en vivo
         round: f.league.round,
         ronda: rondaDe(f.league.round),
         venue: f.fixture.venue && f.fixture.venue.name
@@ -201,7 +222,14 @@ exports.handler = async function (event) {
       payload = { ok: true, updated: Date.now(), fixtures, odds, scores: [] };
     }
 
-    putCache(ck, payload, TTL[a] || TTL.live);
+    // Con un partido en juego, la caché larga mataría el directo: bajamos a ~1 min.
+    const enVivo = !!(payload && payload.fixtures && payload.fixtures.some((f) => LIVE_ST[f.status]));
+    if (payload && payload.fixtures) payload.enVivo = enVivo;
+    if (enVivo) {
+      headers["Cache-Control"] = "public, max-age=30";
+      headers["Netlify-CDN-Cache-Control"] = "public, s-maxage=60, stale-while-revalidate=120";
+    }
+    putCache(ck, payload, enVivo ? 60e3 : (TTL[a] || TTL.live));
     return { statusCode: 200, headers, body: JSON.stringify(payload) };
   } catch (e) {
     // No fallamos en silencio: la web debe poder decir por qué no hay datos.
