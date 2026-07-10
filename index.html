@@ -513,7 +513,7 @@ nav.bott{display:none}
 <div id="app">
 
 <nav class="side" aria-label="Navegación principal">
-  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip">V50</span></div>
+  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip">V51</span></div>
   <a href="#inicio" data-p="inicio" class="on"><svg class="i" viewBox="0 0 24 24"><use href="#ic-home"/></svg>Inicio</a>
   <a href="#partidos" data-p="partidos"><svg class="i" viewBox="0 0 24 24"><use href="#ic-ball"/></svg>Partidos</a>
   <a href="#analisis" data-p="analisis"><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Análisis</a>
@@ -949,7 +949,7 @@ nav.bott{display:none}
 
 <script>
 "use strict";
-var VERSION="V50";
+var VERSION="V51";
 /* PIN: disuasión del lado del cliente (el código llega al navegador, no es seguridad real).
    Guardamos solo un hash del PIN y limitamos los intentos para frenar el tanteo casual. */
 function hpin(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);}return (h>>>0).toString(16);}
@@ -1429,8 +1429,12 @@ function modalTab(t){
 var cdTimer=null, DEST=null;
 var FIN_MS=2.25*36e5; /* ~2h15 tras el saque: se considera terminado y pasa al siguiente */
 
-/* ============ DATOS EN VIVO (Netlify Function → The Odds API) ============ */
-var LIVE_URL="/.netlify/functions/live", LIVE=null, liveTimer=null;
+/* ============ DATOS EN VIVO (Netlify Function → API-Football) ============ */
+/* Fuente licenciada (API-Football): calendario con sede y ronda + cuotas reales.
+   La función devuelve las cuotas con el formato de The Odds API, así que oddsPara,
+   h2hDe y totalsDe siguen funcionando sin cambios. AFX guarda el calendario. */
+var AF_URL="/.netlify/functions/apifootball";
+var LIVE_URL=AF_URL, LIVE=null, AFX=null, liveTimer=null;
 /* nombres de la API (inglés) → nuestros códigos */
 var EN2CODE={brazil:"BRA",norway:"NOR",spain:"ESP",portugal:"POR",mexico:"MEX",england:"ENG","united states":"USA",usa:"USA",belgium:"BEL",argentina:"ARG",egypt:"EGY",switzerland:"SUI",colombia:"COL",morocco:"MAR",france:"FRA",paraguay:"PAR",canada:"CAN",japan:"JPN",sweden:"SWE","ivory coast":"CIV","cote d'ivoire":"CIV",ghana:"GHA","cape verde":"CPV",australia:"AUS",algeria:"DZA",croatia:"CRO",austria:"AUT","bosnia and herzegovina":"BIH",senegal:"SEN","dr congo":"COD",ecuador:"ECU"};
 function nombreACodigo(n){
@@ -1444,7 +1448,7 @@ var LIVE_ERR=null;
 function fetchLive(){
  if(typeof fetch!=="function")return;
  fetch(LIVE_URL,{cache:"no-store"}).then(function(r){return r.json()}).then(function(j){
-  if(j&&j.ok&&((j.odds&&j.odds.length)||(j.scores&&j.scores.length))){LIVE=j;LIVE_ERR=null;renderLive();refreshDinamico();}
+  if(j&&j.ok){LIVE=j;AFX=(j.fixtures&&j.fixtures.length)?j.fixtures:null;LIVE_ERR=null;renderLive();refreshDinamico();}
   /* el proveedor puede fallar (cuota agotada, clave inválida). No lo ocultamos:
      guardamos el motivo para poder decirlo en pantalla y refrescamos las vistas. */
   else{LIVE_ERR=(j&&j.error)||null;renderLive(LIVE_ERR);refreshDinamico();}
@@ -1512,7 +1516,7 @@ function renderValorLive(){
   h+='<div class="oddsRow" style="margin-top:8px"><div class="o"><div class="l">Más de '+String(tt.punto).replace(".",",")+'</div><div class="v">'+tt.over.toFixed(2).replace(".",",")+'</div></div>'+
    '<div class="o"><div class="l">Menos de '+String(tt.punto).replace(".",",")+'</div><div class="v">'+tt.under.toFixed(2).replace(".",",")+'</div></div></div>';
  }
- h+='<div class="src" style="margin-top:10px">Cuotas de casas reales (The Odds API), se actualizan solas cada pocos minutos. El análisis detallado de abajo (onces, bajas, historial) es contenido verificado del proyecto y puede referirse a otro partido.</div></div>';
+ h+='<div class="src" style="margin-top:10px">Cuotas de casas reales (API-Football), se actualizan solas cada pocos minutos. El análisis detallado de abajo (onces, bajas, historial) es contenido verificado del proyecto y puede referirse a otro partido.</div></div>';
  el.innerHTML=h; el.style.display="";
 }
 function renderLive(flag){
@@ -1533,7 +1537,7 @@ function renderLive(flag){
   return;
  }
  /* football-data.org (panel «Resultados reales») es la fuente principal de marcadores y
-    calendario; si trae datos, evitamos el panel duplicado de The Odds API en Inicio */
+    calendario; si trae datos, evitamos el panel duplicado de cuotas en Inicio */
  if(FB&&FB.response&&FB.response.length){el.style.display="none";return;}
  if(!LIVE){el.style.display="none";return;}
  var now=Date.now(),html="";
@@ -1575,7 +1579,7 @@ function renderLive(flag){
  var fecha=new Date(LIVE.updated||now),hh=("0"+fecha.getHours()).slice(-2)+":"+("0"+fecha.getMinutes()).slice(-2);
  el.style.display="";
  el.innerHTML='<h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-bell"/></svg>En directo<span class="tag">datos reales · '+hh+'</span></h3>'+html+
-  '<div class="src" style="margin-top:10px">Fuente: The Odds API · se actualiza solo. Las cuotas son de casas reales y cambian a cada minuto.'+(LIVE.remaining?' · consultas restantes: '+esc(LIVE.remaining):"")+'</div>';
+  '<div class="src" style="margin-top:10px">Fuente: API-Football · se actualiza solo. Las cuotas son de casas reales y cambian a cada minuto.'+(LIVE.remaining?' · consultas restantes: '+esc(LIVE.remaining):"")+'</div>';
 }
 
 /* ============ RESULTADOS Y CALENDARIO REALES (API-Football) ============ */
@@ -1648,6 +1652,8 @@ var _RTXT={OCTAVOS:"Octavos de final",CUARTOS:"Cuartos de final",SEMIFINAL:"Semi
 var _RCOR={OCTAVOS:"Octavos",CUARTOS:"Cuartos",SEMIFINAL:"Semifinal","TERCER PUESTO":"3.º puesto",FINAL:"Final"};
 function rondaTxt(m){return _RTXT[m.ronda||"OCTAVOS"]||"Partido";}
 function rondaCorta(m){return _RCOR[m.ronda||"OCTAVOS"]||"Partido";}
+/* de dónde salen las probabilidades de ESTE cruce: no las atribuimos a quien no toca */
+function fuenteProb(p){return p&&p.probSrc==="mercado"?"probabilidad implícita del mercado (sin margen)":"modelo SportRadar";}
 /* fecha y hora en horario peninsular, con el mismo formato que la agenda curada */
 function fmtDt(ts){
  try{
@@ -1686,10 +1692,33 @@ function fbProximos(){
  });
  return out;
 }
-function todosPartidos(){return _curados().concat(fbProximos());}
+/* Próximos cruces desde API-Football: trae sede, ronda oficial e identificadores
+   reales de partido y equipo (necesarios para alineaciones, plantillas y lesiones).
+   Es la fuente preferente; football-data queda como respaldo si falla. */
+function afProximos(){
+ if(!AFX)return null;
+ var cur=_curados(),out=[];
+ AFX.forEach(function(f){
+  if(f.status!=="NS"&&!LIVE_ST[f.status])return;   /* ya jugado: no es un próximo cruce */
+  var h=nombreACodigo(f.home&&f.home.name),a=nombreACodigo(f.away&&f.away.name);
+  if(!h||!a)return;                                 /* por determinar: no lo inventamos */
+  var ts=Date.parse(f.date); if(!ts)return;
+  for(var i=0;i<cur.length;i++){
+   if((cur[i].home===h&&cur[i].away===a)||(cur[i].home===a&&cur[i].away===h))return;
+  }
+  out.push({home:h,away:a,ts:ts,dt:fmtDt(ts),ronda:f.ronda||rondaDe(ts),sede:f.venue||null,
+            fixtureId:f.id,homeId:f.home.id,awayId:f.away.id,
+            prob:probDeMercado(oddsPara(h,a)),probSrc:"mercado"});
+ });
+ return out;
+}
+function todosPartidos(){
+ var af=afProximos();
+ return _curados().concat((af&&af.length)?af:fbProximos());
+}
 function agendaOrden(){return todosPartidos().slice().sort(function(a,b){return a.ts-b.ts;});}
 
-/* ============ INTEGRACIÓN DE RESULTADOS REALES (football-data.org / The Odds API) ============
+/* ============ INTEGRACIÓN DE RESULTADOS REALES (football-data.org / API-Football) ============
    Estas funciones cruzan el calendario del proyecto con los feeds en vivo para que
    cada vista (Partidos, Cuotas, Combinadas, Cuadro) se ordene por hora y se
    actualice sola: resultado y estado desde FB, cuotas al minuto desde LIVE. */
@@ -1833,7 +1862,7 @@ function mercadosHTML(G){
   });
   h+='</div>';
  });
- h+='<div class="mktLeg"><span><b class="vio">Cuota violeta</b> = casa real (The Odds API)</span><span><b style="color:var(--tx3)">Cuota gris</b> = cuota justa del modelo (prob. sin margen)</span></div>';
+ h+='<div class="mktLeg"><span><b class="vio">Cuota violeta</b> = casa real (API-Football)</span><span><b style="color:var(--tx3)">Cuota gris</b> = cuota justa del modelo (prob. sin margen)</span></div>';
  return h;
 }
 
@@ -2073,9 +2102,9 @@ function renderInicio(){
      '<div class="o"><div class="l">1 · '+esc(NOM[p.home])+'</div><div class="v">'+coma(odd.h2h.home,2)+'</div></div>'+
      '<div class="o"><div class="l">X · Empate</div><div class="v">'+(odd.h2h.draw?coma(odd.h2h.draw,2):'—')+'</div></div>'+
      '<div class="o"><div class="l">2 · '+esc(NOM[p.away])+'</div><div class="v">'+coma(odd.h2h.away,2)+'</div></div></div>'+
-     '<div class="src">'+(p.sede?esc(p.sede)+' · ':'')+'Cuotas reales en directo (The Odds API) · modelo SportRadar. Previa completa en «Datos y cuotas».</div>';
+     '<div class="src">'+(p.sede?esc(p.sede)+' · ':'')+'Cuotas reales en directo (API-Football) · '+fuenteProb(p)+'. Previa completa en «Datos y cuotas».</div>';
   }else{
-   cuerpo+='<div class="src">'+(p.sede?esc(p.sede)+' · ':'')+'Probabilidades del modelo (SportRadar). Cuotas reales al minuto y previa detallada en «Datos y cuotas».</div>';
+   cuerpo+='<div class="src">'+(p.sede?esc(p.sede)+' · ':'')+'Probabilidades: '+fuenteProb(p)+'. Cuotas reales al minuto y previa detallada en «Datos y cuotas».</div>';
   }
   cuerpo+='<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm" onclick="nav(\'valor\')">Ver cuotas y análisis</button><button class="btn ghost sm" onclick="openMatch(\''+p.home+p.away+'\')">Careo de datos</button></div>';
  }
@@ -2363,7 +2392,7 @@ function renderAnalisis(){
    '<div class="o"><div class="l">2 · '+esc(NOM[cb])+'</div><div class="v">'+coma(o.away,2)+'</div></div></div>';
   if(tt)hero+='<div class="oddsRow" style="margin-top:8px"><div class="o"><div class="l">Más de '+coma(tt.punto)+'</div><div class="v">'+coma(tt.over,2)+'</div></div><div class="o"><div class="l">Menos de '+coma(tt.punto)+'</div><div class="v">'+coma(tt.under,2)+'</div></div></div>';
  }
- hero+='<div class="src">'+(p.sede?esc(p.sede)+' · ':'')+rondaTxt(p)+' · '+esc(p.dt)+'. Cuotas reales en directo (The Odds API) · modelo SportRadar.</div>'+
+ hero+='<div class="src">'+(p.sede?esc(p.sede)+' · ':'')+rondaTxt(p)+' · '+esc(p.dt)+'. Cuotas reales en directo (API-Football) · '+fuenteProb(p)+'.</div>'+
   '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm" onclick="nav(\'valor\')">Cuotas y combinadas</button><button class="btn ghost sm" onclick="openMatch(\''+ca+cb+'\')">Careo rápido</button></div>';
  var heroEl=$("#analisisHero"); if(heroEl)heroEl.innerHTML=hero;
  box.innerHTML=analisisCards(p,{full:true});
@@ -2406,7 +2435,7 @@ function renderValorDinamico(p,e){
   if(tt)h+='<div class="oddsRow" style="margin-top:8px">'+
      '<div class="o"><div class="l">Más de '+coma(tt.punto)+'</div><div class="v">'+coma(tt.over,2)+'</div></div>'+
      '<div class="o"><div class="l">Menos de '+coma(tt.punto)+'</div><div class="v">'+coma(tt.under,2)+'</div></div></div>';
-  h+='<div class="src" style="margin-top:10px">Cuotas de casas reales (The Odds API), se actualizan solas. Prob. implícita 1X2 sin margen (normalizada): '+coma(impl[0],1)+'% · '+coma(impl[1],1)+'% · '+coma(impl[2],1)+'%.</div>'+
+  h+='<div class="src" style="margin-top:10px">Cuotas de casas reales (API-Football), se actualizan solas. Prob. implícita 1X2 sin margen (normalizada): '+coma(impl[0],1)+'% · '+coma(impl[1],1)+'% · '+coma(impl[2],1)+'%.</div>'+
     '<div class="note">El margen de la casa en el 1X2 es de un <b>'+coma(margen,1)+'&nbsp;%</b>: las implícitas brutas suman '+coma(sumInv*100,1)+'&nbsp;%. Ese exceso es lo que la casa gana a largo plazo, apuestes a lo que apuestes.</div></div>';
 
   h+='<div style="height:16px"></div><div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Modelo vs mercado<span class="tag">1X2</span></h3>';
