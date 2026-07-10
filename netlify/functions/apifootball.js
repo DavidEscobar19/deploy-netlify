@@ -19,7 +19,8 @@ const SEASON = 2026;
 
 // Caché en memoria del contenedor caliente. Cada acción con su propio TTL:
 // una plantilla no cambia en todo el torneo; una alineación sí.
-const TTL = { live: 15 * 60e3, lineups: 60e3, squad: 24 * 3600e3, player: 12 * 3600e3, injuries: 30 * 60e3, topscorers: 30 * 60e3 };
+const TTL = { live: 15 * 60e3, lineups: 60e3, squad: 24 * 3600e3, player: 12 * 3600e3, injuries: 30 * 60e3, topscorers: 30 * 60e3,
+              fixstats: 6 * 3600e3, events: 6 * 3600e3, fixplayers: 6 * 3600e3, h2h: 24 * 3600e3 };
 const cache = new Map();
 
 function fromCache(k) {
@@ -118,6 +119,41 @@ exports.handler = async function (event) {
       payload = { ok: true, player: r[0] || null };
     } else if (a === "injuries") {
       payload = { ok: true, injuries: await af(`/injuries?fixture=${encodeURIComponent(q.fixture)}`, key) };
+    } else if (a === "fixstats") {
+      // Estadísticas oficiales del partido (posesión, tiros, córners, faltas…)
+      payload = { ok: true, stats: await af(`/fixtures/statistics?fixture=${encodeURIComponent(q.fixture)}`, key) };
+    } else if (a === "events") {
+      // Cronología: goles (autor y minuto), tarjetas, penaltis
+      const r = await af(`/fixtures/events?fixture=${encodeURIComponent(q.fixture)}`, key);
+      payload = { ok: true, events: r.map((e) => ({
+        min: e.time && e.time.elapsed, extra: e.time && e.time.extra,
+        team: e.team && e.team.name, player: e.player && e.player.name,
+        assist: e.assist && e.assist.name, type: e.type, detail: e.detail
+      })) };
+    } else if (a === "fixplayers") {
+      // Notas (ratings) y números de cada jugador en ese partido
+      const r = await af(`/fixtures/players?fixture=${encodeURIComponent(q.fixture)}`, key);
+      payload = { ok: true, teams: r.map((t) => ({
+        team: t.team && t.team.name,
+        players: (t.players || []).map((p) => {
+          const s = (p.statistics && p.statistics[0]) || {};
+          return { id: p.player.id, n: p.player.name,
+                   pos: s.games && s.games.position, min: s.games && s.games.minutes,
+                   rating: s.games && s.games.rating ? parseFloat(s.games.rating) : null,
+                   g: (s.goals && s.goals.total) || 0, a: (s.goals && s.goals.assists) || 0,
+                   y: (s.cards && s.cards.yellow) || 0, r: (s.cards && s.cards.red) || 0 };
+        })
+      })) };
+    } else if (a === "h2h") {
+      // Cara a cara real entre dos equipos (por id), todos los torneos
+      const r = await af(`/fixtures/headtohead?h2h=${encodeURIComponent(q.t1)}-${encodeURIComponent(q.t2)}&last=12`, key);
+      payload = { ok: true, h2h: r.map((f) => ({
+        date: f.fixture.date, status: f.fixture.status.short,
+        home: f.teams.home.name, away: f.teams.away.name,
+        gh: f.goals.home, ga: f.goals.away,
+        pen: (f.score && f.score.penalty && f.score.penalty.home != null) ? f.score.penalty : null,
+        comp: (f.league && f.league.name ? f.league.name : "") + (f.league && f.league.season ? " " + f.league.season : "")
+      })) };
     } else if (a === "topscorers") {
       // Bota de Oro real del torneo, reducida a lo que pinta la web.
       const r = await af(`/players/topscorers?league=${LEAGUE}&season=${SEASON}`, key);

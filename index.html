@@ -547,7 +547,7 @@ nav.bott{display:none}
 <div id="app">
 
 <nav class="side" aria-label="Navegación principal">
-  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip">V55</span></div>
+  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip">V56</span></div>
   <a href="#inicio" data-p="inicio" class="on"><svg class="i" viewBox="0 0 24 24"><use href="#ic-home"/></svg>Inicio</a>
   <a href="#partidos" data-p="partidos"><svg class="i" viewBox="0 0 24 24"><use href="#ic-ball"/></svg>Partidos</a>
   <a href="#analisis" data-p="analisis"><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Análisis</a>
@@ -985,7 +985,7 @@ nav.bott{display:none}
 
 <script>
 "use strict";
-var VERSION="V55";
+var VERSION="V56";
 /* PIN: disuasión del lado del cliente (el código llega al navegador, no es seguridad real).
    Guardamos solo un hash del PIN y limitamos los intentos para frenar el tanteo casual. */
 function hpin(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);}return (h>>>0).toString(16);}
@@ -1091,6 +1091,28 @@ function h2hScore(r,swap){
 /* Designaciones arbitrales: la organización las publica 1-2 días antes de cada
    partido y esta versión no tiene una fuente en directo verificada del árbitro.
    Por eso NO cargamos árbitros: es mejor no dar un dato que no podamos verificar. */
+/* Fixture del feed (jugado o no) entre dos equipos: da id de partido e ids de
+   equipo — la llave para estadísticas, cronología, notas y cara a cara. */
+function afFixtureDe(a,b){
+ if(!AFX)return null;
+ for(var i=0;i<AFX.length;i++){
+  var f=AFX[i];
+  var h=nombreACodigo(f.home&&f.home.name),w=nombreACodigo(f.away&&f.away.name);
+  if(!h||!w)continue;
+  if((h===a&&w===b)||(h===b&&w===a))return f;
+ }
+ return null;
+}
+/* último partido YA JUGADO de un equipo según el feed */
+function afUltimoFT(c){
+ if(!AFX)return null;
+ var suyos=AFX.filter(function(f){
+  if(!FIN_ST[f.status])return false;
+  var h=nombreACodigo(f.home&&f.home.name),w=nombreACodigo(f.away&&f.away.name);
+  return h===c||w===c;
+ }).sort(function(x,y){return Date.parse(y.date)-Date.parse(x.date);});
+ return suyos[0]||null;
+}
 /* Árbitro: designación oficial que publica el feed (API-Football) en cada fixture.
    Si aún no está designado, devolvemos null y el bot lo dice — no se inventa. */
 function arbitroDe(a,b){
@@ -1391,8 +1413,15 @@ function openMatch(id){
  modalM=m;
  $("#mTitle").innerHTML=team(m.home)+' <span style="color:var(--tx3);font-weight:400">vs</span> '+team(m.away);
  $("#mSub").textContent=rondaTxt(m)+" · "+m.dt+(m.sede?" · "+m.sede:"");
+ /* enlaza el cruce con el feed aunque sea un partido curado: así los ya jugados
+    también tienen alineaciones, estadísticas oficiales, notas y cara a cara */
+ var fxM=afFixtureDe(m.home,m.away);
+ if(fxM&&!m.fixtureId){m.fixtureId=fxM.id;m.homeId=fxM.home.id;m.awayId=fxM.away.id;}
+ var jugadoM=!!(fxM&&FIN_ST[fxM.status]);
  $("#mTabs").innerHTML='<button class="on" data-t="careo">Careo de datos</button><button data-t="forma">Forma y bajas</button><button data-t="modelo">Modelo</button>'+
-  (m.fixtureId?'<button data-t="once">Alineaciones</button>':'');
+  (jugadoM?'<button data-t="stats">Estadísticas</button>':'')+
+  (m.fixtureId?'<button data-t="once">Alineaciones</button>':'')+
+  ((m.homeId&&m.awayId)?'<button data-t="h2h">Cara a cara</button>':'');
  modalTab("careo");
  $("#modalBg").classList.add("on");
  document.body.style.overflow="hidden";
@@ -1554,9 +1583,114 @@ function openPlayer(id){
   mBodySet('<button class="plBack" onclick="renderOnce(modalM)">← Volver</button><div class="note">No se ha podido cargar la ficha del jugador.</div>');
  });
 }
+/* ===== ESTADÍSTICAS OFICIALES DEL PARTIDO (jugado) =====
+   Posesión, tiros, córners, faltas y tarjetas reales + cronología de goles y
+   tarjetas + notas (ratings) de los jugadores. Todo del feed, nada estimado. */
+var _STATLBL=[["Ball Possession","Posesión"],["Total Shots","Tiros"],["Shots on Goal","Tiros a puerta"],
+ ["Blocked Shots","Tiros bloqueados"],["Corner Kicks","Córners"],["Fouls","Faltas"],
+ ["Offsides","Fueras de juego"],["Yellow Cards","Amarillas"],["Red Cards","Rojas"],
+ ["Goalkeeper Saves","Paradas"],["Total passes","Pases"],["Passes %","Precisión de pase"],
+ ["expected_goals","xG (goles esperados)"]];
+function renderStats(m){
+ var req=++_onceReq;
+ mBodySet(skFicha());
+ Promise.all([
+  afGet("a=fixstats&fixture="+m.fixtureId),
+  afGet("a=events&fixture="+m.fixtureId),
+  afGet("a=fixplayers&fixture="+m.fixtureId)
+ ]).then(function(r){
+  if(req!==_onceReq)return;
+  var st=(r[0]&&r[0].stats)||[],ev=(r[1]&&r[1].events)||[],tp=(r[2]&&r[2].teams)||[],h="";
+  if(st.length===2){
+   function val(i,t){var x=(st[i].statistics||[]).filter(function(s){return s.type===t})[0];return x&&x.value!=null?String(x.value):null;}
+   h+='<div style="display:flex;justify-content:space-between;font-size:.75rem;color:var(--tx3);margin-bottom:4px"><span>'+esc(st[0].team.name)+'</span><span>'+esc(st[1].team.name)+'</span></div>';
+   _STATLBL.forEach(function(par){
+    var va=val(0,par[0]),vb=val(1,par[0]);
+    if(va==null&&vb==null)return;
+    var na=parseFloat(va),nb=parseFloat(vb);
+    h+=statRow(par[1],va==null?"–":va,vb==null?"–":vb,!isNaN(na)&&!isNaN(nb)&&na>nb,!isNaN(na)&&!isNaN(nb)&&nb>na);
+   });
+  }else{
+   h+='<div class="note">El proveedor todavía no publica las estadísticas de este partido.</div>';
+  }
+  /* cronología: goles, penaltis, rojas y VAR — con su detalle, sin interpretar */
+  var evRel=ev.filter(function(e){return e.type==="Goal"||e.type==="Var"||(e.type==="Card"&&/Red/i.test(e.detail||""));});
+  if(evRel.length){
+   h+='<div class="plHead" style="margin-top:16px">Cronología</div>';
+   evRel.forEach(function(e){
+    var ic=e.type==="Goal"?"⚽":(e.type==="Var"?"📺":"🟥");
+    var extra=e.detail&&e.detail!=="Normal Goal"?" · "+e.detail:"";
+    h+='<div class="kv"><span class="k">'+esc((e.min!=null?e.min+(e.extra?"+"+e.extra:"")+"′ ":"")+ic+" "+(e.player||""))+' <span style="color:var(--tx3)">('+esc(e.team||"")+')</span></span>'+
+       '<span style="font-size:.74rem;color:var(--tx3)">'+esc((e.assist?"asist. "+e.assist:"")+extra)+'</span></div>';
+   });
+  }
+  /* notas del partido */
+  if(tp.length){
+   h+='<div class="plHead" style="margin-top:16px">Notas del partido (sobre 10)</div><div class="plGrid">';
+   tp.forEach(function(t2){
+    h+='<div><div class="plHead">'+esc(t2.team||"")+'</div>';
+    t2.players.filter(function(p){return p.rating}).sort(function(a,b){return b.rating-a.rating}).slice(0,5).forEach(function(p){
+     h+='<div class="kv"><span class="k" style="cursor:pointer" onclick="openPlayer('+p.id+')">'+esc(p.n)+'</span><span style="font-weight:700;color:'+(p.rating>=7.5?"var(--green)":p.rating>=6.5?"var(--vio2)":"var(--tx2)")+'">'+p.rating.toFixed(1)+'</span></div>';
+    });
+    h+='</div>';
+   });
+   h+='</div>';
+  }
+  h+='<div class="src">Fuente: API-Football, datos oficiales del partido. Pulsa un jugador para su ficha.</div>';
+  mBodySet(h);
+ }).catch(function(){
+  if(req!==_onceReq)return;
+  mBodySet('<div class="note">No se han podido cargar las estadísticas ahora mismo. Inténtalo en un momento.</div>');
+ });
+}
+/* ===== CARA A CARA REAL (feed) — con respaldo en el histórico curado ===== */
+function renderH2HFeed(m){
+ var req=++_onceReq;
+ mBodySet(skFicha());
+ afGet("a=h2h&t1="+m.homeId+"&t2="+m.awayId).then(function(j){
+  if(req!==_onceReq)return;
+  var L=((j&&j.h2h)||[]).filter(function(x){return FIN_ST[x.status]&&x.gh!=null;})
+    .sort(function(a,b){return Date.parse(b.date)-Date.parse(a.date);});
+  var h="";
+  if(L.length){
+   var wA=0,wB=0,em=0;
+   L.forEach(function(x){
+    var ch=nombreACodigo(x.home);
+    var gA=(ch===m.home)?x.gh:x.ga,gB=(ch===m.home)?x.ga:x.gh;
+    if(x.pen){var pA=(ch===m.home)?x.pen.home:x.pen.away,pB=(ch===m.home)?x.pen.away:x.pen.home;if(pA>pB)wA++;else wB++;}
+    else if(gA>gB)wA++;else if(gB>gA)wB++;else em++;
+   });
+   h+='<div style="font-size:.86rem;color:var(--tx2);line-height:1.6;margin-bottom:10px">Últimos '+L.length+' enfrentamientos: <b>'+esc(NOM[m.home])+' '+wA+'</b> · empates '+em+' · <b>'+esc(NOM[m.away])+' '+wB+'</b>.</div>';
+   L.slice(0,10).forEach(function(x){
+    var f=new Date(x.date);
+    h+='<div class="kv"><span class="k">'+esc(f.getDate()+" "+_MESES[f.getMonth()]+" "+f.getFullYear())+' <span style="color:var(--tx3)">'+esc(x.comp||"")+'</span></span>'+
+       '<span style="font-variant-numeric:tabular-nums;font-weight:600">'+esc(x.home)+' '+x.gh+'–'+x.ga+' '+esc(x.away)+(x.pen?' ('+x.pen.home+'-'+x.pen.away+' pen)':'')+'</span></div>';
+   });
+   h+='<div class="src">Fuente: API-Football (partidos registrados por el proveedor; puede no incluir amistosos antiguos).</div>';
+   mBodySet(h);return;
+  }
+  /* el proveedor no tiene registros: usamos el histórico curado si existe */
+  var hh=(typeof h2hPara==="function")?h2hPara(m.home,m.away):null;
+  if(hh&&hh.data){
+   h+='<div style="font-size:.84rem;color:var(--tx2);line-height:1.6;margin-bottom:10px">'+esc(hh.data.resumen)+'</div>';
+   hh.data.partidos.forEach(function(pt){
+    h+='<div class="kv"><span class="k">'+esc(pt.t)+'</span><span style="font-weight:600;color:var(--vio2)">'+esc(h2hScore(pt.r,hh.swap))+'</span></div>';
+   });
+   h+='<div class="src">Histórico curado del proyecto ('+esc(hh.data.titular)+'). El proveedor no tiene registros de este cruce.</div>';
+  }else{
+   h+='<div class="note">Ni el proveedor ni el histórico curado tienen enfrentamientos previos registrados entre estas dos selecciones. No te los inventamos.</div>';
+  }
+  mBodySet(h);
+ }).catch(function(){
+  if(req!==_onceReq)return;
+  mBodySet('<div class="note">No se ha podido cargar el cara a cara ahora mismo. Inténtalo en un momento.</div>');
+ });
+}
 function modalTab(t){
  var m=modalM; if(!m)return;
  if(t==="once"){renderOnce(m);return;}
+ if(t==="stats"){renderStats(m);return;}
+ if(t==="h2h"){renderH2HFeed(m);return;}
  var a=STATS[m.home],b=STATS[m.away],h="";
  if(t==="careo"){
   if(a&&b){
@@ -3403,7 +3537,7 @@ function botResponde(qRaw){
  }
 
  /* comparación entre dos equipos — datos lado a lado */
- if(eqs.length>=2&&tiene("mejor","compara","comparacion","quien llega mejor","vs","contra")&&!tiene("corner","tarjeta","tiros","posesion","cuota")){
+ if(eqs.length>=2&&tiene("mejor","compara","comparacion","quien llega mejor","vs","contra")&&!tiene("corner","tarjeta","tiros","posesion","cuota","quien marco","quien metio","goles del","como fue","que paso","cronologia","historial","cara a cara","arbitr")){
   var A=eqs[0],B=eqs[1],sA=STATS[A],sB=STATS[B];
   if(sA&&sB){
    var gA=GOLES_EQUIPO[A],gB=GOLES_EQUIPO[B];
@@ -3447,7 +3581,33 @@ function botResponde(qRaw){
  }
  /* HISTORIAL / CARA A CARA */
  if(tiene("historial","cara a cara","enfrentamiento","precedente","se han enfrentado","head to head","como se les da")){
-  var pmH=eqs.length?partidoDe(eqs[0]):partidoDestacado();
+  var pmH=eqs.length>=2?{home:eqs[0],away:eqs[1]}:(eqs.length?partidoDe(eqs[0]):partidoDestacado());
+  /* primero el registro real del proveedor; el histórico curado queda de respaldo */
+  var fxH=pmH?afFixtureDe(pmH.home,pmH.away):null;
+  if(fxH){
+   (function(pm,fx){
+    afGet("a=h2h&t1="+fx.home.id+"&t2="+fx.away.id).then(function(j){
+     var L=((j&&j.h2h)||[]).filter(function(x){return FIN_ST[x.status]&&x.gh!=null;}).sort(function(a,b){return Date.parse(b.date)-Date.parse(a.date);});
+     var cA=nombreACodigo(fx.home.name);
+     if(L.length){
+      var wA=0,wB=0,em=0;
+      L.forEach(function(x){
+       var ch=nombreACodigo(x.home);
+       var gA=(ch===cA)?x.gh:x.ga,gB=(ch===cA)?x.ga:x.gh;
+       if(x.pen){var pA=(ch===cA)?x.pen.home:x.pen.away,pB=(ch===cA)?x.pen.away:x.pen.home;if(pA>pB)wA++;else wB++;}
+       else if(gA>gB)wA++;else if(gB>gA)wB++;else em++;
+      });
+      var ult=L.slice(0,4).map(function(x){var f4=new Date(x.date);return f4.getFullYear()+" "+x.home+" "+x.gh+"–"+x.ga+" "+x.away+(x.pen?" ("+x.pen.home+"-"+x.pen.away+" pen)":"");});
+      pushMsg("Cara a cara "+fx.home.name+" – "+fx.away.name+" según el proveedor ("+L.length+" partidos registrados): "+fx.home.name+" "+wA+" victorias · "+em+" empates · "+fx.away.name+" "+wB+". Últimos: "+ult.join(" · ")+". Lo tienes completo en la pestaña «Cara a cara» del partido.","b");
+      return;
+     }
+     var hh2=h2hPara(pm.home,pm.away);
+     if(hh2){var dH2=hh2.data;pushMsg("El proveedor no tiene registros de este cruce; del histórico curado ("+dH2.titular+"): "+dH2.resumen+" Duelos: "+dH2.partidos.map(function(x){return x.t+" → "+h2hScore(x.r,hh2.swap);}).join(" · ")+".","b");return;}
+     pushMsg("Ni el proveedor ni el histórico curado registran enfrentamientos previos entre "+fx.home.name+" y "+fx.away.name+". No te los invento.","b");
+    }).catch(function(){pushMsg("No he podido consultar el historial ahora mismo. Inténtalo en un momento.","b");});
+   })(pmH,fxH);
+   return "Déjame mirar los enfrentamientos registrados por el proveedor…";
+  }
   var hh=pmH?h2hPara(pmH.home,pmH.away):null;
   if(hh){
    var dH=hh.data;
@@ -3613,6 +3773,49 @@ function botResponde(qRaw){
   return out2.join("\n\n")||"De ese equipo no tengo ficha en esta versión.";
  }
  /* resultado */
+ /* fixture jugado al que se refiere la pregunta (cruce concreto o último del equipo) */
+ function _fxJugado(){
+  if(eqs.length>=2){var f2=afFixtureDe(eqs[0],eqs[1]);return (f2&&FIN_ST[f2.status])?f2:null;}
+  if(eqs.length===1)return afUltimoFT(eqs[0]);
+  if(!AFX)return null;
+  var fts=AFX.filter(function(f){return FIN_ST[f.status]}).sort(function(a,b){return Date.parse(b.date)-Date.parse(a.date)});
+  return fts[0]||null;
+ }
+ /* quién marcó / cronología del partido (eventos oficiales del feed) */
+ if(tiene("quien marco","quien metio","como fueron los goles","goles del","autor del","cronologia","minuto de los goles","quien anoto")){
+  var fxE=_fxJugado();
+  if(fxE){
+   afGet("a=events&fixture="+fxE.id).then(function(j){
+    var gs=((j&&j.events)||[]).filter(function(e){return e.type==="Goal"&&!/Missed/i.test(e.detail||"");});
+    if(!gs.length){pushMsg("El feed no registra goles en el "+fxE.home.name+" – "+fxE.away.name+" (acabó "+fxE.goals.home+"–"+fxE.goals.away+").","b");return;}
+    var lin=gs.map(function(e){return e.min+(e.extra?"+"+e.extra:"")+"′ "+e.player+" ("+e.team+")"+(e.assist?", asist. "+e.assist:"")+(e.detail&&e.detail!=="Normal Goal"?" ["+e.detail+"]":"");});
+    pushMsg("Goles del "+fxE.home.name+" "+fxE.goals.home+"–"+fxE.goals.away+" "+fxE.away.name+" (feed oficial): "+lin.join(" · ")+". La cronología completa está en la pestaña «Estadísticas» del partido.","b");
+   }).catch(function(){pushMsg("No he podido consultar la cronología ahora mismo. Inténtalo en un momento.","b");});
+   return "Voy a mirar la cronología oficial del partido…";
+  }
+ }
+ /* estadísticas / notas del partido jugado (posesión, tiros, córners, ratings) */
+ if(tiene("estadisticas del","estadisticas de","como fue el","que paso en","posesion del","corners hubo","tiros hubo","mejor jugador","mvp","notas del","nota de los","rating")){
+  var fxS=_fxJugado();
+  if(fxS){
+   Promise.all([afGet("a=fixstats&fixture="+fxS.id),afGet("a=fixplayers&fixture="+fxS.id)]).then(function(r){
+    var st=(r[0]&&r[0].stats)||[],tp=(r[1]&&r[1].teams)||[];
+    var partes=[];
+    if(st.length===2){
+     function v2(i,t){var x=(st[i].statistics||[]).filter(function(s){return s.type===t})[0];return x&&x.value!=null?String(x.value):"–";}
+     partes.push("posesión "+v2(0,"Ball Possession")+"-"+v2(1,"Ball Possession")+", tiros "+v2(0,"Total Shots")+"-"+v2(1,"Total Shots")+" ("+v2(0,"Shots on Goal")+"-"+v2(1,"Shots on Goal")+" a puerta), córners "+v2(0,"Corner Kicks")+"-"+v2(1,"Corner Kicks")+", faltas "+v2(0,"Fouls")+"-"+v2(1,"Fouls")+", amarillas "+v2(0,"Yellow Cards")+"-"+v2(1,"Yellow Cards"));
+    }
+    if(tp.length){
+     var mej=[];
+     tp.forEach(function(t2){var b2=t2.players.filter(function(p){return p.rating}).sort(function(a,b){return b.rating-a.rating})[0];if(b2)mej.push(b2.n+" "+b2.rating.toFixed(1)+" ("+t2.team+")");});
+     if(mej.length)partes.push("mejores notas: "+mej.join(" y "));
+    }
+    if(!partes.length){pushMsg("El proveedor todavía no publica las estadísticas del "+fxS.home.name+" – "+fxS.away.name+".","b");return;}
+    pushMsg(fxS.home.name+" "+fxS.goals.home+"–"+fxS.goals.away+" "+fxS.away.name+" — datos oficiales del feed: "+partes.join(". Y ")+". El desglose completo, cronología y todas las notas están en la pestaña «Estadísticas» del partido.","b");
+   }).catch(function(){pushMsg("No he podido consultar las estadísticas ahora mismo. Inténtalo en un momento.","b");});
+   return "Voy a por las estadísticas oficiales del partido…";
+  }
+ }
  if(tiene("resultado","como quedo","como acabo","quien gano","marcador")){
   /* el feed manda: último partido REAL del equipo, con penaltis y quién pasó */
   function fxTxt(f){
@@ -3660,13 +3863,13 @@ function botResponde(qRaw){
   }
  }
  if(/^(hola|buenas|hey|que tal|ey|holaa|buenos dias|buenas tardes|saludos)/.test(q))return pick(["¡Hola!","¡Ey! ¿Qué miramos hoy?","¡Buenas!"])+" Razono con datos reales de los 15 equipos vivos (act. 5 jul): córners, tarjetas, tiros y posesión de cada uno, jugadores («¿ves factible que marque Haaland?»), cuotas verificadas del partido de hoy, resultados, bajas, cuadro y tu balance. Yo no elijo apuestas — te doy los números y decides tú.";
- if(tiene("ayuda","que sabes","que puedes"))return "Puedo responder de casi todo lo del partido:\n• Horarios, agenda, resultados y cuadro\n• Probabilidades del modelo, goles esperados y marcador más probable\n• Córners, tarjetas, tiros y posesión de los equipos\n• Jugadores: forma, bajas y argumentos a favor/en contra («¿ves factible que marque Haaland?»)\n• Historial y cara a cara entre los dos equipos\n• Cuotas y mercados, ambos marcan, más/menos de 2,5\n• Tu balance, bankroll y simulaciones («simula 20 a 2.5»)\nRecuerdo de qué equipo hablamos, así que puedes encadenar («¿y sus tarjetas?»). Lo que nunca hago: elegir apuestas por ti.";
+ if(tiene("ayuda","que sabes","que puedes"))return "Puedo responder de casi todo, con el feed en vivo detrás:\n• Cuotas reales al minuto, probabilidades, goles esperados y marcador más probable\n• Combinadas a tu medida: «combinada segura / equilibrada / arriesgada / de cuota 3» — con su probabilidad exacta y botón para cargarla en el Laboratorio\n• El árbitro del partido (designación oficial cuando la FIFA la publica)\n• Lesionados y tocados al momento («¿cómo llega Bélgica?»)\n• Partidos jugados: quién marcó y en qué minuto, posesión, tiros, córners y las notas de los jugadores («¿cómo fue el Francia–Marruecos?»)\n• Cara a cara real entre selecciones, Bota de Oro en directo, resultados y cuadro\n• Córners, tarjetas, tiros y posesión medios de cada equipo\n• Tu balance, bankroll y simulaciones («simula 20 a 2.5»)\nRecuerdo de qué equipo hablamos («¿y sus tarjetas?»). Lo que nunca hago: inventar datos ni elegir apuestas por ti.";
  /* fallback consciente del equipo detectado (did-you-mean) */
  if(eqs.length){
   var fc=eqs[0];
   return "No he pillado del todo qué quieres de "+NOM[fc]+". De este equipo puedo darte: córners, tarjetas, tiros, posesión, goles, forma y bajas, su próximo cruce y la probabilidad del modelo. Prueba con «tarjetas de "+NOM[fc]+"» o «¿cómo llega "+NOM[fc]+"?».";
  }
- return "Esa no la tengo del todo clara. Trabajo con los datos verificados de la página (al 5 de julio), sin conexión externa. Pídeme cosas como: «compara Brasil y Noruega», «córners y tarjetas de España», «¿y sus tiros?» (recuerdo de qué equipo hablábamos), «¿por qué el modelo da 53%?», cuotas de hoy, el cuadro, tu balance o una simulación («simula 10 a 2.5»).";
+ return "Esa no la tengo del todo clara. Trabajo con los datos verificados de la página y su feed en vivo. Pídeme cosas como: «cuotas de hoy», «combinada equilibrada», «¿quién arbitra?», «lesionados de Bélgica», «¿cómo fue el Francia–Marruecos?», «¿quién marcó?», «cara a cara del próximo partido», «córners y tarjetas de España» («¿y sus tiros?» — recuerdo de qué equipo hablábamos), la Bota de Oro, el cuadro, tu balance o una simulación («simula 10 a 2.5»).";
 }
 function pushMsg(t,who,esHtml){
  var d=document.createElement("div");
