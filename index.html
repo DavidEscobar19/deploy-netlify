@@ -135,6 +135,24 @@ main{margin-left:224px;padding:54px 32px 100px;max-width:1240px}
 /* huecos de anuncio (ocultos hasta configurar unidades AdSense) */
 .adSlot{display:none;margin:16px 0 0;text-align:center;overflow:hidden}
 .adLbl{font-size:.55rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.12em;margin-bottom:5px}
+/* ===== Plantillas, alineaciones y ficha de jugador (API-Football) ===== */
+.plGrid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:660px){.plGrid{grid-template-columns:1fr}}
+.plHead{font-size:.7rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.09em;margin:13px 0 7px;display:flex;align-items:center;gap:8px}
+.plRow{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:7px 10px;margin-bottom:6px;color:var(--tx);transition:background .15s,border-color .15s,transform .12s}
+.plRow:hover{background:var(--hover);border-color:var(--border2);transform:translateX(2px)}
+.plRow:focus-visible{outline:2px solid var(--vio);outline-offset:2px}
+.plRow img{width:30px;height:30px;border-radius:50%;object-fit:cover;background:var(--bg2);flex-shrink:0}
+.plRow .num{width:22px;text-align:center;color:var(--tx3);font-size:.74rem;font-variant-numeric:tabular-nums;flex-shrink:0}
+.plRow .nm{flex:1;font-size:.83rem;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.plRow .pos{font-size:.61rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;flex-shrink:0}
+.plBack{background:transparent;border:1px solid var(--border);color:var(--tx2);border-radius:8px;padding:5px 12px;font-size:.75rem;margin-bottom:13px}
+.plBack:hover{background:var(--card);color:var(--tx)}
+.plHero{display:flex;align-items:center;gap:14px;margin-bottom:6px}
+.plHero img{width:66px;height:66px;border-radius:15px;object-fit:cover;background:var(--bg2);border:1px solid var(--border)}
+.plHero b{font-size:1.05rem;letter-spacing:-.01em}
+.plHero .sub{font-size:.76rem;color:var(--tx3);margin-top:3px}
+.plFor{font-size:.68rem;color:var(--vio2);background:rgba(124,92,255,.14);border:1px solid var(--vioD);padding:2px 8px;border-radius:20px;font-weight:600}
 /* textos legales */
 .legalTxt{font-size:.86rem;color:var(--tx2);line-height:1.7}
 .legalTxt p{margin-bottom:11px}
@@ -513,7 +531,7 @@ nav.bott{display:none}
 <div id="app">
 
 <nav class="side" aria-label="Navegación principal">
-  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip">V51</span></div>
+  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip">V52</span></div>
   <a href="#inicio" data-p="inicio" class="on"><svg class="i" viewBox="0 0 24 24"><use href="#ic-home"/></svg>Inicio</a>
   <a href="#partidos" data-p="partidos"><svg class="i" viewBox="0 0 24 24"><use href="#ic-ball"/></svg>Partidos</a>
   <a href="#analisis" data-p="analisis"><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Análisis</a>
@@ -949,7 +967,7 @@ nav.bott{display:none}
 
 <script>
 "use strict";
-var VERSION="V51";
+var VERSION="V52";
 /* PIN: disuasión del lado del cliente (el código llega al navegador, no es seguridad real).
    Guardamos solo un hash del PIN y limitamos los intentos para frenar el tanteo casual. */
 function hpin(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);}return (h>>>0).toString(16);}
@@ -1368,7 +1386,8 @@ function openMatch(id){
  modalM=m;
  $("#mTitle").innerHTML=team(m.home)+' <span style="color:var(--tx3);font-weight:400">vs</span> '+team(m.away);
  $("#mSub").textContent=rondaTxt(m)+" · "+m.dt+(m.sede?" · "+m.sede:"");
- $("#mTabs").innerHTML='<button class="on" data-t="careo">Careo de datos</button><button data-t="forma">Forma y bajas</button><button data-t="modelo">Modelo</button>';
+ $("#mTabs").innerHTML='<button class="on" data-t="careo">Careo de datos</button><button data-t="forma">Forma y bajas</button><button data-t="modelo">Modelo</button>'+
+  (m.fixtureId?'<button data-t="once">Alineaciones</button>':'');
  modalTab("careo");
  $("#modalBg").classList.add("on");
  document.body.style.overflow="hidden";
@@ -1383,8 +1402,135 @@ document.addEventListener("keydown",function(e){if(e.key==="Escape"){closeModal(
 function statRow(n,va,vb,hiA,hiB){
  return '<div class="kv"><span style="width:52px;text-align:right;font-weight:'+(hiA?'700':'400')+';color:'+(hiA?'var(--vio2)':'var(--tx2)')+'">'+va+'</span><span class="k" style="flex:1;text-align:center;width:auto">'+esc(n)+'</span><span style="width:52px;font-weight:'+(hiB?'700':'400')+';color:'+(hiB?'var(--vio2)':'var(--tx2)')+'">'+vb+'</span></div>';
 }
+/* ===== Plantillas, alineaciones y ficha de jugador (API-Football) =====
+   Se piden bajo demanda al abrir la pestaña, no al cargar la web, y se cachean
+   en memoria para no gastar peticiones de más. Si un dato no existe todavía
+   (p. ej. el once oficial, que se publica ~1 h antes), lo decimos: no lo inventamos. */
+var AF_CACHE={},_onceReq=0;
+function afGet(qs){
+ if(AF_CACHE[qs])return Promise.resolve(AF_CACHE[qs]);
+ return fetch(AF_URL+"?"+qs).then(function(r){return r.json();}).then(function(j){AF_CACHE[qs]=j;return j;});
+}
+var _POS={Goalkeeper:"POR",Defender:"DEF",Midfielder:"MED",Attacker:"DEL",G:"POR",D:"DEF",M:"MED",F:"DEL"};
+function posCorta(p){return _POS[p]||(p||"");}
+function plFoto(u){return u?'<img src="'+esc(u)+'" alt="" loading="lazy" referrerpolicy="no-referrer">':'<img alt="" src="data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\'/%3E">';}
+function plRow(p){
+ /* p: {id,name,number,pos,photo} */
+ return '<button class="plRow" onclick="openPlayer('+p.id+')" aria-label="Ver estadísticas de '+esc(p.name)+'">'+
+  plFoto(p.photo)+'<span class="num">'+(p.number!=null?p.number:"–")+'</span>'+
+  '<span class="nm">'+esc(p.name)+'</span><span class="pos">'+esc(posCorta(p.pos))+'</span></button>';
+}
+function grupoPlantilla(players){
+ var orden=["Goalkeeper","Defender","Midfielder","Attacker"],h="";
+ orden.forEach(function(g){
+  var l=players.filter(function(p){return p.position===g;});
+  if(!l.length)return;
+  h+='<div class="plHead">'+esc(_POS[g])+' <span style="color:var(--border2)">·</span> '+l.length+'</div>';
+  l.forEach(function(p){h+=plRow({id:p.id,name:p.name,number:p.number,pos:p.position,photo:p.photo});});
+ });
+ return h;
+}
+function renderOnce(m){
+ var body=$("#mBody"),req=++_onceReq;
+ if(!m.fixtureId){
+  body.innerHTML='<div class="note">Este cruce no está enlazado al proveedor de datos en vivo, así que no puedo mostrarte su plantilla ni su alineación. Solo lo hacemos con datos reales.</div>';
+  return;
+ }
+ body.innerHTML='<div class="note">Cargando alineaciones y plantillas…</div>';
+ Promise.all([
+  afGet("a=lineups&fixture="+m.fixtureId),
+  afGet("a=injuries&fixture="+m.fixtureId),
+  afGet("a=squad&team="+m.homeId),
+  afGet("a=squad&team="+m.awayId)
+ ]).then(function(r){
+  if(req!==_onceReq)return;                 /* el usuario cambió de pestaña */
+  var lu=(r[0]&&r[0].lineups)||[], inj=(r[1]&&r[1].injuries)||[],
+      sqH=(r[2]&&r[2].squad)||[], sqA=(r[3]&&r[3].squad)||[], h="";
+
+  if(lu.length){
+   /* Once oficial ya publicado */
+   h+='<div class="plGrid">';
+   lu.forEach(function(L){
+    h+='<div><div class="plHead">'+esc(L.team.name)+' <span class="plFor">'+esc(L.formation||"")+'</span></div>';
+    (L.startXI||[]).forEach(function(x){h+=plRow({id:x.player.id,name:x.player.name,number:x.player.number,pos:x.player.pos,photo:null});});
+    if(L.substitutes&&L.substitutes.length){
+     h+='<div class="plHead">Suplentes</div>';
+     L.substitutes.forEach(function(x){h+=plRow({id:x.player.id,name:x.player.name,number:x.player.number,pos:x.player.pos,photo:null});});
+    }
+    if(L.coach&&L.coach.name)h+='<div class="src">Entrenador: '+esc(L.coach.name)+'</div>';
+    h+='</div>';
+   });
+   h+='</div><div class="src">Alineaciones oficiales confirmadas por el proveedor.</div>';
+  }else{
+   /* Aún no hay once oficial: enseñamos la convocatoria real, sin fabricar un «once probable» */
+   h+='<div class="note">El once oficial se publica aproximadamente <b>una hora antes</b> del saque. Todavía no está disponible, así que no te lo adivinamos: abajo tienes la <b>convocatoria real</b> de cada selección.</div>';
+   h+='<div class="plGrid"><div><div class="plHead" style="color:var(--vio2)">'+esc(NOM[m.home])+'</div>'+(sqH.length?grupoPlantilla(sqH):'<div class="note">Convocatoria no disponible.</div>')+'</div>'+
+      '<div><div class="plHead" style="color:var(--vio2)">'+esc(NOM[m.away])+'</div>'+(sqA.length?grupoPlantilla(sqA):'<div class="note">Convocatoria no disponible.</div>')+'</div></div>';
+  }
+
+  if(inj.length){
+   h+='<div class="plHead" style="margin-top:18px">Bajas y lesiones confirmadas</div>';
+   inj.forEach(function(i){
+    h+='<div class="kv"><span class="k">'+esc(i.player.name)+' <span style="color:var(--tx3)">('+esc(i.team.name)+')</span></span>'+
+       '<span style="color:var(--red);font-size:.78rem">'+esc(i.player.reason||i.player.type||"Baja")+'</span></div>';
+   });
+  }
+  h+='<div class="src">Fuente: API-Football. Pulsa cualquier jugador para ver sus estadísticas.</div>';
+  body.innerHTML=h;
+ }).catch(function(){
+  if(req!==_onceReq)return;
+  body.innerHTML='<div class="note">No se han podido cargar las alineaciones ahora mismo. Inténtalo en un momento.</div>';
+ });
+}
+function openPlayer(id){
+ var body=$("#mBody"),req=++_onceReq;
+ body.innerHTML='<div class="note">Cargando ficha…</div>';
+ afGet("a=player&id="+id).then(function(j){
+  if(req!==_onceReq)return;
+  var volver='<button class="plBack" onclick="renderOnce(modalM)">← Volver a las alineaciones</button>';
+  var P=j&&j.player;
+  if(!P||!P.player){body.innerHTML=volver+'<div class="note">No hay ficha publicada de este jugador para esta temporada.</div>';return;}
+  var pl=P.player,st=P.statistics||[];
+  var h=volver+'<div class="plHero">'+plFoto(pl.photo)+
+   '<div><b>'+esc(pl.name)+'</b><div class="sub">'+[pl.age?pl.age+" años":"",esc(pl.nationality||""),pl.height||"",pl.weight||""].filter(Boolean).join(" · ")+'</div></div></div>';
+  if(pl.injured)h+='<div class="note" style="border-color:rgba(239,68,68,.35)">Actualmente <b>lesionado</b> según el proveedor.</div>';
+
+  /* Totales sumando todas las competiciones de la temporada */
+  var ap=0,go=0,as=0,mi=0,am=0,ro=0;
+  st.forEach(function(s){
+   ap+=(s.games&&s.games.appearences)||0; mi+=(s.games&&s.games.minutes)||0;
+   go+=(s.goals&&s.goals.total)||0; as+=(s.goals&&s.goals.assists)||0;
+   am+=(s.cards&&s.cards.yellow)||0; ro+=(s.cards&&s.cards.red)||0;
+  });
+  if(ap||mi){
+   h+='<div class="plHead">Temporada 2026 · todas las competiciones</div>';
+   h+='<div class="kv"><span class="k">Partidos jugados</span><span>'+ap+'</span></div>'+
+      '<div class="kv"><span class="k">Minutos</span><span>'+mi+'</span></div>'+
+      '<div class="kv"><span class="k">Goles</span><span>'+go+'</span></div>'+
+      '<div class="kv"><span class="k">Asistencias</span><span>'+as+'</span></div>'+
+      '<div class="kv"><span class="k">Amarillas / rojas</span><span>'+am+' / '+ro+'</span></div>';
+  }
+  /* Desglose por competición: así se ve qué parte es del Mundial y qué no */
+  var conMin=st.filter(function(s){return (s.games&&s.games.appearences)||0;});
+  if(conMin.length){
+   h+='<div class="plHead">Desglose por competición</div>';
+   conMin.forEach(function(s){
+    var r=s.games&&s.games.rating?" · nota "+parseFloat(s.games.rating).toFixed(2):"";
+    h+='<div class="kv"><span class="k">'+esc(s.league.name)+'</span>'+
+       '<span style="font-size:.78rem">'+(s.games.appearences||0)+' pj · '+((s.goals&&s.goals.total)||0)+' g · '+((s.goals&&s.goals.assists)||0)+' a'+r+'</span></div>';
+   });
+  }
+  if(!ap&&!mi)h+='<div class="note">Sin minutos registrados esta temporada por el proveedor.</div>';
+  h+='<div class="src">Fuente: API-Football · temporada 2026. Solo datos publicados, sin estimaciones.</div>';
+  body.innerHTML=h;
+ }).catch(function(){
+  if(req!==_onceReq)return;
+  body.innerHTML='<button class="plBack" onclick="renderOnce(modalM)">← Volver</button><div class="note">No se ha podido cargar la ficha del jugador.</div>';
+ });
+}
 function modalTab(t){
  var m=modalM; if(!m)return;
+ if(t==="once"){renderOnce(m);return;}
  var a=STATS[m.home],b=STATS[m.away],h="";
  if(t==="careo"){
   if(a&&b){
