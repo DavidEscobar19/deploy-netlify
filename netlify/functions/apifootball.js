@@ -19,7 +19,7 @@ const SEASON = 2026;
 
 // Caché en memoria del contenedor caliente. Cada acción con su propio TTL:
 // una plantilla no cambia en todo el torneo; una alineación sí.
-const TTL = { live: 15 * 60e3, lineups: 60e3, squad: 24 * 3600e3, player: 12 * 3600e3, injuries: 30 * 60e3 };
+const TTL = { live: 15 * 60e3, lineups: 60e3, squad: 24 * 3600e3, player: 12 * 3600e3, injuries: 30 * 60e3, topscorers: 30 * 60e3 };
 const cache = new Map();
 
 function fromCache(k) {
@@ -118,6 +118,15 @@ exports.handler = async function (event) {
       payload = { ok: true, player: r[0] || null };
     } else if (a === "injuries") {
       payload = { ok: true, injuries: await af(`/injuries?fixture=${encodeURIComponent(q.fixture)}`, key) };
+    } else if (a === "topscorers") {
+      // Bota de Oro real del torneo, reducida a lo que pinta la web.
+      const r = await af(`/players/topscorers?league=${LEAGUE}&season=${SEASON}`, key);
+      payload = { ok: true, updated: Date.now(), scorers: r.slice(0, 12).map((x) => {
+        const s = (x.statistics && x.statistics[0]) || {};
+        return { id: x.player.id, n: x.player.name, team: s.team && s.team.name,
+                 g: (s.goals && s.goals.total) || 0, a: (s.goals && s.goals.assists) || 0,
+                 pj: (s.games && s.games.appearences) || 0, min: (s.games && s.games.minutes) || 0 };
+      }) };
     } else {
       // ── live: calendario del torneo + cuotas de los cruces por jugar ──
       const fx = await af(`/fixtures?league=${LEAGUE}&season=${SEASON}`, key);
@@ -134,6 +143,8 @@ exports.handler = async function (event) {
         home: { id: f.teams.home.id, name: f.teams.home.name },
         away: { id: f.teams.away.id, name: f.teams.away.name },
         goals: f.goals,
+        // designación arbitral oficial cuando la API la publica; null si no
+        referee: f.fixture.referee || null,
         // Quién pasa lo dice la API, no lo deducimos del marcador: en una tanda de
         // penaltis el resultado es 0–0 y aun así hay un clasificado.
         winner: f.teams.home.winner === true ? "home" : (f.teams.away.winner === true ? "away" : null),

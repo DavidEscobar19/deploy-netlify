@@ -547,7 +547,7 @@ nav.bott{display:none}
 <div id="app">
 
 <nav class="side" aria-label="Navegación principal">
-  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip">V54</span></div>
+  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip">V55</span></div>
   <a href="#inicio" data-p="inicio" class="on"><svg class="i" viewBox="0 0 24 24"><use href="#ic-home"/></svg>Inicio</a>
   <a href="#partidos" data-p="partidos"><svg class="i" viewBox="0 0 24 24"><use href="#ic-ball"/></svg>Partidos</a>
   <a href="#analisis" data-p="analisis"><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Análisis</a>
@@ -612,7 +612,7 @@ nav.bott{display:none}
       <div id="proxHome"></div>
     </div>
     <div class="card">
-      <h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-trophy"/></svg>Bota de Oro<span class="tag">actualizado 5 jul</span></h3>
+      <h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-trophy"/></svg>Bota de Oro<span class="tag" id="botaTag">actualizado 5 jul</span></h3>
       <div id="botaHome"></div>
     </div>
   </div>
@@ -809,10 +809,12 @@ nav.bott{display:none}
         <button class="btn" type="submit" aria-label="Enviar"><svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px"><use href="#ic-send"/></svg></button>
       </form>
       <div class="sugg">
-        <button onclick="quickChat('Tarjetas y faltas de España')">Tarjetas de un equipo</button>
+        <button onclick="quickChat('¿Quién arbitra el próximo partido?')">El árbitro</button>
+        <button onclick="quickChat('Hazme una combinada equilibrada')">Combinada a medida</button>
+        <button onclick="quickChat('¿Lesionados y tocados del próximo partido?')">Lesionados hoy</button>
         <button onclick="quickChat('¿Cuántos goles esperados y marcador más probable?')">Goles y marcador</button>
-        <button onclick="quickChat('Historial cara a cara del próximo partido')">Cara a cara</button>
-        <button onclick="quickChat('¿Cómo llega España? bajas y forma')">Bajas y forma</button>
+        <button onclick="quickChat('¿Cómo va la Bota de Oro?')">Bota de Oro</button>
+        <button onclick="quickChat('Tarjetas y faltas de España')">Tarjetas de un equipo</button>
         <button onclick="quickChat('cuotas del próximo partido')">Cuotas de hoy</button>
         <button onclick="quickChat('¿Cómo va mi balance?')">Mi balance</button>
       </div>
@@ -983,7 +985,7 @@ nav.bott{display:none}
 
 <script>
 "use strict";
-var VERSION="V54";
+var VERSION="V55";
 /* PIN: disuasión del lado del cliente (el código llega al navegador, no es seguridad real).
    Guardamos solo un hash del PIN y limitamos los intentos para frenar el tanteo casual. */
 function hpin(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);}return (h>>>0).toString(16);}
@@ -1089,8 +1091,21 @@ function h2hScore(r,swap){
 /* Designaciones arbitrales: la organización las publica 1-2 días antes de cada
    partido y esta versión no tiene una fuente en directo verificada del árbitro.
    Por eso NO cargamos árbitros: es mejor no dar un dato que no podamos verificar. */
-var ARBITROS={};
-function arbitroDe(a,b){return ARBITROS[a+b]||ARBITROS[b+a]||null;}
+/* Árbitro: designación oficial que publica el feed (API-Football) en cada fixture.
+   Si aún no está designado, devolvemos null y el bot lo dice — no se inventa. */
+function arbitroDe(a,b){
+ if(!AFX)return null;
+ for(var i=0;i<AFX.length;i++){
+  var f=AFX[i];
+  var h=nombreACodigo(f.home&&f.home.name),w=nombreACodigo(f.away&&f.away.name);
+  if(!h||!w)continue;
+  if((h===a&&w===b)||(h===b&&w===a)){
+   if(!f.referee)return null;
+   return {n:f.referee,fin:!!FIN_ST[f.status],dt:fmtDt(Date.parse(f.date))};
+  }
+ }
+ return null;
+}
 var STATS={
  FRA:{m:"5 partidos (grupos completos + Suecia + Paraguay)",cf:[6,4,5,9,12],cc:[4,2,4,1,2],tiros:[11,19,19,25,15],tirosP:[8,5,10,13,5],am:[0,0,1,0,3],faltas:[5,8,9,14,11],pos:[54,56,57,61,76],nota:""},
  MAR:{m:"2 muestras (Brasil en grupos y Canadá en octavos)",cf:[2,1],cc:[6,11],tiros:[13,5],tirosP:[4,4],am:[0,4],faltas:[14,14],pos:[46,56],nota:" Ojo: ganó 3-0 a Canadá con solo 1 córner y 5 tiros — letal sin necesitar volumen"},
@@ -1581,6 +1596,20 @@ function modalTab(t){
   }
  }
  mBodySet(h);
+ /* en «Forma y bajas», si el cruce está enlazado al feed, añadimos el parte REAL al final */
+ if(t==="forma"&&m.fixtureId){
+  afGet("a=injuries&fixture="+m.fixtureId).then(function(j){
+   var inj=(j&&j.injuries)||[];
+   if(!inj.length||modalM!==m)return;
+   var b=$("#mBody"); if(!b)return;
+   var x='<div class="plHead" style="margin-top:16px">Bajas confirmadas ahora mismo · feed en vivo</div>';
+   inj.forEach(function(i2){
+    x+='<div class="kv"><span class="k">'+esc(i2.player.name)+' <span style="color:var(--tx3)">('+esc(i2.team.name)+')</span></span><span style="color:var(--red);font-size:.78rem">'+esc(i2.player.reason||i2.player.type||"Baja")+'</span></div>';
+   });
+   x+='<div class="src">Fuente: API-Football, al minuto. El parte de arriba es el curado del 5 jul.</div>';
+   b.innerHTML+=x;
+  }).catch(function(){});
+ }
 }
 /* ================= RENDER: INICIO ================= */
 var cdTimer=null, DEST=null;
@@ -1591,7 +1620,7 @@ var FIN_MS=2.25*36e5; /* ~2h15 tras el saque: se considera terminado y pasa al s
    La función devuelve las cuotas con el formato de The Odds API, así que oddsPara,
    h2hDe y totalsDe siguen funcionando sin cambios. AFX guarda el calendario. */
 var AF_URL="/.netlify/functions/apifootball";
-var LIVE_URL=AF_URL, LIVE=null, AFX=null, liveTimer=null;
+var LIVE_URL=AF_URL, LIVE=null, AFX=null, liveTimer=null, TOPS=null;
 /* nombres de la API (inglés) → nuestros códigos */
 var EN2CODE={brazil:"BRA",norway:"NOR",spain:"ESP",portugal:"POR",mexico:"MEX",england:"ENG","united states":"USA",usa:"USA",belgium:"BEL",argentina:"ARG",egypt:"EGY",switzerland:"SUI",colombia:"COL",morocco:"MAR",france:"FRA",paraguay:"PAR",canada:"CAN",japan:"JPN",sweden:"SWE","ivory coast":"CIV","cote d'ivoire":"CIV",ghana:"GHA","cape verde":"CPV",australia:"AUS",algeria:"DZA",croatia:"CRO",austria:"AUT","bosnia and herzegovina":"BIH",senegal:"SEN","dr congo":"COD",ecuador:"ECU"};
 function nombreACodigo(n){
@@ -1864,7 +1893,7 @@ function afProximos(){
    if((cur[i].home===h&&cur[i].away===a)||(cur[i].home===a&&cur[i].away===h))return;
   }
   out.push({home:h,away:a,ts:ts,dt:fmtDt(ts),ronda:f.ronda||rondaDe(ts),sede:f.venue||null,
-            fixtureId:f.id,homeId:f.home.id,awayId:f.away.id,
+            fixtureId:f.id,homeId:f.home.id,awayId:f.away.id,referee:f.referee||null,
             prob:probDeMercado(oddsPara(h,a)),probSrc:"mercado"});
  });
  return out;
@@ -2294,9 +2323,12 @@ function renderInicio(){
  $("#proxHome").innerHTML=h;
 
  var b="";
- GOLEADORES.slice(0,4).forEach(function(g,i){
+ /* con feed: goleadores reales al día; sin feed: el parte curado del 5 jul */
+ var listaBota=TOPS?TOPS.slice(0,4).map(function(g){return {n:g.n,eq:nombreACodigo(g.team),g:g.g};})
+                   :GOLEADORES.slice(0,4).map(function(g){return {n:g.n.split(" — ")[0],eq:g.eq,g:g.g};});
+ listaBota.forEach(function(g,i){
   b+='<div style="display:flex;gap:9px;align-items:center;padding:7px 0;font-size:.86rem;border-bottom:1px solid rgba(34,41,72,.4)">'+
-     '<span style="color:var(--tx3);width:14px">'+(i+1)+'</span><span>'+FLAGS[g.eq]+'</span><span style="flex:1;font-weight:500">'+esc(g.n.split(" — ")[0])+'</span><b class="vio">'+g.g+'</b></div>';
+     '<span style="color:var(--tx3);width:14px">'+(i+1)+'</span><span>'+(FLAGS[g.eq]||"⚽")+'</span><span style="flex:1;font-weight:500">'+esc(g.n)+'</span><b class="vio">'+g.g+'</b></div>';
  });
  $("#botaHome").innerHTML=b;
  renderFeeds();
@@ -3276,15 +3308,76 @@ function fmtProb(m){
  return "el modelo le da un "+m.prob[0].toFixed(0)+"% a "+NOM[m.home]+", un "+m.prob[1].toFixed(0)+"% al empate y un "+m.prob[2].toFixed(0)+"% a "+NOM[m.away]+" — estimación estadística, no una certeza";
 }
 function partidoDe(c){
- var todos=todosPartidos();
- for(var i=0;i<todos.length;i++){if(todos[i].home===c||todos[i].away===c)return todos[i];}
- return null;
+ /* el partido RELEVANTE del equipo: el próximo pendiente; si ya no le quedan, el último jugado */
+ var suyos=todosPartidos().filter(function(m){return m.home===c||m.away===c;}).sort(function(a,b){return a.ts-b.ts;});
+ for(var i=0;i<suyos.length;i++){if(!estadoPartido(suyos[i]).fin)return suyos[i];}
+ return suyos.length?suyos[suyos.length-1]:null;
 }
 /* contexto conversacional: recuerda el último equipo/jugador del hilo */
 var CTX={eqs:[],jug:null};
 function pick(a){return a[Math.floor(Math.random()*a.length)];}
 var ABRE=["Pues mira","Te cuento","Aquí va","Mira","Vamos"];
 var STAT_KW=/corner|saque de esquina|tarjeta|amarilla|roja|tiros|remates|disparos|posesion|faltas|goles|baja|lesion|forma|como llega|cuota|resultado|probabilidad|favorito/;
+/* ===== COMBINADA A MEDIDA =====
+   Monta la combinada que pide el usuario (conservadora / equilibrada / arriesgada
+   o con cuota objetivo) sobre el próximo cruce, usando las selecciones reales del
+   Laboratorio. Como todas las patas son del MISMO partido, la probabilidad conjunta
+   NO se multiplica: se calcula exacta sumando la matriz de marcadores del modelo
+   Poisson (la correlación entre patas queda incluida). */
+var _LEGPRED={
+ "1":function(i,j){return i>j},"X":function(i,j){return i===j},"2":function(i,j){return i<j},
+ "1X":function(i,j){return i>=j},"12":function(i,j){return i!==j},"X2":function(i,j){return i<=j},
+ "O15":function(i,j){return i+j>=2},"U15":function(i,j){return i+j<2},
+ "O25":function(i,j){return i+j>=3},"U25":function(i,j){return i+j<3},
+ "O35":function(i,j){return i+j>=4},"U35":function(i,j){return i+j<4},
+ "BS":function(i,j){return i>0&&j>0},"BN":function(i,j){return !(i>0&&j>0)}
+};
+function botCombinada(perfil,cObj){
+ rebuildLegs();
+ var p=partidoDestacado();
+ if(!LEGS.length)return "Ahora mismo no hay cuotas publicadas para el próximo cruce ("+NOM[p.home]+" – "+NOM[p.away]+"), y no monto combinadas sobre datos que no tengo. Pídemela otra vez cuando el feed las traiga.";
+ var od=oddsPara(p.home,p.away),m=modeloPartido(p,od);
+ if(!m)return "Sin cuotas publicadas no puedo anclar el modelo para el "+NOM[p.home]+" – "+NOM[p.away]+", así que hoy no te puedo montar la combinada con números honestos.";
+ var rango=cObj?[cObj*0.8,cObj*1.3]:(perfil==="c"?[1.4,2.3]:(perfil==="a"?[4.2,9]:[2.3,4.2]));
+ function probConj(ids){
+  var ps=[],k;
+  for(k=0;k<ids.length;k++){if(!_LEGPRED[ids[k]])return null;ps.push(_LEGPRED[ids[k]]);}
+  var tot=0;
+  for(var i=0;i<=8;i++){var ph=_poisP(i,m.lh);
+   for(var j=0;j<=8;j++){
+    var ok=true;
+    for(k=0;k<ps.length;k++){if(!ps[k](i,j)){ok=false;break;}}
+    if(ok)tot+=ph*_poisP(j,m.la);
+   }}
+  return tot;
+ }
+ function choca(a,b){for(var i=0;i<LEG_CONF.length;i++){var c=LEG_CONF[i];if((c[0]===a&&c[1]===b)||(c[0]===b&&c[1]===a))return true;}return false;}
+ var best=null;
+ function prueba(ids){
+  var x,y;
+  for(x=0;x<ids.length;x++)for(y=x+1;y<ids.length;y++)if(choca(ids[x],ids[y]))return;
+  var grs={},cu=1;
+  for(x=0;x<ids.length;x++){var l=legById(ids[x]);if(!l||grs[l.grp])return;grs[l.grp]=1;cu*=l.c;}
+  if(cu<rango[0]||cu>rango[1])return;
+  var pc=probConj(ids);
+  if(pc==null||pc<=0)return;
+  if(!best||pc>best.pc)best={ids:ids.slice(),cu:cu,pc:pc};
+ }
+ var ids=LEGS.map(function(l){return l.id});
+ for(var a1=0;a1<ids.length;a1++)for(var b1=a1+1;b1<ids.length;b1++){
+  prueba([ids[a1],ids[b1]]);
+  for(var c1=b1+1;c1<ids.length;c1++)prueba([ids[a1],ids[b1],ids[c1]]);
+ }
+ if(!best)return "Con las cuotas de hoy no me sale ninguna mezcla compatible en ese rango para el "+NOM[p.home]+" – "+NOM[p.away]+". Prueba otro perfil («combinada segura», «equilibrada», «arriesgada») o dame una cuota objetivo («combinada de cuota 3»).";
+ var nombres=best.ids.map(function(id){return legById(id).t});
+ var justa=1/best.pc,valor=best.cu*best.pc;
+ var vTxt=valor>=1.02?"El mercado la paga por encima de la cuota justa del modelo — hay valor según el modelo.":(valor<=0.98?"Ojo: el mercado la paga por debajo de la cuota justa del modelo — pagan de menos.":"Está pagada prácticamente a su cuota justa.");
+ var etq=perfil==="c"?"conservadora":(perfil==="a"?"arriesgada":"equilibrada");
+ var texto="Combinada "+etq+" para el "+NOM[p.home]+" – "+NOM[p.away]+" ("+p.dt+"): "+nombres.join(" + ")+
+  ". Cuota conjunta "+coma(best.cu,2)+" · probabilidad real del modelo "+coma(best.pc*100,0)+"% (cuota justa "+coma(justa,2)+"). "+vTxt+
+  " Como las patas son del mismo partido van correlacionadas, y ese "+coma(best.pc*100,0)+"% ya lo tiene en cuenta (matriz de marcadores del modelo). Y de profesional a profesional: también falla "+coma((1-best.pc)*100,0)+" de cada 100 veces — la decisión es tuya.";
+ return {text:texto,html:esc(texto)+'<br><button class="btn sec" style="margin-top:9px;font-size:.76rem;padding:6px 12px" onclick="cargarCombi(\''+best.ids.join(",")+'\')">Cargarla en el Laboratorio</button>'};
+}
 function botResponde(qRaw){
  var q=norm(qRaw);
  var eqs=equiposEn(q);
@@ -3306,7 +3399,7 @@ function botResponde(qRaw){
 
  /* identidad del asistente */
  if(tiene("quien eres","que eres","eres una ia","eres un bot","eres humano","como funcionas","como te llamas","que modelo eres")){
-  return "Soy el asistente de análisis de este panel: un motor local que razona solo con los datos verificados de la página (act. 5 jul), sin conexión externa ni APIs. Distingo entre hechos (resultados, bajas), estadísticas (córners, tiros, posesión) y predicciones del modelo — y las señalo como tales. Lo que nunca hago: inventar datos ni elegir apuestas por ti.";
+  return "Soy el asistente de análisis de este panel: razono con los datos verificados de la página y con su feed en vivo (API-Football) — cuotas, calendario, árbitros, bajas y goleadores al día. Distingo entre hechos (resultados, designaciones), estadísticas (córners, tiros, posesión) y estimaciones del modelo — y las señalo como tales. Puedo montarte una combinada a tu medida con su probabilidad real calculada por el modelo. Lo que nunca hago: inventar datos ni decidir por ti.";
  }
 
  /* comparación entre dos equipos — datos lado a lado */
@@ -3332,15 +3425,15 @@ function botResponde(qRaw){
  }
 
  /* ÁRBITRO del cruce: solo si tenemos designación verificada; nunca inventada */
- if(tiene("arbitro","árbitro","colegiado","quien pita","quien arbitra","referee","designacion","quien dirige")){
+ if(tiene("arbitro","árbitro","colegiado","quien pita","quien arbitra","quien arbitro","referee","designacion","quien dirige","quien dirigio")){
   var pmA=eqs.length?partidoDe(eqs[0]):partidoDestacado();
-  var arb=pmA?arbitroDe(pmA.home,pmA.away):null;
+  var parA=eqs.length>=2?[eqs[0],eqs[1]]:(pmA?[pmA.home,pmA.away]:null);
+  var arb=parA?arbitroDe(parA[0],parA[1]):null;
   if(arb){
-   var extra=arb.am>=5?"Es de los tarjeteros: si te fijas en el mercado de tarjetas, tenlo muy en cuenta.":(arb.am<=3.8?"De los que menos amarillas saca: partido que suele dejar fluir.":"Tarjeta en la media.");
-   return "El "+NOM[pmA.home]+" – "+NOM[pmA.away]+" lo dirige "+arb.n+" ("+arb.pais+"). Medias verificadas: "+coma(arb.am,1)+" amarillas y "+arb.fa+" faltas por partido, y "+coma(arb.pen,2)+" penaltis por encuentro ("+arb.pj+" partidos). Estilo: "+arb.estilo+". "+extra;
+   return "El "+NOM[parA[0]]+" – "+NOM[parA[1]]+(arb.fin?" lo arbitró ":" ("+arb.dt+") lo dirige ")+arb.n+" — designación oficial publicada en el feed (API-Football). El feed aún no trae sus medias de tarjetas, así que esas no te las invento; lo que sí tengo verificado son las medias de amarillas y faltas de cada selección (pídeme «tarjetas de España»).";
   }
-  var quien=pmA?("el "+NOM[pmA.home]+" – "+NOM[pmA.away]):"este partido";
-  return "Sinceramente: no te lo puedo confirmar. Las designaciones de árbitros las publica la organización (FIFA) 1-2 días antes de cada partido, y esta web todavía no tiene una fuente en directo verificada del colegiado — así que no te invento un nombre. Para "+quien+" consúltalo en una fuente oficial (FIFA/FEF) cuando lo anuncien. Cuando conecte esa fuente, te daré el árbitro real y sus medias de tarjetas y penaltis. Lo que sí puedo darte ya, verificado, son las medias de faltas y amarillas de cada equipo («tarjetas de España»).";
+  var quien=parA?("el "+NOM[parA[0]]+" – "+NOM[parA[1]]):"este partido";
+  return "Para "+quien+" el feed todavía no publica la designación arbitral — la FIFA la anuncia 1-2 días antes del partido y aparecerá aquí sola en cuanto salga. No te doy un nombre sin confirmar. Mientras, tengo verificadas las medias de amarillas y faltas de cada selección (pídeme «tarjetas de España»).";
  }
  /* GOLES ESPERADOS / MARCADOR MÁS PROBABLE (modelo Poisson) */
  if(tiene("goles esperados","cuantos goles","marcador exacto","marcador mas probable","marcador probable","resultado mas probable","expected goals"," xg","cuantos goles va","cuantos goles habra","goles va a haber")){
@@ -3379,8 +3472,14 @@ function botResponde(qRaw){
  }
 
  /* límite del proyecto: sin recomendaciones */
- if(tiene("que apuesto","que apostar","recomiend","recomend","apuesta segura","cual meto","tip ","fija","gratis","mejor apuesta","combinada buena","hazme una combinada","dame una combinada")){
-  return "Eso no lo hago: no elijo apuestas ni existen las «seguras» — acertar 5 de 6 en una combinada pagó −20 €. Lo que sí tienes: la pestaña «Combinadas» te enseña las que el mercado señala como más probables y un constructor con la cuota y probabilidad exactas de cualquier mezcla; y aquí te doy probabilidades del modelo, córners, tarjetas, tiros, bajas y tu balance real. Decide tú con los números delante.";
+ /* combinada a medida: el usuario elige el riesgo, el modelo pone los números */
+ if(tiene("combi","acumulada","parlay")){
+  var perfilC=tiene("segura","conservadora","tranquila","poco riesgo","bajo riesgo","facil")?"c":(tiene("arriesgada","valiente","loca","alta","atrevida","agresiva","de riesgo")?"a":"e");
+  var mObj=q.match(/cuota\s+(?:de\s+)?(\d+(?:[.,]\d+)?)/);
+  return botCombinada(perfilC,mObj?parseFloat(mObj[1].replace(",",".")):null);
+ }
+ if(tiene("que apuesto","que apostar","recomiend","recomend","apuesta segura","cual meto","tip ","fija","gratis","mejor apuesta")){
+  return "Elegir por ti no lo hago — y las apuestas «seguras» no existen: acertar 5 de 6 en una combinada pagó −20 €. Lo que sí hago: dime «combinada conservadora», «equilibrada», «arriesgada» o «combinada de cuota 3» y te la monto con su cuota real y su probabilidad exacta según el modelo, para que decidas tú con los números delante. También tienes probabilidades, córners, tarjetas, bajas y tu balance real.";
  }
  /* simulación */
  var sim=q.match(/simula?r?\s+(\d+[.,]?\d*)\s*(?:€|euros?)?\s*(?:a|con|x)\s*(?:cuota\s*)?(\d+[.,]?\d*)/);
@@ -3417,7 +3516,6 @@ function botResponde(qRaw){
  if(tiene("cuando es la final","donde es la final","la final del mundial")){
   return "La final es el domingo 19 de julio en el MetLife Stadium de Nueva Jersey — el mismo estadio que abrió esta ronda con el Brasil–Noruega. El tercer puesto, el sábado 18 en Miami.";
  }
- if(tiene("arbitro","quien pita"))return "El Brasil–Noruega lo arbitró el estadounidense Ismail Elfath. De los demás cruces no tengo designaciones cargadas en esta versión.";
  if(tiene("que partidos hay","partidos de hoy","que juegan hoy","agenda","juega manana","quien juega hoy")){
   var now2=Date.now(),ag=agendaOrden(),jug=[],env=[],prox=[];
   ag.forEach(function(m){
@@ -3437,24 +3535,21 @@ function botResponde(qRaw){
  if(tiene("porteria a cero","porteria cero","clean sheet","sin encajar","no ha encajado","no encaja","imbatid")){
   return "Dato verificado: México no ha encajado ni un gol en todo el torneo — la única portería imbatida que tengo confirmada de los equipos vivos. Del resto no tengo el registro de porterías a cero cerrado en esta versión, así que no te lo invento; pídeme sus goles en contra («goles de Inglaterra») y lo miramos.";
  }
- /* cuotas — consciente de la hora: las verificadas cargadas son del ELPARTIDO; si ya se jugó, avisa */
+ /* cuotas — directamente del feed en vivo (API-Football); si no hay, se dice */
  if(tiene("cuota","cuanto paga","que paga","mas de 2","menos de 2","over","under","ambos marcan","total de goles","mas goles","menos goles")){
-  var fin=Date.now()>ELPARTIDO.ts+FIN_MS;
-  var esVerif=eqs.length&&(eqs.indexOf(ELPARTIDO.home)>-1||eqs.indexOf(ELPARTIDO.away)>-1);
-  /* pregunta por un equipo distinto al del partido con cuotas cargadas, o el verificado ya se jugó */
-  if(eqs.length&&(!esVerif||fin)){
-   var pmq=partidoDe(eqs[0]);
-   if(pmq&&Date.now()<pmq.ts+FIN_MS){
-    return "No tengo cuotas verificadas de "+NOM[eqs[0]]+" cargadas en esta versión y no me las invento. Lo que sí te doy es el modelo para su cruce ("+NOM[pmq.home]+" – "+NOM[pmq.away]+", "+pmq.dt+"): "+fmtProb(pmq)+". Las cuotas reales de las casas se mueven a cada minuto; para tenerlas al día habría que conectar una fuente en directo — ahora la web no la tiene.";
-   }
-   return "No tengo cuotas verificadas de "+NOM[eqs[0]]+" y no me las invento. Puede que su cruce ya se haya jugado (pregúntame el resultado) o que aún no tenga datos confirmados cargados.";
+  var pmq=eqs.length?partidoDe(eqs[0]):partidoDestacado();
+  if(!pmq)return "No encuentro ningún cruce de ese equipo en el calendario cargado.";
+  var odq=oddsPara(pmq.home,pmq.away);
+  if(odq&&odq.h2h){
+   var oq=odq.h2h,iq=[1/oq.home,1/oq.draw,1/oq.away],sq=iq[0]+iq[1]+iq[2];
+   var r5="Cuotas reales ahora mismo para el "+NOM[pmq.home]+" – "+NOM[pmq.away]+" ("+pmq.dt+"): 1 · "+NOM[pmq.home]+" a "+coma(oq.home,2)+" (≈"+coma(iq[0]/sq*100,0)+"%) · X a "+coma(oq.draw,2)+" (≈"+coma(iq[1]/sq*100,0)+"%) · 2 · "+NOM[pmq.away]+" a "+coma(oq.away,2)+" (≈"+coma(iq[2]/sq*100,0)+"%).";
+   if(odq.tot)r5+=" Línea de goles "+coma(odq.tot.punto,1)+": más a "+coma(odq.tot.over,2)+" / menos a "+coma(odq.tot.under,2)+".";
+   r5+=" Fuente: API-Football, se actualizan solas. El margen de la casa ya está dentro — el desglose sin margen y los 22 mercados del modelo los tienes en «Datos y cuotas».";
+   return r5;
   }
-  if(fin){
-   var d2=partidoDestacado();
-   return "Aviso importante: las únicas cuotas verificadas que tengo cargadas eran del "+NOM[ELPARTIDO.home]+" – "+NOM[ELPARTIDO.away]+", y ese partido ya se jugó, así que están caducadas. Para el siguiente del calendario ("+NOM[d2.home]+" – "+NOM[d2.away]+", "+d2.dt+") todavía no hay cuotas verificadas cargadas; no te las invento. Te doy el modelo: "+fmtProb(d2)+". Las cuotas en tiempo real necesitan una fuente en directo conectada a la web.";
-  }
-  var lineas=ELPARTIDO.cuotas.map(function(x){return x.mercado+": "+x.cuota+" (≈"+x.imp+")"});
-  return "Te las resumo del "+NOM[ELPARTIDO.home]+" – "+NOM[ELPARTIDO.away]+" (publicadas el 3-4 jul, se mueven hasta el pitido): "+lineas.join(" · ")+". Están con su fuente en «Datos y cuotas», y en «Combinadas» puedes ver lo que implica juntarlas. Ojo al detalle de siempre: las implícitas suman más de 100% — ese exceso es el margen de la casa.";
+  var eP=estadoPartido(pmq);
+  if(eP.fin)return "El "+NOM[pmq.home]+" – "+NOM[pmq.away]+" ya se jugó"+(eP.score?" ("+eP.score+")":"")+", así que sus cuotas están caducadas y no te sirven. Pregúntame por el siguiente cruce del calendario.";
+  return "Para el "+NOM[pmq.home]+" – "+NOM[pmq.away]+" ("+pmq.dt+") el feed aún no publica cuotas — en cuanto las casas las suban aparecerán aquí solas. No te las invento. Te doy mientras el modelo: "+fmtProb(pmq)+".";
  }
  /* balance / bankroll */
  if(tiene("balance","como voy","mis apuestas","cuanto llevo","cuanto he perdido","cuanto he ganado","bankroll","saldo")){
@@ -3463,11 +3558,20 @@ function botResponde(qRaw){
   return "Vamos a verlo: llevas "+st.total+" apuestas apuntadas — "+st.ganadas+" ganadas, "+st.perdidas+" perdidas y "+st.abiertas+" abiertas. Balance real: "+(st.balance>=0?"+":"")+eur(st.balance)+" · Saldo: "+eur(ini+st.balance)+" (inicial "+eur(ini)+"). "+(st.balance<0?"Ese número en rojo es el dato más honesto de toda la página.":"Que no te engañe una buena racha: la muestra manda.");
  }
  /* asistencias / rachas */
- if(tiene("asistencia","asistidor"))return "En asistencias manda Olise: 5, líder del torneo — el arquitecto de esta Francia. Le sigue Bruno Guimarães con 4, el motor de Brasil.";
+ if(tiene("asistencia","asistidor")){
+  if(TOPS&&TOPS.length){
+   var conA=TOPS.slice().sort(function(a,b){return (b.a||0)-(a.a||0)}).slice(0,3).filter(function(g){return g.a});
+   if(conA.length)return "Asistencias entre los máximos goleadores del torneo (feed en directo): "+conA.map(function(g){var c=nombreACodigo(g.team);return g.n+" ("+(c?NOM[c]:g.team)+") — "+g.a}).join(" · ")+". Fuente: API-Football.";
+  }
+  return "A 5 de julio, en asistencias mandaba Olise: 5, líder del torneo — el arquitecto de esta Francia. Le seguía Bruno Guimarães con 4, el motor de Brasil.";
+ }
  if(tiene("racha","dato curioso","sabias que"))return RACHAS[Math.floor(Math.random()*RACHAS.length)]+" — tienes todas las rachas en la pestaña Análisis.";
  /* goleadores */
  if(tiene("bota de oro","goleador","pichichi")){
-  return "Bota de Oro (5 jul): "+GOLEADORES.map(function(g,i){return (i+1)+". "+g.n.split(" — ")[0]+" ("+NOM[g.eq]+") — "+g.g}).join(" · ")+". Desempate: asistencias y después minutos jugados.";
+  if(TOPS&&TOPS.length){
+   return "Bota de Oro, en directo del feed: "+TOPS.slice(0,5).map(function(g,i){var c=nombreACodigo(g.team);return (i+1)+". "+g.n+" ("+(c?NOM[c]:g.team)+") — "+g.g+" goles"+(g.a?" y "+g.a+" asist.":"")}).join(" · ")+". Desempate oficial: asistencias y después minutos jugados. Fuente: API-Football.";
+  }
+  return "Bota de Oro (parte del 5 jul): "+GOLEADORES.map(function(g,i){return (i+1)+". "+g.n.split(" — ")[0]+" ("+NOM[g.eq]+") — "+g.g}).join(" · ")+". Desempate: asistencias y después minutos jugados.";
  }
  /* probabilidad */
  if(tiene("probabilidad","quien gana","favorito","pronostico","prediccion")){
@@ -3478,8 +3582,26 @@ function botResponde(qRaw){
   }
   return "¿De qué cruce? Tengo el modelo de todos los octavos y del Francia–Marruecos de cuartos. Ejemplo: «probabilidad de España».";
  }
- /* bajas / forma */
- if(tiene("baja","lesion","lesionado","duda","como llega","forma de")){
+ /* bajas / lesionados / tocados — primero el parte REAL del feed (async), curado de respaldo */
+ if(tiene("baja","lesion","lesionado","tocado","tocados","duda","como llega","forma de","apercibido","estado de")){
+  var pmL=eqs.length?partidoDe(eqs[0]):partidoDestacado();
+  if(pmL&&pmL.fixtureId){
+   (function(pm,cs){
+    afGet("a=injuries&fixture="+pm.fixtureId).then(function(j){
+     var inj=(j&&j.injuries)||[];
+     var rel=inj.filter(function(x){var c=nombreACodigo(x.team&&x.team.name);return !cs.length||cs.indexOf(c)>-1;});
+     var msg=rel.length?
+      ("Parte real del feed para el "+NOM[pm.home]+" – "+NOM[pm.away]+": "+rel.map(function(x){return x.player.name+" ("+((x.team&&x.team.name)||"")+") — "+(x.player.reason||x.player.type||"baja")}).join(" · ")+"."):
+      ("El feed no registra ninguna baja confirmada"+(cs.length?" de "+NOM[cs[0]]:"")+" para el "+NOM[pm.home]+" – "+NOM[pm.away]+" ahora mismo.");
+     var extra=[];
+     (cs.length?cs:[pm.home,pm.away]).forEach(function(c){var f=FICHAS[c];if(f&&(f.bajas.length||f.dudas.length))extra.push(NOM[c]+": "+f.bajas.concat(f.dudas).join("; "));});
+     if(extra.length)msg+=" Del parte curado (5 jul): "+extra.join(" · ")+".";
+     msg+=" El detalle con la convocatoria completa lo tienes en la pestaña «Alineaciones» del partido.";
+     pushMsg(msg,"b");
+    }).catch(function(){pushMsg("No he podido consultar el parte de bajas del feed ahora mismo. Inténtalo en un momento.","b");});
+   })(pmL,eqs.filter(function(c){return c===pmL.home||c===pmL.away}));
+   return "Déjame consultar el parte de lesiones en el feed en vivo…";
+  }
   var cs=DEF;
   var out2=[];
   cs.forEach(function(c){
@@ -3492,6 +3614,24 @@ function botResponde(qRaw){
  }
  /* resultado */
  if(tiene("resultado","como quedo","como acabo","quien gano","marcador")){
+  /* el feed manda: último partido REAL del equipo, con penaltis y quién pasó */
+  function fxTxt(f){
+   var ch=nombreACodigo(f.home.name),ca2=nombreACodigo(f.away.name);
+   var t3=(ch?NOM[ch]:f.home.name)+" "+f.goals.home+" – "+f.goals.away+" "+(ca2?NOM[ca2]:f.away.name);
+   if(f.pen)t3+=" ("+f.pen.home+"-"+f.pen.away+" en penaltis)"; else if(f.et)t3+=" (tras prórroga)";
+   if(f.winner){var g3=f.winner==="home"?(ch?NOM[ch]:f.home.name):(ca2?NOM[ca2]:f.away.name);t3+=" — pasó "+g3;}
+   return t3;
+  }
+  if(AFX){
+   var finsE=AFX.filter(function(f){
+    if(!FIN_ST[f.status])return false;
+    if(!eqs.length)return true;
+    var h3=nombreACodigo(f.home.name),a3=nombreACodigo(f.away.name);
+    return h3===eqs[0]||a3===eqs[0];
+   }).sort(function(a,b){return Date.parse(b.date)-Date.parse(a.date);});
+   if(eqs.length&&finsE.length)return "Último partido de "+NOM[eqs[0]]+" (feed en vivo): "+fxTxt(finsE[0])+" ("+fmtDt(Date.parse(finsE[0].date))+").";
+   if(!eqs.length&&finsE.length)return "Últimos resultados del feed: "+finsE.slice(0,4).map(fxTxt).join(" · ")+". Pídeme el de un equipo concreto si quieres más detalle.";
+  }
   if(eqs.length){
    for(var i3=0;i3<RESULTADOS.length;i3++){
     var r3=RESULTADOS[i3];
@@ -3499,9 +3639,9 @@ function botResponde(qRaw){
    }
    var pm3=partidoDe(eqs[0]);
    if(pm3)return NOM[eqs[0]]+" todavía no ha jugado su cruce: "+NOM[pm3.home]+" – "+NOM[pm3.away]+", "+pm3.dt+".";
-   return "No tengo resultado de "+NOM[eqs[0]]+" en esta versión (datos hasta el 5 jul).";
+   return "No tengo resultado de "+NOM[eqs[0]]+" en los datos cargados.";
   }
-  return "Resultados de octavos hasta ahora: Paraguay 0-1 Francia (gol de Mbappé) y Canadá 0-3 Marruecos. El resto se juega entre hoy y el martes — pídeme el de un equipo concreto si quieres el detalle.";
+  return "Ahora mismo no tengo el feed de resultados a mano; inténtalo en un momento o mira la pestaña Partidos.";
  }
  /* cuadro */
  if(tiene("cuadro","bracket","eliminatoria","cruces","semifinal","final")){
@@ -3528,10 +3668,11 @@ function botResponde(qRaw){
  }
  return "Esa no la tengo del todo clara. Trabajo con los datos verificados de la página (al 5 de julio), sin conexión externa. Pídeme cosas como: «compara Brasil y Noruega», «córners y tarjetas de España», «¿y sus tiros?» (recuerdo de qué equipo hablábamos), «¿por qué el modelo da 53%?», cuotas de hoy, el cuadro, tu balance o una simulación («simula 10 a 2.5»).";
 }
-function pushMsg(t,who){
+function pushMsg(t,who,esHtml){
  var d=document.createElement("div");
  d.className="msg "+who;
- d.textContent=t;
+ /* esHtml solo lo usan respuestas construidas por nosotros (todo dato dinámico pasa por esc()) */
+ if(esHtml)d.innerHTML=t; else d.textContent=t;
  $("#chatLog").appendChild(d);
  $("#chatLog").scrollTop=$("#chatLog").scrollHeight;
 }
@@ -3547,7 +3688,9 @@ function sendChat(e){
  $("#chatLog").scrollTop=$("#chatLog").scrollHeight;
  setTimeout(function(){
   ty.remove();
-  pushMsg(botResponde(v),"b");
+  var r=botResponde(v);
+  if(r&&typeof r==="object")pushMsg(r.html||r.text||"","b",!!r.html);
+  else pushMsg(r,"b");
  },420+Math.random()*380);
  return false;
 }
@@ -3766,6 +3909,14 @@ function initApp(){
  setTimeout(checkNuevaVersion,5000);
  /* datos en vivo: al arrancar y cada 5 min (si las funciones están desplegadas) */
  fetchLive(); fetchFootball();
+ /* Bota de Oro real del torneo (goleadores del feed); si falla, queda el parte curado */
+ afGet("a=topscorers").then(function(j){
+  if(j&&j.ok&&j.scorers&&j.scorers.length){
+   TOPS=j.scorers;
+   var tg=$("#botaTag"); if(tg)tg.textContent="en directo";
+   safe(renderInicio);
+  }
+ }).catch(function(){});
  if(liveTimer)clearInterval(liveTimer); liveTimer=setInterval(function(){fetchLive();fetchFootball();},10*60*1000);
  var _d0=partidoDestacado();
  pushMsg("Hola. Los resultados y las cuotas se actualizan solos desde el feed en vivo. El siguiente cruce del calendario es "+NOM[_d0.home]+" – "+NOM[_d0.away]+" ("+_d0.dt+"). Pregúntame por córners, tarjetas, jugadores o tu balance, pulsa cualquier partido para ver su careo, y mira «Datos y cuotas» para las cuotas reales al minuto del próximo partido.","b");
