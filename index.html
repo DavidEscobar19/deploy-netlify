@@ -175,6 +175,26 @@ main{margin-left:224px;padding:54px 32px 100px;max-width:1240px}
 .plHero b{font-size:1.05rem;letter-spacing:-.01em}
 .plHero .sub{font-size:.76rem;color:var(--tx3);margin-top:3px}
 .plFor{font-size:.68rem;color:var(--vio2);background:rgba(124,92,255,.14);border:1px solid var(--vioD);padding:2px 8px;border-radius:20px;font-weight:600}
+/* ===== Pulido visual global: aurora, títulos, botones, marcador ===== */
+body{background:radial-gradient(44% 34% at 10% -4%,rgba(124,92,255,.15),transparent 62%),
+  radial-gradient(36% 28% at 92% 6%,rgba(57,214,255,.09),transparent 60%),
+  radial-gradient(52% 42% at 50% 104%,rgba(124,92,255,.07),transparent 62%),var(--bg);
+ background-attachment:fixed}
+h2.pageT{font-size:1.56rem;font-weight:800;background:linear-gradient(100deg,var(--tx) 40%,#b4a3ff);-webkit-background-clip:text;background-clip:text;color:transparent;display:inline-block}
+.btn{position:relative;overflow:hidden}
+.btn::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.22) 50%,transparent 65%);transform:translateX(-130%);transition:transform .55s ease;pointer-events:none}
+.btn:hover::after{transform:translateX(130%)}
+.vsRow .tm>div:first-child{filter:drop-shadow(0 8px 16px rgba(0,0,0,.5));animation:fltY 3.6s ease-in-out infinite}
+.vsRow .tm:last-child>div:first-child{animation-delay:1.8s}
+@keyframes fltY{50%{transform:translateY(-4px)}}
+.vs{position:relative;animation:vsGlow 2.8s ease-in-out infinite}
+@keyframes vsGlow{50%{box-shadow:0 0 0 9px rgba(124,92,255,.09),0 0 22px rgba(124,92,255,.35)}}
+.count div{background:linear-gradient(180deg,rgba(124,92,255,.13),rgba(124,92,255,.02)),var(--bg2);border-color:var(--border2)}
+.count b{background:linear-gradient(180deg,#fff,#b9a8ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.cmp .bar i,.probBar i{transition:width .7s ease}
+.chip.v{box-shadow:0 0 14px -4px rgba(124,92,255,.55)}
+.chip.g{box-shadow:0 0 14px -4px rgba(57,217,138,.4)}
+@media(prefers-reduced-motion:reduce){.vsRow .tm>div:first-child{animation:none}.vs{animation:none}.btn::after{display:none}}
 /* ===== Inicio: ticker, hero neón y stagger ===== */
 .ticker{position:relative;overflow:hidden;margin-bottom:14px;border:1px solid var(--border2);border-radius:12px;background:linear-gradient(90deg,rgba(124,92,255,.14),rgba(57,214,255,.07) 55%,rgba(124,92,255,.14)),var(--card);padding:8px 0;-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
 .ticker:empty{display:none}
@@ -633,7 +653,7 @@ nav.bott{display:none}
 <div id="app">
 
 <nav class="side" aria-label="Navegación principal">
-  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip">V65</span></div>
+  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip" style="display:none" aria-hidden="true">V66</span></div>
   <a href="#inicio" data-p="inicio" class="on"><svg class="i" viewBox="0 0 24 24"><use href="#ic-home"/></svg>Inicio</a>
   <a href="#partidos" data-p="partidos"><svg class="i" viewBox="0 0 24 24"><use href="#ic-ball"/></svg>Partidos</a>
   <a href="#analisis" data-p="analisis"><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Análisis</a>
@@ -1108,7 +1128,7 @@ nav.bott{display:none}
 
 <script>
 "use strict";
-var VERSION="V65";
+var VERSION="V66";
 /* PIN: disuasión del lado del cliente (el código llega al navegador, no es seguridad real).
    Guardamos solo un hash del PIN y limitamos los intentos para frenar el tanteo casual. */
 function hpin(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);}return (h>>>0).toString(16);}
@@ -4485,7 +4505,7 @@ function mostrarUpd(v){
  if($("#updBar"))return;
  var d=document.createElement("div");
  d.className="updBar";d.id="updBar";
- d.innerHTML='<span class="tt">Hay una versión nueva desplegada: <b>'+esc(v)+'</b> (tienes '+VERSION+'). Datos más recientes disponibles.</span>'+
+ d.innerHTML='<span class="tt">Hay una <b>actualización disponible</b> con datos y mejoras más recientes.</span>'+
   '<button class="btn sm" onclick="location.reload()">Actualizar ahora</button>'+
   '<button class="btn ghost sm" onclick="this.parentNode.remove()">Luego</button>';
  document.body.appendChild(d);
