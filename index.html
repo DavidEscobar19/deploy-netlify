@@ -175,11 +175,30 @@ main{margin-left:224px;padding:54px 32px 100px;max-width:1240px}
 .plHero b{font-size:1.05rem;letter-spacing:-.01em}
 .plHero .sub{font-size:.76rem;color:var(--tx3);margin-top:3px}
 .plFor{font-size:.68rem;color:var(--vio2);background:rgba(124,92,255,.14);border:1px solid var(--vioD);padding:2px 8px;border-radius:20px;font-weight:600}
+/* ===== Inicio: pulso del torneo + interacción ===== */
+.pulso{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.pulso:empty{display:none}
+.pulso .px{position:relative;background:linear-gradient(160deg,rgba(124,92,255,.16),rgba(124,92,255,.03) 60%),var(--card);border:1px solid var(--border2);border-radius:14px;padding:12px 14px;overflow:hidden;cursor:pointer;transition:transform .15s,border-color .15s}
+.pulso .px:hover{transform:translateY(-2px);border-color:var(--vio)}
+.pulso .px::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(124,92,255,.16) 50%,transparent 70%);transform:translateX(-100%);animation:pxSweep 3.4s ease infinite;pointer-events:none}
+@keyframes pxSweep{55%,100%{transform:translateX(100%)}}
+.pulso .pv{font-size:1.32rem;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.pulso .pl{font-size:.64rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.08em;margin-top:2px}
+@media(max-width:700px){.pulso{grid-template-columns:repeat(2,1fr)}}
+.card{transition:transform .18s,box-shadow .18s,border-color .18s}
+.card:hover{border-color:var(--border2);box-shadow:0 14px 34px -20px rgba(124,92,255,.4)}
+.count div b{text-shadow:0 0 16px rgba(124,92,255,.55)}
+@media(prefers-reduced-motion:reduce){.pulso .px::after{animation:none}}
 /* ===== Alineaciones: campo estilo pizarra y fichas de jugador ===== */
 .campo{position:relative;width:100%;max-width:430px;margin:0 auto;aspect-ratio:68/100;
- background:linear-gradient(180deg,rgba(124,92,255,.07),rgba(124,92,255,.02) 50%,rgba(124,92,255,.07)),var(--bg2);
- border:1px solid var(--border2);border-radius:14px;overflow:hidden}
-.campo .lin{position:absolute;border:1px solid rgba(124,92,255,.20);pointer-events:none}
+ background:repeating-linear-gradient(180deg,rgba(255,255,255,.045) 0 10%,rgba(0,0,0,.06) 10% 20%),
+  radial-gradient(130% 80% at 50% -10%,rgba(255,255,255,.12),transparent 55%),
+  linear-gradient(180deg,#2f8047,#1e5c33 55%,#17492a);
+ border:1px solid rgba(255,255,255,.16);border-radius:14px;overflow:hidden;
+ box-shadow:inset 0 0 46px rgba(0,0,0,.38),0 10px 30px -14px rgba(0,0,0,.6)}
+.campo::before,.campo::after{content:"";position:absolute;left:50%;width:5px;height:5px;background:rgba(255,255,255,.5);border-radius:50%;transform:translateX(-50%);z-index:1}
+.campo::before{top:9.5%}.campo::after{bottom:9.5%}
+.campo .lin{position:absolute;border:1.5px solid rgba(255,255,255,.38);pointer-events:none}
 .campo .media{left:0;right:0;top:50%;height:0;border-width:1px 0 0}
 .campo .circ{left:50%;top:50%;width:24%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%}
 .campo .areaT{left:24%;right:24%;top:-1px;height:13%;border-top:none;border-radius:0 0 8px 8px}
@@ -643,6 +662,7 @@ nav.bott{display:none}
 
 <!-- ---------- INICIO ---------- -->
 <section class="page on" id="p-inicio">
+  <div class="pulso" id="pulsoHome"></div>
   <div class="grid g32">
     <div class="card hl" id="destCard"></div>
     <div class="card">
@@ -664,9 +684,15 @@ nav.bott{display:none}
     </div>
   </div>
   <div style="height:16px"></div>
-  <div class="card">
-    <h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-bell"/></svg>Avisos</h3>
-    <div class="feed" id="feedAvisos"></div>
+  <div class="grid g2">
+    <div class="card">
+      <h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-clock"/></svg>Últimos resultados<span class="tag">del feed</span></h3>
+      <div id="ultimosHome"></div>
+    </div>
+    <div class="card">
+      <h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-bell"/></svg>Avisos</h3>
+      <div class="feed" id="feedAvisos"></div>
+    </div>
   </div>
   <div class="adSlot" data-slot=""></div>
 </section>
@@ -1058,7 +1084,7 @@ nav.bott{display:none}
 
 <script>
 "use strict";
-var VERSION="V62";
+var VERSION="V63";
 /* PIN: disuasión del lado del cliente (el código llega al navegador, no es seguridad real).
    Guardamos solo un hash del PIN y limitamos los intentos para frenar el tanteo casual. */
 function hpin(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);}return (h>>>0).toString(16);}
@@ -1901,6 +1927,20 @@ function _pjChip(id,num,nombre,x,y,d,pickId,fnName){
  return '<button class="pj'+(pickId===id?" on":"")+'" style="left:'+x.toFixed(1)+'%;top:'+y.toFixed(1)+'%" onclick="'+fnName+'('+id+')" aria-label="Ver ficha de '+esc(nombre)+'">'+
   '<span class="bola">'+dentro+'</span>'+nota+'<span class="eti">'+esc(apellido)+'</span></button>';
 }
+/* XI probable a partir de datos reales: portero y 10 de campo con más minutos,
+   agrupados por su posición del proveedor. Devuelve null si no hay base (→ convocatoria). */
+function onceEstimado(lista){
+ if(!lista||lista.length<11)return null;
+ var gk=lista.filter(function(p){return p.pos==="Goalkeeper"&&p.min>0;}).sort(function(a,b){return b.min-a.min;})[0];
+ if(!gk)return null;
+ var campo=lista.filter(function(p){return p.pos!=="Goalkeeper"&&p.min>0;}).sort(function(a,b){return b.min-a.min;}).slice(0,10);
+ if(campo.length<10)return null;
+ var D=campo.filter(function(p){return p.pos==="Defender";}),
+     M=campo.filter(function(p){return p.pos==="Midfielder";}),
+     F=campo.filter(function(p){return p.pos==="Attacker";});
+ var rows=[[gk],D,M,F].filter(function(r){return r.length;});
+ return {rows:rows,f:[D.length,M.length,F.length].filter(function(n){return n>0;}).join("-")};
+}
 function campoHTML(d,pickId,fnName){
  var m=d.m,h="";
  /* casar cada bloque de lineups con local/visitante por nombre */
@@ -1935,8 +1975,29 @@ function campoHTML(d,pickId,fnName){
    });
   });
   h+='</div><div class="src" style="margin-top:10px;text-align:center">Once oficial confirmado por el proveedor. Suplentes y detalles en el careo del partido.</div>';
+ }else if(onceEstimado(d.tpH)&&onceEstimado(d.tpA)){
+  /* sin once oficial: XI PROBABLE derivado de datos reales (los de más minutos
+     por posición en el torneo). Etiquetado como estimación, nunca como oficial. */
+  var eH=onceEstimado(d.tpH),eA=onceEstimado(d.tpA);
+  h='<div class="campo">'+
+    '<div class="lin media"></div><div class="lin circ"></div><div class="lin areaT"></div><div class="lin areaB"></div>'+
+    '<span class="alineaEq" style="top:8px">'+esc(NOM[m.home])+' · probable '+eH.f+'</span>'+
+    '<span class="alineaEq" style="bottom:8px">'+esc(NOM[m.away])+' · probable '+eA.f+'</span>';
+  [[eH,true],[eA,false]].forEach(function(par){
+   var E=par[0],arriba=par[1],maxR=E.rows.length;
+   E.rows.forEach(function(fila,ri){
+    fila.forEach(function(p,ci){
+     var x=(ci+1)/(fila.length+1)*100;
+     var t=maxR>1?ri/(maxR-1):0;
+     var y=arriba?(7+t*36):(93-t*36);
+     if(!arriba)x=100-x;
+     h+=_pjChip(p.id,null,p.n,x,y,d,pickId,fnName);
+    });
+   });
+  });
+  h+='</div><div class="src" style="margin-top:10px;text-align:center"><b>Once probable estimado</b> con los minutos reales de cada jugador en el torneo — NO es el oficial (se publica ~1 h antes y sustituirá a este automáticamente).</div>';
  }else{
-  /* aún sin once oficial: convocatoria real por posiciones, sin inventar titulares */
+  /* sin datos suficientes: convocatoria real por posiciones, sin inventar titulares */
   function colTP(lista,titulo){
    var out='<div><div class="plHead" style="color:var(--vio2)">'+esc(titulo)+'</div>';
    var orden=["Goalkeeper","Defender","Midfielder","Attacker"];
@@ -2864,6 +2925,35 @@ function renderInicio(){
      '<span style="color:var(--tx3);width:14px">'+(i+1)+'</span><span>'+(FLAGS[g.eq]||"⚽")+'</span><span style="flex:1;font-weight:500">'+esc(g.n)+'</span><b class="vio">'+g.g+'</b></div>';
  });
  $("#botaHome").innerHTML=b;
+
+ /* Pulso del torneo: recuento real de la fase final (feed + curados) */
+ var pu=$("#pulsoHome");
+ if(pu){
+  var jug=0,gol=0,viv=0,prox=0;
+  todosPartidos().forEach(function(m){
+   var e=estadoPartido(m);
+   if(e.fin){jug++;var sc=String(e.score||"").match(/(\d+)\D+(\d+)/);if(sc)gol+=(+sc[1])+(+sc[2]);}
+   else if(e.live)viv++; else prox++;
+  });
+  pu.innerHTML=(jug+viv+prox)?(
+   '<div class="px" onclick="nav(\'partidos\')"><div class="pv">'+(viv?'<span style="color:#ff7b7b">'+viv+'</span>':prox)+'</div><div class="pl">'+(viv?'En juego ahora':'Por jugar')+'</div></div>'+
+   '<div class="px" onclick="nav(\'partidos\')"><div class="pv">'+jug+'</div><div class="pl">Jugados · fase final</div></div>'+
+   '<div class="px" onclick="nav(\'analisis\')"><div class="pv">'+gol+'</div><div class="pl">Goles (90′)</div></div>'+
+   '<div class="px" onclick="nav(\'analisis\')"><div class="pv">'+(jug?coma(gol/jug,1):"—")+'</div><div class="pl">Goles / partido</div></div>'
+  ):"";
+ }
+ /* Últimos resultados reales, el más reciente primero */
+ var ul=$("#ultimosHome");
+ if(ul){
+  var fin=[];
+  todosPartidos().forEach(function(m){var e=estadoPartido(m);if(e.fin&&e.score)fin.push({m:m,e:e});});
+  fin.sort(function(a,b){return b.m.ts-a.m.ts;});
+  ul.innerHTML=fin.slice(0,4).map(function(x){
+   return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(34,41,72,.5);font-size:.86rem;cursor:pointer" onclick="openMatch(\''+x.m.home+x.m.away+'\')">'+
+    '<span>'+FLAGS[x.m.home]+'</span><span style="flex:1;font-weight:500">'+esc(NOM[x.m.home])+' – '+esc(NOM[x.m.away])+' <span>'+FLAGS[x.m.away]+'</span></span>'+
+    '<b style="color:var(--vio2);font-variant-numeric:tabular-nums">'+esc(x.e.score)+'</b></div>';
+  }).join("")||'<div class="empty">Aún no hay resultados en esta ronda.</div>';
+ }
  renderFeeds();
 }
 function tickCd(){
