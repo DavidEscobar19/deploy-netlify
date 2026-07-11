@@ -196,8 +196,7 @@ h2.pageT{font-size:1.56rem;font-weight:800;background:linear-gradient(100deg,var
 .chip.g{box-shadow:0 0 14px -4px rgba(57,217,138,.4)}
 @media(prefers-reduced-motion:reduce){.vsRow .tm>div:first-child{animation:none}.vs{animation:none}.btn::after{display:none}}
 /* ===== Inicio: ticker, hero neón y stagger ===== */
-.ticker{position:relative;overflow:hidden;margin-bottom:14px;border:1px solid var(--border2);border-radius:12px;background:linear-gradient(90deg,rgba(124,92,255,.14),rgba(57,214,255,.07) 55%,rgba(124,92,255,.14)),var(--card);padding:8px 0;-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
-.ticker:empty{display:none}
+.ticker{position:relative;overflow:hidden;margin-bottom:14px;border:1px solid var(--border2);border-radius:12px;background:linear-gradient(90deg,rgba(124,92,255,.14),rgba(57,214,255,.07) 55%,rgba(124,92,255,.14)),var(--card);height:36px;display:flex;align-items:center;-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
 .ticker .tk{display:inline-flex;gap:38px;white-space:nowrap;padding-right:38px;animation:tkScroll 32s linear infinite;will-change:transform}
 .ticker .tk span{font-size:.8rem;color:var(--tx2)}
 .ticker .tk b{color:var(--tx)}
@@ -218,8 +217,9 @@ h2.pageT{font-size:1.56rem;font-weight:800;background:linear-gradient(100deg,var
 @media(prefers-reduced-motion:reduce){.ticker .tk{animation:none}#destCard::before{animation:none}#p-inicio .card{animation:none}}
 /* ===== Inicio: pulso del torneo + interacción ===== */
 .pulso{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
-.pulso:empty{display:none}
-.pulso .px{position:relative;background:linear-gradient(160deg,rgba(124,92,255,.16),rgba(124,92,255,.03) 60%),var(--card);border:1px solid var(--border2);border-radius:14px;padding:12px 14px;overflow:hidden;cursor:pointer;transition:transform .15s,border-color .15s}
+.pulso .px{position:relative;min-height:64px;background:linear-gradient(160deg,rgba(124,92,255,.16),rgba(124,92,255,.03) 60%),var(--card);border:1px solid var(--border2);border-radius:14px;padding:12px 14px;overflow:hidden;cursor:pointer;transition:transform .15s,border-color .15s}
+#proxHome:empty,#botaHome:empty,#ultimosHome:empty,#feedAvisos:empty{min-height:130px}
+#destAnalisis:empty{min-height:240px}
 .pulso .px:hover{transform:translateY(-2px);border-color:var(--vio)}
 .pulso .px::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(124,92,255,.16) 50%,transparent 70%);transform:translateX(-100%);animation:pxSweep 3.4s ease infinite;pointer-events:none}
 @keyframes pxSweep{55%,100%{transform:translateX(100%)}}
@@ -653,7 +653,7 @@ nav.bott{display:none}
 <div id="app">
 
 <nav class="side" aria-label="Navegación principal">
-  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip" style="display:none" aria-hidden="true">V66</span></div>
+  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip" style="display:none" aria-hidden="true">V67</span></div>
   <a href="#inicio" data-p="inicio" class="on"><svg class="i" viewBox="0 0 24 24"><use href="#ic-home"/></svg>Inicio</a>
   <a href="#partidos" data-p="partidos"><svg class="i" viewBox="0 0 24 24"><use href="#ic-ball"/></svg>Partidos</a>
   <a href="#analisis" data-p="analisis"><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Análisis</a>
@@ -703,8 +703,8 @@ nav.bott{display:none}
 
 <!-- ---------- INICIO ---------- -->
 <section class="page on" id="p-inicio">
-  <div class="ticker" id="tickerHome" aria-hidden="true"></div>
-  <div class="pulso" id="pulsoHome"></div>
+  <div class="ticker" id="tickerHome" aria-hidden="true"><div class="tk"><span>Cargando datos en vivo del torneo…</span></div></div>
+  <div class="pulso" id="pulsoHome"><div class="px"><div class="pv">–</div><div class="pl">Por jugar</div></div><div class="px"><div class="pv">–</div><div class="pl">Jugados</div></div><div class="px"><div class="pv">–</div><div class="pl">Goles</div></div><div class="px"><div class="pv">–</div><div class="pl">Goles / partido</div></div></div>
   <div class="grid g32">
     <div class="card hl" id="destCard"></div>
     <div class="card">
@@ -1128,7 +1128,7 @@ nav.bott{display:none}
 
 <script>
 "use strict";
-var VERSION="V66";
+var VERSION="V67";
 /* PIN: disuasión del lado del cliente (el código llega al navegador, no es seguridad real).
    Guardamos solo un hash del PIN y limitamos los intentos para frenar el tanteo casual. */
 function hpin(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);}return (h>>>0).toString(16);}
@@ -2996,12 +2996,12 @@ function renderInicio(){
    if(e.fin){jug++;var sc=String(e.score||"").match(/(\d+)\D+(\d+)/);if(sc)gol+=(+sc[1])+(+sc[2]);}
    else if(e.live)viv++; else prox++;
   });
-  pu.innerHTML=(jug+viv+prox)?(
+  /* si aún no hay datos se deja el esqueleto del HTML: así no hay saltos de diseño (CLS) */
+  if(jug+viv+prox)pu.innerHTML=
    '<div class="px" onclick="nav(\'partidos\')"><div class="pv">'+(viv?'<span style="color:#ff7b7b">'+viv+'</span>':prox)+'</div><div class="pl">'+(viv?'En juego ahora':'Por jugar')+'</div></div>'+
    '<div class="px" onclick="nav(\'partidos\')"><div class="pv">'+jug+'</div><div class="pl">Jugados · fase final</div></div>'+
    '<div class="px" onclick="nav(\'analisis\')"><div class="pv">'+gol+'</div><div class="pl">Goles (90′)</div></div>'+
-   '<div class="px" onclick="nav(\'analisis\')"><div class="pv">'+(jug?coma(gol/jug,1):"—")+'</div><div class="pl">Goles / partido</div></div>'
-  ):"";
+   '<div class="px" onclick="nav(\'analisis\')"><div class="pv">'+(jug?coma(gol/jug,1):"—")+'</div><div class="pl">Goles / partido</div></div>';
  }
  /* Últimos resultados reales, el más reciente primero */
  var ul=$("#ultimosHome");
@@ -4570,14 +4570,17 @@ function rebuildLegs(){
  ad("O45","U45");ad("O45","U15");ad("O45","U25");ad("O45","U35");ad("O15","O45");ad("O25","O45");ad("O35","O45");ad("U15","U45");ad("U25","U45");ad("U35","U45");
  ad("BS","BN");ad("BS","U15");ad("PAR","IMP");
  LEG_CONF=C;
+ LEG_CONFSET={};C.forEach(function(par){LEG_CONFSET[par[0]+"|"+par[1]]=1;LEG_CONFSET[par[1]+"|"+par[0]]=1;});
  if(typeof combiSel!=="undefined")combiSel=combiSel.filter(function(id){return legById(id);});
  var sub=document.querySelector('#p-combinadas .pageSub');
  if(sub)sub.textContent=NOM[ca]+" – "+NOM[cb]+" · "+legs.length+" mercados (cuotas reales + modelo) — el azar decide, los números no mienten";
  return LEGS;
 }
+var LEG_CONFSET={};
 function legConflicto(ids){
- for(var i=0;i<LEG_CONF.length;i++){
-  if(ids.indexOf(LEG_CONF[i][0])>-1&&ids.indexOf(LEG_CONF[i][1])>-1)return LEG_CONF[i];
+ /* pares indexados: O(pares del combo) en vez de recorrer toda la lista */
+ for(var i=0;i<ids.length;i++)for(var j=i+1;j<ids.length;j++){
+  if(LEG_CONFSET[ids[i]+"|"+ids[j]])return [ids[i],ids[j]];
  }
  return null;
 }
@@ -4589,6 +4592,9 @@ function combiCalc(ids){
 }
 function renderCombiTop(){
  var box=$("#combiTop"); if(!box)return;
+ /* perezoso: el cálculo de ~2.000 combinaciones solo se hace con la pestaña abierta
+    (en la carga inicial bloqueaba el hilo y penalizaba el TBT de Lighthouse) */
+ if(PAGINA!=="combinadas"){box.innerHTML='<div class="empty">Abriendo…</div>';return;}
  if(!LEGS.length){box.innerHTML='<div class="empty">Aún no hay cuotas publicadas para el próximo cruce. En cuanto el feed las traiga, aquí aparecerán las combinadas más probables.</div>';return;}
  /* todas las duplas y algunos tríos sin conflicto, ordenadas por prob conjunta */
  var combos=[];
