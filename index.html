@@ -633,7 +633,7 @@ nav.bott{display:none}
 <div id="app">
 
 <nav class="side" aria-label="Navegación principal">
-  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip">V61</span></div>
+  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip">V65</span></div>
   <a href="#inicio" data-p="inicio" class="on"><svg class="i" viewBox="0 0 24 24"><use href="#ic-home"/></svg>Inicio</a>
   <a href="#partidos" data-p="partidos"><svg class="i" viewBox="0 0 24 24"><use href="#ic-ball"/></svg>Partidos</a>
   <a href="#analisis" data-p="analisis"><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Análisis</a>
@@ -1108,7 +1108,7 @@ nav.bott{display:none}
 
 <script>
 "use strict";
-var VERSION="V64";
+var VERSION="V65";
 /* PIN: disuasión del lado del cliente (el código llega al navegador, no es seguridad real).
    Guardamos solo un hash del PIN y limitamos los intentos para frenar el tanteo casual. */
 function hpin(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);}return (h>>>0).toString(16);}
@@ -4476,7 +4476,8 @@ function checkNuevaVersion(){
  try{
   fetch(location.pathname+"?chk="+Date.now(),{cache:"no-store"}).then(function(r){return r.text()}).then(function(t){
    var m=t.match(/id="verChip">(V\d+)</);
-   if(m&&m[1]!==VERSION)mostrarUpd(m[1]);
+   /* solo si la remota es MAYOR: un CDN sirviendo HTML viejo no debe avisar en bucle */
+   if(m&&parseInt(m[1].slice(1),10)>parseInt(VERSION.slice(1),10))mostrarUpd(m[1]);
   }).catch(function(){});
  }catch(e){}
 }
