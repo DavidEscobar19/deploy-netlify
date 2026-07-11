@@ -44,7 +44,7 @@
 {"@type":"Organization","@id":"https://criteriofootball.es/#org","name":"Criterio","url":"https://criteriofootball.es/","image":"https://criteriofootball.es/logo-512.png","logo":{"@type":"ImageObject","url":"https://criteriofootball.es/logo-512.png","width":512,"height":512},"description":"Datos, estadísticas y análisis del Mundial 2026 para decidir apuestas con criterio. Herramienta informativa; no es una casa de apuestas."},
 {"@type":"WebSite","@id":"https://criteriofootball.es/#website","url":"https://criteriofootball.es/","name":"Criterio","inLanguage":"es-ES","publisher":{"@id":"https://criteriofootball.es/#org"}},
 {"@type":"WebPage","@id":"https://criteriofootball.es/#webpage","url":"https://criteriofootball.es/","name":"Criterio · Cuotas, estadísticas y análisis del Mundial 2026","description":"Cuotas reales, estadísticas, alineaciones, goleadores, probabilidades y cuadro del Mundial 2026 con datos verificados para apostar con criterio. Solo +18.","inLanguage":"es-ES","isPartOf":{"@id":"https://criteriofootball.es/#website"},"about":{"@id":"https://criteriofootball.es/#event"}},
-{"@type":"SportsEvent","@id":"https://criteriofootball.es/#event","name":"Copa Mundial de la FIFA 2026","sport":"Fútbol","startDate":"2026-06-11","endDate":"2026-07-19","eventStatus":"https://schema.org/EventScheduled","location":[{"@type":"Country","name":"Estados Unidos"},{"@type":"Country","name":"Canadá"},{"@type":"Country","name":"México"}]},
+{"@type":"SportsEvent","@id":"https://criteriofootball.es/#event","name":"Copa Mundial de la FIFA 2026","description":"La Copa Mundial de la FIFA 2026 se disputa del 11 de junio al 19 de julio de 2026 en Estados Unidos, Canadá y México, con 48 selecciones. Criterio reúne cuotas reales, estadísticas, alineaciones, goleadores y probabilidades de cada partido.","sport":"Fútbol","startDate":"2026-06-11","endDate":"2026-07-19","eventStatus":"https://schema.org/EventScheduled","eventAttendanceMode":"https://schema.org/OfflineEventAttendanceMode","image":["https://criteriofootball.es/og-cover.png"],"organizer":{"@type":"Organization","name":"FIFA","url":"https://www.fifa.com/"},"performer":[{"@type":"SportsTeam","name":"Estados Unidos"},{"@type":"SportsTeam","name":"Canadá"},{"@type":"SportsTeam","name":"México"}],"location":[{"@type":"Place","name":"Estados Unidos","address":{"@type":"PostalAddress","addressCountry":"US"}},{"@type":"Place","name":"Canadá","address":{"@type":"PostalAddress","addressCountry":"CA"}},{"@type":"Place","name":"México","address":{"@type":"PostalAddress","addressCountry":"MX"}}]},
 {"@type":"FAQPage","@id":"https://criteriofootball.es/#faq","mainEntity":[
 {"@type":"Question","name":"¿Qué es Criterio?","acceptedAnswer":{"@type":"Answer","text":"Criterio es una web gratuita de datos, cuotas reales, estadísticas y análisis de cada partido del Mundial 2026: alineaciones, goleadores, probabilidades de un modelo y el cuadro de eliminatorias para decidir tus apuestas con criterio."}},
 {"@type":"Question","name":"¿Criterio es una casa de apuestas?","acceptedAnswer":{"@type":"Answer","text":"No. Criterio es una herramienta informativa: no acepta apuestas, no gestiona dinero y no elige por ti. Solo muestra datos verificados y las probabilidades de un modelo; la decisión es siempre tuya."}},
@@ -689,6 +689,8 @@ nav.bott{display:none}
   <div class="pageSub">Todo sobre el próximo cruce a jugarse: histórico, forma, careo, modelo, mercados y datos — se actualiza solo</div>
   <div id="analisisHero"></div>
   <div style="height:16px"></div>
+  <div id="analisisAlinea"></div>
+  <div style="height:16px"></div>
   <div id="analisisBox"></div>
   <div class="adSlot" data-slot=""></div>
 </section>
@@ -1056,7 +1058,7 @@ nav.bott{display:none}
 
 <script>
 "use strict";
-var VERSION="V61";
+var VERSION="V62";
 /* PIN: disuasión del lado del cliente (el código llega al navegador, no es seguridad real).
    Guardamos solo un hash del PIN y limitamos los intentos para frenar el tanteo casual. */
 function hpin(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);}return (h>>>0).toString(16);}
@@ -1877,7 +1879,7 @@ function renderAlinea(){
  ]).then(function(r){
   if(req!==_onceReq||PAGINA!=="alineaciones")return;
   ALINEA.data={m:m,lu:(r[0]&&r[0].lineups)||[],tpH:(r[1]&&r[1].players)||[],tpA:(r[2]&&r[2].players)||[],inj:(r[3]&&r[3].injuries)||[]};
-  if(ALINEA.pick&&!_tpMap()[ALINEA.pick])ALINEA.pick=null;
+  if(ALINEA.pick&&!_tpMap(ALINEA.data)[ALINEA.pick])ALINEA.pick=null;
   _alineaPaint();
  }).catch(function(){
   if(req!==_onceReq)return;
@@ -1885,22 +1887,21 @@ function renderAlinea(){
  });
 }
 function alineaSel(i){ALINEA.sel=i;ALINEA.pick=null;renderAlinea();}
-function _tpMap(){
+function _tpMap(d){
  var mp={};
- if(!ALINEA.data)return mp;
- ALINEA.data.tpH.concat(ALINEA.data.tpA).forEach(function(p){mp[p.id]=p;});
+ if(!d)return mp;
+ (d.tpH||[]).concat(d.tpA||[]).forEach(function(p){mp[p.id]=p;});
  return mp;
 }
-function _pjChip(id,num,nombre,x,y){
- var tp=_tpMap()[id];
+function _pjChip(id,num,nombre,x,y,d,pickId,fnName){
+ var tp=_tpMap(d)[id];
  var dentro=tp&&tp.photo?'<img src="'+esc(tp.photo)+'" alt="" loading="lazy" referrerpolicy="no-referrer">':esc(num!=null?String(num):"–");
  var nota=(tp&&tp.rating)?'<span class="notaAvg">'+tp.rating.toFixed(1)+'</span>':"";
  var apellido=String(nombre||"").trim().split(" ").pop();
- return '<button class="pj'+(ALINEA.pick===id?" on":"")+'" style="left:'+x.toFixed(1)+'%;top:'+y.toFixed(1)+'%" onclick="alineaPick('+id+')" aria-label="Ver ficha de '+esc(nombre)+'">'+
+ return '<button class="pj'+(pickId===id?" on":"")+'" style="left:'+x.toFixed(1)+'%;top:'+y.toFixed(1)+'%" onclick="'+fnName+'('+id+')" aria-label="Ver ficha de '+esc(nombre)+'">'+
   '<span class="bola">'+dentro+'</span>'+nota+'<span class="eti">'+esc(apellido)+'</span></button>';
 }
-function _alineaPaint(){
- var d=ALINEA.data; if(!d)return;
+function campoHTML(d,pickId,fnName){
  var m=d.m,h="";
  /* casar cada bloque de lineups con local/visitante por nombre */
  var luH=null,luA=null;
@@ -1929,7 +1930,7 @@ function _alineaPaint(){
      var t=maxR>1?(r-1)/(maxR-1):0;
      var y=arriba?(7+t*36):(93-t*36);
      if(!arriba)x=100-x;
-     h+=_pjChip(p.id,p.number,p.name,x,y);
+     h+=_pjChip(p.id,p.number,p.name,x,y,d,pickId,fnName);
     });
    });
   });
@@ -1944,7 +1945,7 @@ function _alineaPaint(){
     if(!enPos.length)return;
     out+='<div class="plHead">'+esc(_POS[pos])+'</div>';
     enPos.forEach(function(p){
-     out+='<button class="plRow" onclick="alineaPick('+p.id+')" aria-label="Ver ficha de '+esc(p.n)+'">'+plFoto(p.photo)+
+     out+='<button class="plRow" onclick="'+fnName+'('+p.id+')" aria-label="Ver ficha de '+esc(p.n)+'">'+plFoto(p.photo)+
       '<span class="nm">'+esc(p.n)+'</span><span class="pos">'+p.min+"′"+(p.rating?" · "+p.rating.toFixed(1):"")+'</span></button>';
     });
    });
@@ -1953,9 +1954,10 @@ function _alineaPaint(){
   h='<div class="note" style="margin-bottom:12px">El <b>once oficial</b> se publica aproximadamente <b>una hora antes</b> del partido y aparecerá aquí solo, sobre el campo. Mientras, esta es la <b>convocatoria real</b> con los minutos de cada jugador en el torneo — no fabricamos un «once probable».</div>'+
     '<div class="plGrid">'+colTP(d.tpH,NOM[m.home])+colTP(d.tpA,NOM[m.away])+'</div>';
  }
- $("#alineaCampo").innerHTML=h;
- /* panel derecho por defecto: cómo funciona + bajas reales */
- if(ALINEA.pick){alineaPick(ALINEA.pick);return;}
+ return h;
+}
+/* panel derecho por defecto: cómo funciona + bajas reales del cruce */
+function infoDefaultHTML(d){
  var info='<h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Ficha y mercados del jugador</h3>'+
   '<div style="font-size:.86rem;color:var(--tx2);line-height:1.7">Pulsa cualquier jugador para ver sus números reales del Mundial y sus <b>mercados posibles</b>: la probabilidad que da el modelo a que remate, tire a puerta, marque, asista o vea tarjeta, proyectada sobre lo que ese jugador está haciendo de verdad en el torneo.</div>';
  if(d.inj.length){
@@ -1965,7 +1967,13 @@ function _alineaPaint(){
   });
  }
  info+='<div class="src">Fuente: API-Football. Probabilidades del modelo Poisson sobre datos reales — no son cuotas de casa ni garantizan nada.</div>';
- $("#alineaInfo").innerHTML=info;
+ return info;
+}
+function _alineaPaint(){
+ var d=ALINEA.data; if(!d)return;
+ $("#alineaCampo").innerHTML=campoHTML(d,ALINEA.pick,"alineaPick");
+ if(ALINEA.pick&&_tpMap(d)[ALINEA.pick]){$("#alineaInfo").innerHTML=fichaHTML(_tpMap(d)[ALINEA.pick]);return;}
+ $("#alineaInfo").innerHTML=infoDefaultHTML(d);
 }
 /* mercados posibles del jugador: Poisson sobre sus números reales por minuto,
    proyectado a los minutos que suele jugar. Sin minutos no hay estimación. */
@@ -1993,15 +2001,11 @@ function propJugador(p){
  });
  return {expMin:Math.round(expMin),rows:out};
 }
-function alineaPick(id){
- var p=_tpMap()[id]; if(!p)return;
- ALINEA.pick=id;
- /* re-marcar el seleccionado en el campo sin repintarlo entero */
- $$("#alineaCampo .pj").forEach(function(b){b.classList.toggle("on",b.getAttribute("onclick")==="alineaPick("+id+")");});
+function fichaHTML(p){
  var h='<div class="plHero">'+plFoto(p.photo)+'<div><b>'+esc(p.n)+'</b><div class="sub">'+esc(_POS[p.pos]||p.pos||"")+' · '+p.pj+' partidos · '+p.min+"′"+(p.rating?' · nota media <b style="color:var(--green)">'+p.rating.toFixed(2)+'</b>':"")+'</div></div></div>';
  if(!p.min){
-  h+='<div class="note">Sin minutos en este Mundial: no hay base real sobre la que estimar sus mercados, y no la inventamos. Puedes ver su ficha general pulsándolo en la pestaña «Alineaciones» del partido.</div>';
-  $("#alineaInfo").innerHTML=h; return;
+  h+='<div class="note">Sin minutos en este Mundial: no hay base real sobre la que estimar sus mercados, y no la inventamos.</div>';
+  return h;
  }
  h+='<div class="plHead">Sus números en el Mundial 2026</div>'+
   '<div class="kv"><span class="k">Goles / asistencias</span><span>'+p.g+' / '+p.a+'</span></div>'+
@@ -2019,7 +2023,106 @@ function alineaPick(id){
  }else{
   h+='<div class="note" style="margin-top:12px">Sin registros suficientes (remates, faltas, tarjetas) en el torneo para estimar mercados de este jugador. No los inventamos.</div>';
  }
- $("#alineaInfo").innerHTML=h;
+ return h;
+}
+function _pickPaint(campoSel,infoSel,d,id,fnName){
+ var p=_tpMap(d)[id]; if(!p)return;
+ $$(campoSel+" .pj").forEach(function(b){b.classList.toggle("on",b.getAttribute("onclick")===fnName+"("+id+")");});
+ var inf=$(infoSel); if(inf)inf.innerHTML=fichaHTML(p);
+}
+function alineaPick(id){ if(!ALINEA.data)return; ALINEA.pick=id; _pickPaint("#alineaCampo","#alineaInfo",ALINEA.data,id,"alineaPick"); }
+/* ===== Pizarra + destacados embebidos en «Análisis del partido» (cruce más próximo) ===== */
+var AN={pick:null,data:null,key:null,req:0};
+/* mejor «titular» de mercado de un jugador para el resumen de destacados */
+var _DEST_W={"Marca gol":{w:1.15,v:"marcar"},"Da una asistencia":{w:1.05,v:"dar una asistencia"},"1+ tiro a puerta":{w:1,v:"tirar a puerta"},"2+ tiros a puerta":{w:.85,v:"hacer 2+ tiros a puerta"},"2+ remates":{w:.9,v:"rematar 2+ veces"}};
+function _mejorInsight(rows){
+ var best=null;
+ rows.forEach(function(r){
+  var c=_DEST_W[r.t]; if(!c)return;
+  var sc=r.p*c.w;
+  if(!best||sc>best.sc)best={t:r.t,v:c.v,p:r.p,sc:sc};
+ });
+ if(!best)return null;
+ if(best.t==="Marca gol"){if(best.p<.16)return null;}else if(best.p<.30)return null;
+ return best;
+}
+function destacadosHTML(d){
+ var m=d.m,cand=[];
+ [[d.tpH,m.home],[d.tpA,m.away]].forEach(function(par){
+  (par[0]||[]).forEach(function(p){
+   var pr=propJugador(p); if(!pr)return;
+   var mej=_mejorInsight(pr.rows); if(!mej)return;
+   cand.push({eq:par[1],n:p.n,mej:mej});
+  });
+ });
+ if(!cand.length)return "";
+ cand.sort(function(a,b){return b.mej.sc-a.mej.sc;});
+ cand=cand.slice(0,6);
+ var h='<div class="plHead">Destacados del modelo <span style="color:var(--tx3)">· lo más probable de la pizarra</span></div>';
+ cand.forEach(function(c){
+  var pct=Math.round(Math.min(.97,c.mej.p)*100);
+  h+='<div style="display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid rgba(34,41,72,.4);font-size:.85rem">'+
+    '<span style="width:24px;text-align:center">'+(FLAGS[c.eq]||"")+'</span>'+
+    '<span style="flex:1;min-width:0"><b>'+esc(c.n)+'</b> <span style="color:var(--tx2)">puede '+esc(c.mej.v)+'</span></span>'+
+    '<b class="vio" style="font-variant-numeric:tabular-nums">'+pct+'%</b></div>';
+ });
+ return h;
+}
+function anInfoDefaultHTML(d){
+ var h='<h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-trophy"/></svg>Jugadores y mercados</h3>';
+ var dest=destacadosHTML(d);
+ if(dest)h+=dest+'<div style="height:6px"></div>';
+ h+='<div style="font-size:.84rem;color:var(--tx2);line-height:1.6">Pulsa cualquier jugador del campo para ver sus números reales del Mundial y todos sus <b>mercados posibles</b> (remate, tiro a puerta, gol, asistencia, tarjeta) según el modelo.</div>';
+ if(d.inj&&d.inj.length){
+  h+='<div class="plHead" style="margin-top:14px">Bajas confirmadas del cruce</div>';
+  d.inj.forEach(function(i2){
+   h+='<div class="kv"><span class="k">'+esc(i2.player.name)+' <span style="color:var(--tx3)">('+esc(i2.team.name)+')</span></span><span style="color:var(--red);font-size:.78rem">'+esc(i2.player.reason||i2.player.type||"Baja")+'</span></div>';
+  });
+ }
+ h+='<div class="src">Probabilidades del modelo Poisson sobre datos reales de API-Football. No son cuotas de casa ni garantizan nada; la titularidad y los minutos no están confirmados.</div>';
+ return h;
+}
+function _anAlinPaint(){
+ var d=AN.data; if(!d)return;
+ var c=$("#anAlinCampo"); if(c)c.innerHTML=campoHTML(d,AN.pick,"anAlinPick");
+ var inf=$("#anAlinInfo"); if(!inf)return;
+ if(AN.pick&&_tpMap(d)[AN.pick]){inf.innerHTML=fichaHTML(_tpMap(d)[AN.pick]);return;}
+ inf.innerHTML=anInfoDefaultHTML(d);
+}
+function anAlinPick(id){ if(!AN.data)return; AN.pick=id; _pickPaint("#anAlinCampo","#anAlinInfo",AN.data,id,"anAlinPick"); }
+function renderAnalisisAlinea(){
+ var box=$("#analisisAlinea"); if(!box)return;
+ var p=partidoDestacado(); if(!p){box.innerHTML="";return;}
+ var fx=afFixtureDe(p.home,p.away);
+ var fixtureId=p.fixtureId||(fx&&fx.id), homeId=p.homeId||(fx&&fx.home&&fx.home.id), awayId=p.awayId||(fx&&fx.away&&fx.away.id);
+ var key=p.home+"-"+p.away+"-"+(fixtureId||"");
+ if(!fixtureId||!homeId||!awayId){
+  if(AN.key!==key){AN.key=key;AN.data=null;AN.pick=null;
+   box.innerHTML='<div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-shield"/></svg>Alineación y jugadores<span class="tag">'+esc(NOM[p.home])+' – '+esc(NOM[p.away])+'</span></h3>'+
+    '<div class="note">La pizarra con la alineación y los mercados posibles de cada jugador aparece aquí en cuanto el proveedor enlaza este cruce con su ficha (normalmente al acercarse el partido).</div></div>';
+  }
+  return;
+ }
+ if(AN.key===key&&AN.data)return; /* ya cargado: conservamos la selección y evitamos parpadeo en el refresco */
+ AN.key=key; AN.pick=null; AN.data=null;
+ box.innerHTML='<div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-shield"/></svg>Alineación y jugadores<span class="tag">'+esc(NOM[p.home])+' – '+esc(NOM[p.away])+'</span></h3>'+
+  '<div class="pageSub" style="margin:0 0 12px">El once sobre el campo con los números reales del torneo — pulsa un jugador para ver sus mercados posibles</div>'+
+  '<div class="grid g2"><div class="card" style="padding:14px"><div id="anAlinCampo"><div style="max-width:430px;margin:0 auto">'+skPlantilla()+'</div></div></div>'+
+  '<div class="card" id="anAlinInfo"><div class="note">Cargando datos del cruce…</div></div></div></div>';
+ var req=++AN.req;
+ Promise.all([
+  afGet("a=lineups&fixture="+fixtureId),
+  afGet("a=teamplayers&team="+homeId),
+  afGet("a=teamplayers&team="+awayId),
+  afGet("a=injuries&fixture="+fixtureId)
+ ]).then(function(r){
+  if(req!==AN.req||PAGINA!=="analisis")return;
+  AN.data={m:{home:p.home,away:p.away,homeId:homeId,awayId:awayId,fixtureId:fixtureId},lu:(r[0]&&r[0].lineups)||[],tpH:(r[1]&&r[1].players)||[],tpA:(r[2]&&r[2].players)||[],inj:(r[3]&&r[3].injuries)||[]};
+  _anAlinPaint();
+ }).catch(function(){
+  if(req!==AN.req)return;
+  var c=$("#anAlinCampo"); if(c)c.innerHTML='<div class="note">No se han podido cargar los datos ahora mismo. Inténtalo en un momento.</div>';
+ });
 }
 /* ================= RENDER: INICIO ================= */
 var cdTimer=null, DEST=null;
@@ -3015,6 +3118,7 @@ function renderAnalisis(){
   '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm" onclick="nav(\'valor\')">Cuotas y combinadas</button><button class="btn ghost sm" onclick="openMatch(\''+ca+cb+'\')">Careo rápido</button></div>';
  var heroEl=$("#analisisHero"); if(heroEl)heroEl.innerHTML=hero;
  box.innerHTML=analisisCards(p,{full:true});
+ safe(renderAnalisisAlinea);
 }
 
 /* ================= RENDER: VALOR (previa + cuotas del destacado) ================= */
