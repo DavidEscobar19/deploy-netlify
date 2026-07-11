@@ -6,7 +6,7 @@
 <meta name="robots" content="index,follow">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="description" content="Cuotas reales, estadísticas, alineaciones, goleadores y análisis de cada partido del Mundial 2026. Probabilidades del modelo y cuadro de eliminatorias con datos verificados para apostar con criterio. Solo +18.">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://pagead2.googlesyndication.com https://*.googlesyndication.com https://*.googleadservices.com https://adservice.google.com https://www.gstatic.com https://fundingchoicesmessages.google.com https://*.google.com https://*.doubleclick.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://pagead2.googlesyndication.com https://*.googlesyndication.com https://www.gstatic.com https://*.google.com https://*.doubleclick.net; frame-src https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://fundingchoicesmessages.google.com https://*.doubleclick.net https://*.google.com https://*.googlesyndication.com; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://pagead2.googlesyndication.com https://*.googlesyndication.com https://*.googleadservices.com https://adservice.google.com https://www.gstatic.com https://fundingchoicesmessages.google.com https://*.google.com https://*.doubleclick.net https://*.adtrafficquality.google; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://pagead2.googlesyndication.com https://*.googlesyndication.com https://www.gstatic.com https://*.google.com https://*.doubleclick.net https://*.adtrafficquality.google; frame-src https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://fundingchoicesmessages.google.com https://*.doubleclick.net https://*.google.com https://*.googlesyndication.com https://*.adtrafficquality.google; object-src 'none'; base-uri 'none'; form-action 'self'; upgrade-insecure-requests">
 <title>Criterio · Cuotas, estadísticas y análisis del Mundial 2026</title>
 <link rel="canonical" href="https://criteriofootball.es/">
 <link rel="alternate" hreflang="es-ES" href="https://criteriofootball.es/">
@@ -585,7 +585,7 @@ nav.bott{display:none}
 <div id="app">
 
 <nav class="side" aria-label="Navegación principal">
-  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip">V59</span></div>
+  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip">V60</span></div>
   <a href="#inicio" data-p="inicio" class="on"><svg class="i" viewBox="0 0 24 24"><use href="#ic-home"/></svg>Inicio</a>
   <a href="#partidos" data-p="partidos"><svg class="i" viewBox="0 0 24 24"><use href="#ic-ball"/></svg>Partidos</a>
   <a href="#analisis" data-p="analisis"><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Análisis</a>
@@ -1047,7 +1047,7 @@ nav.bott{display:none}
 
 <script>
 "use strict";
-var VERSION="V59";
+var VERSION="V60";
 /* PIN: disuasión del lado del cliente (el código llega al navegador, no es seguridad real).
    Guardamos solo un hash del PIN y limitamos los intentos para frenar el tanteo casual. */
 function hpin(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);}return (h>>>0).toString(16);}
@@ -4376,24 +4376,26 @@ var booted=false;
 function initApp(){
  if(booted)return; booted=true;
  $("#verChip").textContent=VERSION;
+ /* Lo primero que ve un usuario nuevo es el modal de bienvenida (su LCP):
+    se pinta ANTES de cualquier render pesado. */
+ safe(initOnboarding);
  safe(initBeta);
  safe(initHelpTab);
- safe(mountAds);
+ /* Solo se renderiza YA la vista activa; el resto va en tandas cortas para no
+    bloquear el hilo principal (Total Blocking Time) en el arranque. */
  safe(renderInicio);
- safe(renderPartidos);
- safe(renderAnalisis);
- safe(renderValor);
- safe(renderCuadro);
- safe(renderAgenda);
- safe(renderAlertConf);
- safe(renderSim);
- safe(renderEV);
- safe(renderBank);
- safe(renderBets);
- safe(renderBreakeven);
- safe(rebuildLegs);
- safe(renderCombiTop);
- safe(renderCombiLegs);
+ var h0=(location.hash||"#inicio").slice(1);
+ if(h0!=="inicio"&&$("#p-"+h0))safe(function(){nav(h0);});
+ [[mountAds],
+  [renderPartidos,renderAnalisis],
+  [renderValor,renderCuadro],
+  [renderAgenda,renderAlertConf],
+  [renderSim,renderEV,renderBank],
+  [renderBets,renderBreakeven],
+  [rebuildLegs,renderCombiTop,renderCombiLegs]
+ ].forEach(function(tanda,i){
+  setTimeout(function(){tanda.forEach(function(f){safe(f);});},40*(i+1));
+ });
  setInterval(tickRefresco,UPD_TICK_MS);
  setInterval(checkNuevaVersion,UPD_CHECK_MS);
  setTimeout(checkNuevaVersion,5000);
@@ -4410,9 +4412,6 @@ function initApp(){
  if(liveTimer)clearInterval(liveTimer); liveTimer=setInterval(function(){fetchLive();fetchFootball();},10*60*1000);
  var _d0=partidoDestacado();
  pushMsg("Hola. Los resultados y las cuotas se actualizan solos desde el feed en vivo. El siguiente cruce del calendario es "+NOM[_d0.home]+" – "+NOM[_d0.away]+" ("+_d0.dt+"). Pregúntame por córners, tarjetas, jugadores o tu balance, pulsa cualquier partido para ver su careo, y mira «Datos y cuotas» para las cuotas reales al minuto del próximo partido.","b");
- var h=(location.hash||"#inicio").slice(1);
- if($("#p-"+h))nav(h);
- safe(initOnboarding);
 }
 </script>
 
