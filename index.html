@@ -175,6 +175,27 @@ main{margin-left:224px;padding:54px 32px 100px;max-width:1240px}
 .plHero b{font-size:1.05rem;letter-spacing:-.01em}
 .plHero .sub{font-size:.76rem;color:var(--tx3);margin-top:3px}
 .plFor{font-size:.68rem;color:var(--vio2);background:rgba(124,92,255,.14);border:1px solid var(--vioD);padding:2px 8px;border-radius:20px;font-weight:600}
+/* ===== Inicio: ticker, hero neón y stagger ===== */
+.ticker{position:relative;overflow:hidden;margin-bottom:14px;border:1px solid var(--border2);border-radius:12px;background:linear-gradient(90deg,rgba(124,92,255,.14),rgba(57,214,255,.07) 55%,rgba(124,92,255,.14)),var(--card);padding:8px 0;-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
+.ticker:empty{display:none}
+.ticker .tk{display:inline-flex;gap:38px;white-space:nowrap;padding-right:38px;animation:tkScroll 32s linear infinite;will-change:transform}
+.ticker .tk span{font-size:.8rem;color:var(--tx2)}
+.ticker .tk b{color:var(--tx)}
+.ticker .tk .sep{color:var(--vio2);font-weight:800}
+@keyframes tkScroll{to{transform:translateX(-50%)}}
+.ticker:hover .tk{animation-play-state:paused}
+#destCard{position:relative;overflow:hidden}
+#destCard::before{content:"";position:absolute;inset:-60%;background:conic-gradient(from 0deg,transparent 0 70%,rgba(124,92,255,.5) 82%,rgba(57,214,255,.4) 90%,transparent 96%);animation:spinB 7s linear infinite;pointer-events:none;opacity:.5}
+#destCard::after{content:"";position:absolute;inset:1px;background:var(--panel);border-radius:inherit;pointer-events:none;z-index:0}
+#destCard>*{position:relative;z-index:1}
+@keyframes spinB{to{transform:rotate(360deg)}}
+#p-inicio .card{animation:fadeUp .5s ease both}
+#p-inicio .grid>.card:nth-child(2){animation-delay:.08s}
+#p-inicio>.grid:nth-of-type(2) .card{animation-delay:.12s}
+.pulso .pv{background:linear-gradient(120deg,#cfc4ff,#8f7bff 55%,#39d6ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.bet .pbar{display:inline-block;width:64px;height:6px;border-radius:4px;background:var(--bg2);border:1px solid var(--border);overflow:hidden;vertical-align:middle}
+.bet .pbar i{display:block;height:100%;background:linear-gradient(90deg,var(--vio),#39d6ff);transition:width .3s}
+@media(prefers-reduced-motion:reduce){.ticker .tk{animation:none}#destCard::before{animation:none}#p-inicio .card{animation:none}}
 /* ===== Inicio: pulso del torneo + interacción ===== */
 .pulso{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
 .pulso:empty{display:none}
@@ -662,6 +683,7 @@ nav.bott{display:none}
 
 <!-- ---------- INICIO ---------- -->
 <section class="page on" id="p-inicio">
+  <div class="ticker" id="tickerHome" aria-hidden="true"></div>
   <div class="pulso" id="pulsoHome"></div>
   <div class="grid g32">
     <div class="card hl" id="destCard"></div>
@@ -853,6 +875,8 @@ nav.bott{display:none}
 <section class="page" id="p-apuestas">
   <h2 class="pageT">Mis apuestas</h2>
   <div class="pageSub">Simples y combinadas — toca cada selección para marcarla: pendiente, acierto, fallo</div>
+  <div class="card hl" id="betsResumen" style="display:none"></div>
+  <div style="height:16px"></div>
   <div class="card">
     <h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-list"/></svg>Nueva apuesta</h3>
     <label class="fl">Partido</label>
@@ -1084,7 +1108,7 @@ nav.bott{display:none}
 
 <script>
 "use strict";
-var VERSION="V63";
+var VERSION="V64";
 /* PIN: disuasión del lado del cliente (el código llega al navegador, no es seguridad real).
    Guardamos solo un hash del PIN y limitamos los intentos para frenar el tanteo casual. */
 function hpin(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);}return (h>>>0).toString(16);}
@@ -2926,6 +2950,23 @@ function renderInicio(){
  });
  $("#botaHome").innerHTML=b;
 
+ /* Ticker: datos reales rotando (partido, cuotas, bota, racha del día) */
+ var tk=$("#tickerHome");
+ if(tk){
+  var its=[];
+  its.push("⚽ <b>"+esc(NOM[p.home])+" – "+esc(NOM[p.away])+"</b> · "+esc(p.dt));
+  var otk=oddsPara(p.home,p.away);
+  if(otk&&otk.h2h){
+   var fav=otk.h2h.home<=otk.h2h.away?{n:NOM[p.home],c:otk.h2h.home}:{n:NOM[p.away],c:otk.h2h.away};
+   its.push("💰 Favorito del mercado: <b>"+esc(fav.n)+"</b> a cuota <b>"+coma(fav.c,2)+"</b>");
+   if(otk.tot)its.push("🥅 Línea de goles <b>"+coma(otk.tot.punto,1)+"</b>: más "+coma(otk.tot.over,2)+" · menos "+coma(otk.tot.under,2));
+  }
+  var lb=TOPS?{n:TOPS[0].n,g:TOPS[0].g}:{n:GOLEADORES[0].n.split(" — ")[0],g:GOLEADORES[0].g};
+  its.push("👑 Bota de Oro: <b>"+esc(lb.n)+"</b> con <b>"+lb.g+"</b> goles");
+  its.push("📊 "+esc(RACHAS[new Date().getDate()%RACHAS.length]));
+  var one=its.map(function(x){return "<span>"+x+"</span>";}).join('<span class="sep">·</span>');
+  tk.innerHTML='<div class="tk">'+one+'<span class="sep">·</span>'+one+'</div>';
+ }
  /* Pulso del torneo: recuento real de la fase final (feed + curados) */
  var pu=$("#pulsoHome");
  if(pu){
@@ -3688,6 +3729,41 @@ function delBet(i){
 var filtBets="todas";
 function renderBets(){
  var bets=getBets(),h="";
+ /* Resumen visual: KPIs + evolución del balance (solo apuestas resueltas) */
+ var rz=$("#betsResumen");
+ if(rz){
+  var st=betStats(),roi=st.staked>0?st.balance/st.staked*100:0;
+  var hit=(st.ganadas+st.perdidas)>0?st.ganadas/(st.ganadas+st.perdidas)*100:0;
+  var pts=[],bal=0;
+  bets.forEach(function(b){
+   if(b.result==="ganada"){bal+=b.importe*(b.cuota-1);pts.push(bal);}
+   else if(b.result==="perdida"){bal-=b.importe;pts.push(bal);}
+  });
+  if(!bets.length){rz.style.display="none";}
+  else{
+   rz.style.display="";
+   var spark="";
+   if(pts.length>=2){
+    var mn=Math.min(0,Math.min.apply(null,pts)),mx=Math.max(0,Math.max.apply(null,pts)),rg=(mx-mn)||1;
+    var W=560,H=54;
+    var xy=pts.map(function(v,i){return (i/(pts.length-1)*W).toFixed(1)+","+((1-(v-mn)/rg)*(H-6)+3).toFixed(1);});
+    var y0=((1-(0-mn)/rg)*(H-6)+3).toFixed(1);
+    spark='<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:54px;display:block;margin-top:10px" preserveAspectRatio="none" aria-hidden="true">'+
+     '<line x1="0" y1="'+y0+'" x2="'+W+'" y2="'+y0+'" stroke="rgba(255,255,255,.14)" stroke-dasharray="4 4"/>'+
+     '<polyline points="'+xy.join(" ")+'" fill="none" stroke="'+(bal>=0?"#39d98a":"#ff6b6b")+'" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>'+
+     '</svg><div style="font-size:.68rem;color:var(--tx3);margin-top:3px">Evolución de tu balance, apuesta a apuesta (resueltas)</div>';
+   }
+   var rd=rachaDerrotas();
+   rz.innerHTML='<h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Tu rendimiento<span class="tag">'+st.total+' apuestas</span></h3>'+
+    '<div style="display:flex;gap:22px;flex-wrap:wrap">'+
+    '<div><div class="kpi '+(st.balance>=0?"pos":"neg")+'">'+(st.balance>=0?"+":"")+eur(st.balance)+'</div><div class="kLb">Balance</div></div>'+
+    '<div><div class="kpi small '+(roi>=0?"pos":"neg")+'">'+roi.toFixed(1).replace(".",",")+'%</div><div class="kLb">ROI</div></div>'+
+    '<div><div class="kpi small">'+hit.toFixed(0)+'%</div><div class="kLb">Acierto</div></div>'+
+    '<div><div class="kpi small">'+st.abiertas+'</div><div class="kLb">Abiertas</div></div>'+
+    '</div>'+spark+
+    (rd>=2?'<div class="note" style="margin-top:10px">Llevas <b>'+rd+' perdidas seguidas</b>. Estadísticamente es normal; subir el stake para «recuperar» es lo único que lo empeora.</div>':"");
+  }
+ }
  bets.slice().reverse().forEach(function(b){
   var i=bets.indexOf(b);
   var st=b.result||"pendiente";
@@ -3703,7 +3779,8 @@ function renderBets(){
     sels+='<div class="sel '+cls+'" onclick="toggleSel('+i+','+j+')"><span class="st">'+mk+'</span><span>'+esc(s.t)+'</span></div>';
    });
    sels+='</div>';
-   chip+=' <span class="chip v">Combinada · '+ok+'/'+b.sel.length+'</span>';
+   chip+=' <span class="chip v">Combinada · '+ok+'/'+b.sel.length+'</span>'+
+    '<span class="pbar" aria-hidden="true"><i style="width:'+(ok/b.sel.length*100).toFixed(0)+'%"></i></span>';
   }
   var resBtns='';
   if(!b.sel){
@@ -4449,6 +4526,17 @@ function rebuildLegs(){
  /* Ambos marcan — modelo */
  legs.push({id:"BS",t:"Ambos marcan — Sí",c:fair(m.btts),grp:"btts"});
  legs.push({id:"BN",t:"Ambos marcan — No",c:fair(1-m.btts),grp:"btts"});
+ /* Más goles (4,5) — Poisson sobre el total esperado */
+ var p45=0;for(var k5=0;k5<5;k5++)p45+=_poisP(k5,m.L);
+ legs.push({id:"O45",t:"Más de 4,5 goles",c:fair(1-p45),grp:"gol"});
+ legs.push({id:"U45",t:"Menos de 4,5 goles",c:fair(p45),grp:"gol"});
+ /* Cada equipo marca — Poisson sobre sus goles esperados */
+ legs.push({id:"GH",t:NOM[ca]+" marca",c:fair(1-Math.exp(-m.lh)),grp:"tg"});
+ legs.push({id:"GA",t:NOM[cb]+" marca",c:fair(1-Math.exp(-m.la)),grp:"tg"});
+ /* Par/Impar de goles — Poisson sobre el total */
+ var pPar=0;for(var k6=0;k6<=10;k6+=2)pPar+=_poisP(k6,m.L);
+ legs.push({id:"PAR",t:"Goles totales: par",c:fair(pPar),grp:"par"});
+ legs.push({id:"IMP",t:"Goles totales: impar",c:fair(1-pPar),grp:"par"});
  LEGS=legs;
  /* conflictos: contradicciones + líneas O/U incompatibles + una sola por grupo */
  var C=[];function ad(a,b){C.push([a,b]);}
@@ -4458,7 +4546,8 @@ function rebuildLegs(){
  ad("O15","O25");ad("O15","O35");ad("O25","O35");
  ad("U15","U25");ad("U15","U35");ad("U25","U35");
  ad("O15","U15");ad("O25","U15");ad("O25","U25");ad("O35","U15");ad("O35","U25");ad("O35","U35");
- ad("BS","BN");
+ ad("O45","U45");ad("O45","U15");ad("O45","U25");ad("O45","U35");ad("O15","O45");ad("O25","O45");ad("O35","O45");ad("U15","U45");ad("U25","U45");ad("U35","U45");
+ ad("BS","BN");ad("BS","U15");ad("PAR","IMP");
  LEG_CONF=C;
  if(typeof combiSel!=="undefined")combiSel=combiSel.filter(function(id){return legById(id);});
  var sub=document.querySelector('#p-combinadas .pageSub');
@@ -4492,10 +4581,17 @@ function renderCombiTop(){
   if(legConflicto(ids3))continue;
   combos.push(ids3);
  }
+ /* cuartetos: solo sobre las 12 patas más probables, para acotar el cálculo */
+ var top12=LEGS.slice().sort(function(x,y){return x.c-y.c;}).slice(0,12);
+ for(var q1=0;q1<top12.length;q1++)for(var q2=q1+1;q2<top12.length;q2++)for(var q3=q2+1;q3<top12.length;q3++)for(var q4=q3+1;q4<top12.length;q4++){
+  var ids4=[top12[q1].id,top12[q2].id,top12[q3].id,top12[q4].id];
+  if(legConflicto(ids4))continue;
+  combos.push(ids4);
+ }
  combos=combos.map(function(ids){var r=combiCalc(ids);return{ids:ids,cuota:r.cuota,prob:r.prob}});
  combos.sort(function(x,y){return y.prob-x.prob});
- var top=combos.slice(0,6);
- var h="";
+ var top=combos.slice(0,COMBI_MORE?24:8);
+ var h='<div style="font-size:.78rem;color:var(--tx3);margin-bottom:4px">'+combos.length+' combinaciones compatibles generadas (duplas, tríos y cuartetos) sobre '+LEGS.length+' mercados — estas son las de mayor probabilidad conjunta:</div>';
  top.forEach(function(cb,idx){
   var corr=cb.ids.filter(function(id){return legById(id).grp==="gol"}).length>1||
            (cb.ids.some(function(id){return legById(id).grp==="res"})&&cb.ids.some(function(id){return legById(id).grp==="cla"}));
@@ -4509,8 +4605,10 @@ function renderCombiTop(){
    '<div style="font-size:.85rem;color:var(--tx2)">'+cb.ids.map(function(id){return esc(legById(id).t)}).join('<span style="color:var(--vio2);font-weight:700"> + </span>')+'</div>'+
    '</div>';
  });
+ h+='<div style="margin-top:12px"><button class="btn ghost sm" onclick="COMBI_MORE=!COMBI_MORE;renderCombiTop()">'+(COMBI_MORE?"Mostrar menos":"Mostrar más combinadas (24)")+'</button></div>';
  box.innerHTML=h;
 }
+var COMBI_MORE=false;
 var combiSel=[];
 function cargarCombi(idsStr){
  combiSel=idsStr.split(",");
@@ -4527,7 +4625,7 @@ function renderCombiLegs(){
  var box=$("#combiLegs"); if(!box)return;
  if(!LEGS.length){box.innerHTML='<div class="empty">Sin cuotas publicadas todavía para el próximo cruce.</div>';var o0=$("#combiOut");if(o0)o0.innerHTML="";return;}
  var h="";
- var grupos=[["res","Resultado"],["dc","Doble oportunidad"],["gol","Goles"],["btts","Ambos marcan"]];
+ var grupos=[["res","Resultado"],["dc","Doble oportunidad"],["gol","Goles"],["btts","Ambos marcan"],["tg","Equipo marca"],["par","Par / Impar"]];
  grupos.forEach(function(gr){
   var enG=LEGS.filter(function(l){return l.grp===gr[0];});
   if(!enG.length)return;
