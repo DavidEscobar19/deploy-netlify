@@ -20,7 +20,7 @@ const SEASON = 2026;
 // Caché en memoria del contenedor caliente. Cada acción con su propio TTL:
 // una plantilla no cambia en todo el torneo; una alineación sí.
 const TTL = { live: 15 * 60e3, lineups: 60e3, squad: 24 * 3600e3, player: 12 * 3600e3, injuries: 30 * 60e3, topscorers: 30 * 60e3,
-              fixstats: 6 * 3600e3, events: 6 * 3600e3, fixplayers: 6 * 3600e3, h2h: 24 * 3600e3, teamstats: 6 * 3600e3 };
+              fixstats: 6 * 3600e3, events: 6 * 3600e3, fixplayers: 6 * 3600e3, h2h: 24 * 3600e3, teamstats: 6 * 3600e3, teamplayers: 6 * 3600e3 };
 const LIVE_ST = { "1H":1, "2H":1, "HT":1, "ET":1, "BT":1, "P":1, "LIVE":1, "INT":1 };
 const cache = new Map();
 
@@ -145,6 +145,30 @@ exports.handler = async function (event) {
                    y: (s.cards && s.cards.yellow) || 0, r: (s.cards && s.cards.red) || 0 };
         })
       })) };
+    } else if (a === "teamplayers") {
+      // Estadísticas de TODOS los jugadores de un equipo en el Mundial (paginado).
+      // Base de los «mercados posibles» por jugador: solo minutos reales del torneo.
+      const players = [];
+      for (let page = 1; page <= 4; page++) {
+        const r = await fetch(`${BASE}/players?team=${encodeURIComponent(q.team)}&season=${SEASON}&page=${page}`,
+                              { headers: { "x-apisports-key": key } });
+        if (!r.ok) break;
+        const j = await r.json();
+        (j.response || []).forEach((x) => {
+          // solo los números del Mundial (league 1); amistosos fuera
+          const s = (x.statistics || []).find((st) => st.league && st.league.id === LEAGUE);
+          players.push({ id: x.player.id, n: x.player.name, photo: x.player.photo,
+            pos: s && s.games ? s.games.position : null,
+            min: (s && s.games && s.games.minutes) || 0, pj: (s && s.games && s.games.appearences) || 0,
+            rating: s && s.games && s.games.rating ? parseFloat(s.games.rating) : null,
+            g: (s && s.goals && s.goals.total) || 0, a: (s && s.goals && s.goals.assists) || 0,
+            sh: (s && s.shots && s.shots.total) || 0, sot: (s && s.shots && s.shots.on) || 0,
+            fc: (s && s.fouls && s.fouls.committed) || 0,
+            y: (s && s.cards && s.cards.yellow) || 0, r: (s && s.cards && s.cards.red) || 0 });
+        });
+        if (!j.paging || j.paging.current >= j.paging.total) break;
+      }
+      payload = { ok: true, players };
     } else if (a === "h2h") {
       // Cara a cara real entre dos equipos (por id), todos los torneos
       const r = await af(`/fixtures/headtohead?h2h=${encodeURIComponent(q.t1)}-${encodeURIComponent(q.t2)}&last=12`, key);

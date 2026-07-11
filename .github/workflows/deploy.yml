@@ -18,6 +18,10 @@ jobs:
         with:
           node-version: 20
 
+      - name: Fecha del sitemap al día
+        run: |
+          sed -i "s|<lastmod>.*</lastmod>|<lastmod>$(date -u +%F)</lastmod>|" sitemap.xml
+
       - name: Deploy to Netlify (prod)
         run: |
           npx --yes netlify-cli@26 deploy --prod --dir=. --message "Deploy ${GITHUB_SHA}"
