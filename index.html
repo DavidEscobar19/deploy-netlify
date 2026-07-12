@@ -657,7 +657,7 @@ nav.bott{display:none}
 <div id="app">
 
 <nav class="side" aria-label="Navegación principal">
-  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip" style="display:none" aria-hidden="true">V68</span></div>
+  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip" style="display:none" aria-hidden="true">V69</span></div>
   <a href="#inicio" data-p="inicio" class="on"><svg class="i" viewBox="0 0 24 24"><use href="#ic-home"/></svg>Inicio</a>
   <a href="#partidos" data-p="partidos"><svg class="i" viewBox="0 0 24 24"><use href="#ic-ball"/></svg>Partidos</a>
   <a href="#analisis" data-p="analisis"><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Análisis</a>
@@ -1143,7 +1143,7 @@ nav.bott{display:none}
 
 <script>
 "use strict";
-var VERSION="V68";
+var VERSION="V69";
 /* PIN: disuasión del lado del cliente (el código llega al navegador, no es seguridad real).
    Guardamos solo un hash del PIN y limitamos los intentos para frenar el tanteo casual. */
 function hpin(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);}return (h>>>0).toString(16);}
@@ -1600,9 +1600,18 @@ function statRow(n,va,vb,hiA,hiB){
    en memoria para no gastar peticiones de más. Si un dato no existe todavía
    (p. ej. el once oficial, que se publica ~1 h antes), lo decimos: no lo inventamos. */
 var AF_CACHE={},_onceReq=0;
+/* caducidad del caché del NAVEGADOR por tipo de dato: lo que cambia alrededor del
+   partido (once oficial, bajas, stats en vivo) caduca rápido; las plantillas, no.
+   Antes era permanente y el once oficial nunca aparecía si mirabas antes de la hora. */
+var AF_TTL={lineups:60e3,injuries:5*60e3,fixstats:2*60e3,events:2*60e3,fixplayers:5*60e3,topscorers:10*60e3,h2h:6*3600e3,teamstats:3600e3,teamplayers:3600e3,squad:6*3600e3,player:6*3600e3};
 function afGet(qs){
- if(AF_CACHE[qs])return Promise.resolve(AF_CACHE[qs]);
- return fetch(AF_URL+"?"+qs).then(function(r){return r.json();}).then(function(j){AF_CACHE[qs]=j;return j;});
+ var hit=AF_CACHE[qs];
+ if(hit&&hit.exp>Date.now())return Promise.resolve(hit.val);
+ return fetch(AF_URL+"?"+qs).then(function(r){return r.json();}).then(function(j){
+  var a=(qs.match(/a=([a-z]+)/)||[])[1];
+  AF_CACHE[qs]={val:j,exp:Date.now()+(AF_TTL[a]||10*60e3)};
+  return j;
+ });
 }
 /* pinta el cuerpo del modal y re-dispara la animación de entrada */
 function mBodySet(h){
@@ -1953,8 +1962,13 @@ function renderAlinea(){
   return '<button class="'+(i===ALINEA.sel?"on":"")+'" onclick="alineaSel('+i+')">'+esc(NOM[m.home]+" – "+NOM[m.away])+'<span style="opacity:.65"> · '+esc(m.dt.split("·")[1]||"")+'</span></button>';
  }).join("");
  var m=ps[ALINEA.sel];
- $("#alineaCampo").innerHTML='<div style="max-width:430px;margin:0 auto">'+skPlantilla()+'</div>';
- $("#alineaInfo").innerHTML='<div class="note">Cargando datos del cruce…</div>';
+ /* esqueleto solo la primera vez o al cambiar de cruce; en revalidaciones se
+    mantiene lo pintado y el once oficial sustituye al probable sin parpadeo */
+ var mismoA=ALINEA.data&&ALINEA.data.m&&ALINEA.data.m.fixtureId===m.fixtureId;
+ if(!mismoA){
+  $("#alineaCampo").innerHTML='<div style="max-width:430px;margin:0 auto">'+skPlantilla()+'</div>';
+  $("#alineaInfo").innerHTML='<div class="note">Cargando datos del cruce…</div>';
+ }
  var req=++_onceReq;
  Promise.all([
   afGet("a=lineups&fixture="+m.fixtureId),
@@ -1967,7 +1981,7 @@ function renderAlinea(){
   if(ALINEA.pick&&!_tpMap(ALINEA.data)[ALINEA.pick])ALINEA.pick=null;
   _alineaPaint();
  }).catch(function(){
-  if(req!==_onceReq)return;
+  if(req!==_onceReq||mismoA)return; /* con datos en pantalla, un fallo de red no los borra */
   $("#alineaCampo").innerHTML='<div class="note">No se han podido cargar los datos ahora mismo. Inténtalo en un momento.</div>';
  });
 }
@@ -2223,12 +2237,19 @@ function renderAnalisisAlinea(){
   }
   return;
  }
- if(AN.key===key&&AN.data)return; /* ya cargado: conservamos la selección y evitamos parpadeo en el refresco */
- AN.key=key; AN.pick=null; AN.data=null;
- box.innerHTML='<div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-shield"/></svg>Alineación y jugadores<span class="tag">'+esc(NOM[p.home])+' – '+esc(NOM[p.away])+'</span></h3>'+
-  '<div class="pageSub" style="margin:0 0 12px">El once sobre el campo con los números reales del torneo — pulsa un jugador para ver sus mercados posibles</div>'+
-  '<div class="grid g2"><div class="card" style="padding:14px"><div id="anAlinCampo"><div style="max-width:430px;margin:0 auto">'+skPlantilla()+'</div></div></div>'+
-  '<div class="card" id="anAlinInfo"><div class="note">Cargando datos del cruce…</div></div></div></div>';
+ /* mismo cruce ya cargado: si hay once oficial es definitivo; si no, se
+    revalida cada 60 s SIN repintar el esqueleto (así el once aparece solo) */
+ var mismo=(AN.key===key&&AN.data);
+ var oficial=mismo&&AN.data.lu.length>=2&&(AN.data.lu[0].startXI||[]).length;
+ if(mismo&&(oficial||Date.now()-(AN.ts||0)<60e3))return;
+ if(!mismo){
+  AN.pick=null; AN.data=null;
+  box.innerHTML='<div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-shield"/></svg>Alineación y jugadores<span class="tag">'+esc(NOM[p.home])+' – '+esc(NOM[p.away])+'</span></h3>'+
+   '<div class="pageSub" style="margin:0 0 12px">El once sobre el campo con los números reales del torneo — pulsa un jugador para ver sus mercados posibles</div>'+
+   '<div class="grid g2"><div class="card" style="padding:14px"><div id="anAlinCampo"><div style="max-width:430px;margin:0 auto">'+skPlantilla()+'</div></div></div>'+
+   '<div class="card" id="anAlinInfo"><div class="note">Cargando datos del cruce…</div></div></div></div>';
+ }
+ AN.key=key;
  var req=++AN.req;
  Promise.all([
   afGet("a=lineups&fixture="+fixtureId),
@@ -2237,10 +2258,11 @@ function renderAnalisisAlinea(){
   afGet("a=injuries&fixture="+fixtureId)
  ]).then(function(r){
   if(req!==AN.req||PAGINA!=="analisis")return;
+  AN.ts=Date.now();
   AN.data={m:{home:p.home,away:p.away,homeId:homeId,awayId:awayId,fixtureId:fixtureId},lu:(r[0]&&r[0].lineups)||[],tpH:(r[1]&&r[1].players)||[],tpA:(r[2]&&r[2].players)||[],inj:(r[3]&&r[3].injuries)||[]};
   _anAlinPaint();
  }).catch(function(){
-  if(req!==AN.req)return;
+  if(req!==AN.req||AN.data)return; /* con datos previos en pantalla no se machaca la vista */
   var c=$("#anAlinCampo"); if(c)c.innerHTML='<div class="note">No se han podido cargar los datos ahora mismo. Inténtalo en un momento.</div>';
  });
 }
@@ -2537,9 +2559,33 @@ function afProximos(){
  });
  return out;
 }
+/* Partidos YA JUGADOS de la fase final según el feed (para «Finalizados»):
+   los cruces que no estaban en los curados desaparecían de la lista al terminar. */
+function afJugados(){
+ if(!AFX)return [];
+ var out=[];
+ AFX.forEach(function(f){
+  if(!FIN_ST[f.status])return;
+  var h=nombreACodigo(f.home&&f.home.name),a=nombreACodigo(f.away&&f.away.name);
+  if(!h||!a)return;
+  var ts=Date.parse(f.date); if(!ts)return;
+  out.push({home:h,away:a,ts:ts,dt:fmtDt(ts),ronda:f.ronda||rondaDe(ts),sede:f.venue||null,
+            fixtureId:f.id,homeId:f.home.id,awayId:f.away.id,referee:f.referee||null,
+            prob:probDeMercado(oddsPara(h,a)),probSrc:"mercado"});
+ });
+ return out;
+}
 function todosPartidos(){
  var af=afProximos();
- return _curados().concat((af&&af.length)?af:fbProximos());
+ var base=_curados().concat((af&&af.length)?af:fbProximos());
+ /* añade los jugados del feed que no estén ya (curados cubren solo octavos/cuartos previstos) */
+ afJugados().forEach(function(j){
+  for(var i=0;i<base.length;i++){
+   if((base[i].home===j.home&&base[i].away===j.away)||(base[i].home===j.away&&base[i].away===j.home))return;
+  }
+  base.push(j);
+ });
+ return base;
 }
 function agendaOrden(){return todosPartidos().slice().sort(function(a,b){return a.ts-b.ts;});}
 
