@@ -200,9 +200,9 @@ h2.pageT{font-size:1.56rem;font-weight:800;background:linear-gradient(100deg,var
 #p-inicio .legalTxt a{cursor:pointer}
 @media(prefers-reduced-motion:reduce){.vsRow .tm>div:first-child{animation:none}.vs{animation:none}.btn::after{display:none}}
 /* ===== Inicio: ticker, hero neón y stagger ===== */
-.ticker{position:relative;overflow:hidden;margin-bottom:14px;border:1px solid var(--border2);border-radius:12px;background:linear-gradient(90deg,rgba(124,92,255,.14),rgba(57,214,255,.07) 55%,rgba(124,92,255,.14)),var(--card);height:36px;display:flex;align-items:center;-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
+.ticker{position:relative;overflow:hidden;margin-bottom:14px;border:1px solid var(--border2);border-radius:12px;background:linear-gradient(90deg,rgba(124,92,255,.14),rgba(57,214,255,.07) 55%,rgba(124,92,255,.14)),var(--card);height:46px;display:flex;align-items:center;-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
 .ticker .tk{display:inline-flex;gap:38px;white-space:nowrap;padding-right:38px;animation:tkScroll 32s linear infinite;will-change:transform}
-.ticker .tk span{font-size:.8rem;color:var(--tx2)}
+.ticker .tk span{font-size:.9rem;color:var(--tx2)}
 .ticker .tk b{color:var(--tx)}
 .ticker .tk .sep{color:var(--vio2);font-weight:800}
 @keyframes tkScroll{to{transform:translateX(-50%)}}
@@ -215,25 +215,14 @@ h2.pageT{font-size:1.56rem;font-weight:800;background:linear-gradient(100deg,var
 #p-inicio .card{animation:fadeUp .5s ease both}
 #p-inicio .grid>.card:nth-child(2){animation-delay:.08s}
 #p-inicio>.grid:nth-of-type(2) .card{animation-delay:.12s}
-.pulso .pv{background:linear-gradient(120deg,#cfc4ff,#8f7bff 55%,#39d6ff);-webkit-background-clip:text;background-clip:text;color:transparent}
 .bet .pbar{display:inline-block;width:64px;height:6px;border-radius:4px;background:var(--bg2);border:1px solid var(--border);overflow:hidden;vertical-align:middle}
 .bet .pbar i{display:block;height:100%;background:linear-gradient(90deg,var(--vio),#39d6ff);transition:width .3s}
 @media(prefers-reduced-motion:reduce){.ticker .tk{animation:none}#destCard::before{animation:none}#p-inicio .card{animation:none}}
-/* ===== Inicio: pulso del torneo + interacción ===== */
-.pulso{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
-.pulso .px{position:relative;min-height:64px;background:linear-gradient(160deg,rgba(124,92,255,.16),rgba(124,92,255,.03) 60%),var(--card);border:1px solid var(--border2);border-radius:14px;padding:12px 14px;overflow:hidden;cursor:pointer;transition:transform .15s,border-color .15s}
 #proxHome:empty,#botaHome:empty,#ultimosHome:empty,#feedAvisos:empty{min-height:130px}
 #destAnalisis:empty{min-height:240px}
-.pulso .px:hover{transform:translateY(-2px);border-color:var(--vio)}
-.pulso .px::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(124,92,255,.16) 50%,transparent 70%);transform:translateX(-100%);animation:pxSweep 3.4s ease infinite;pointer-events:none}
-@keyframes pxSweep{55%,100%{transform:translateX(100%)}}
-.pulso .pv{font-size:1.32rem;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
-.pulso .pl{font-size:.64rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.08em;margin-top:2px}
-@media(max-width:700px){.pulso{grid-template-columns:repeat(2,1fr)}}
 .card{transition:transform .18s,box-shadow .18s,border-color .18s}
 .card:hover{border-color:var(--border2);box-shadow:0 14px 34px -20px rgba(124,92,255,.4)}
 .count div b{text-shadow:0 0 16px rgba(124,92,255,.55)}
-@media(prefers-reduced-motion:reduce){.pulso .px::after{animation:none}}
 /* ===== Alineaciones: campo estilo pizarra y fichas de jugador ===== */
 .campo{position:relative;width:100%;max-width:430px;margin:0 auto;aspect-ratio:68/100;
  background:repeating-linear-gradient(180deg,rgba(255,255,255,.045) 0 10%,rgba(0,0,0,.06) 10% 20%),
@@ -544,9 +533,9 @@ svg text{font-family:inherit}
 .gLock{display:inline-flex;align-items:center;gap:6px;font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--vio2);background:rgba(124,92,255,.1);border:1px solid var(--vioD);border-radius:20px;padding:5px 13px;margin-top:16px}
 .gFoot{font-size:.66rem;color:var(--tx3);margin-top:16px}
 /* saldo flotante (sustituye a la antigua barra superior) */
-.saldoFloat{position:fixed;top:16px;right:24px;z-index:70;display:inline-flex;align-items:center;gap:9px;background:linear-gradient(180deg,rgba(255,255,255,.05),transparent),var(--card);border:1px solid var(--border2);border-radius:22px;padding:8px 16px;box-shadow:0 12px 30px -12px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.08);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
-.saldoFloat .lb{font-size:.58rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.09em;font-weight:600}
-.saldoFloat .v{font-size:1rem;font-weight:750;color:#fff;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.saldoFloat{position:fixed;top:16px;right:24px;z-index:70;display:inline-flex;align-items:center;gap:9px;background:linear-gradient(180deg,rgba(255,255,255,.05),transparent),var(--card);border:1px solid var(--border2);border-radius:20px;padding:6px 13px;box-shadow:0 12px 30px -12px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.08);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.saldoFloat .lb{font-size:.54rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.09em;font-weight:600}
+.saldoFloat .v{font-size:.88rem;font-weight:750;color:#fff;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
 .card{box-shadow:0 1px 0 rgba(255,255,255,.02) inset}
 .card.hl{box-shadow:0 0 0 1px rgba(124,92,255,.14),0 14px 40px -18px rgba(124,92,255,.25)}
 .match:hover{box-shadow:0 12px 32px -16px rgba(0,0,0,.6)}
@@ -593,8 +582,8 @@ nav.bott{display:none}
   .chatWrap{height:480px}
   .topbar{align-items:flex-start;min-width:0}
   .topbar .hi span{overflow:hidden}
-  .saldoFloat{top:12px;right:12px;padding:7px 13px}
-  .saldoFloat .v{font-size:.94rem}
+  .saldoFloat{top:12px;right:12px;padding:5px 11px}
+  .saldoFloat .v{font-size:.84rem}
 }
 
 /* ---- V21: toasts, revisión de apuesta, efectos ---- */
@@ -657,7 +646,7 @@ nav.bott{display:none}
 <div id="app">
 
 <nav class="side" aria-label="Navegación principal">
-  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip" style="display:none" aria-hidden="true">V70</span></div>
+  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip" style="display:none" aria-hidden="true">V71</span></div>
   <a href="#p-inicio" data-p="inicio" class="on"><svg class="i" viewBox="0 0 24 24"><use href="#ic-home"/></svg>Inicio</a>
   <a href="#p-partidos" data-p="partidos"><svg class="i" viewBox="0 0 24 24"><use href="#ic-ball"/></svg>Partidos</a>
   <a href="#p-analisis" data-p="analisis"><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Análisis</a>
@@ -709,7 +698,6 @@ nav.bott{display:none}
 <section class="page on" id="p-inicio">
   <h2 class="srOnly">Inicio — resumen de hoy del Mundial 2026</h2>
   <div class="ticker" id="tickerHome" aria-hidden="true"><div class="tk"><span>Cargando datos en vivo del torneo…</span></div></div>
-  <div class="pulso" id="pulsoHome"><div class="px"><div class="pv">–</div><div class="pl">Por jugar</div></div><div class="px"><div class="pv">–</div><div class="pl">Jugados</div></div><div class="px"><div class="pv">–</div><div class="pl">Goles</div></div><div class="px"><div class="pv">–</div><div class="pl">Goles / partido</div></div></div>
   <div class="grid g32">
     <div class="card hl" id="destCard"></div>
     <div class="card">
@@ -1144,7 +1132,7 @@ nav.bott{display:none}
 
 <script>
 "use strict";
-var VERSION="V70";
+var VERSION="V71";
 /* PIN: disuasión del lado del cliente (el código llega al navegador, no es seguridad real).
    Guardamos solo un hash del PIN y limitamos los intentos para frenar el tanteo casual. */
 function hpin(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);}return (h>>>0).toString(16);}
@@ -3048,22 +3036,6 @@ function renderInicio(){
   its.push("📊 "+esc(RACHAS[new Date().getDate()%RACHAS.length]));
   var one=its.map(function(x){return "<span>"+x+"</span>";}).join('<span class="sep">·</span>');
   tk.innerHTML='<div class="tk">'+one+'<span class="sep">·</span>'+one+'</div>';
- }
- /* Pulso del torneo: recuento real de la fase final (feed + curados) */
- var pu=$("#pulsoHome");
- if(pu){
-  var jug=0,gol=0,viv=0,prox=0;
-  todosPartidos().forEach(function(m){
-   var e=estadoPartido(m);
-   if(e.fin){jug++;var sc=String(e.score||"").match(/(\d+)\D+(\d+)/);if(sc)gol+=(+sc[1])+(+sc[2]);}
-   else if(e.live)viv++; else prox++;
-  });
-  /* si aún no hay datos se deja el esqueleto del HTML: así no hay saltos de diseño (CLS) */
-  if(jug+viv+prox)pu.innerHTML=
-   '<div class="px" onclick="nav(\'partidos\')"><div class="pv">'+(viv?'<span style="color:#ff7b7b">'+viv+'</span>':prox)+'</div><div class="pl">'+(viv?'En juego ahora':'Por jugar')+'</div></div>'+
-   '<div class="px" onclick="nav(\'partidos\')"><div class="pv">'+jug+'</div><div class="pl">Jugados · fase final</div></div>'+
-   '<div class="px" onclick="nav(\'analisis\')"><div class="pv">'+gol+'</div><div class="pl">Goles (90′)</div></div>'+
-   '<div class="px" onclick="nav(\'analisis\')"><div class="pv">'+(jug?coma(gol/jug,1):"—")+'</div><div class="pl">Goles / partido</div></div>';
  }
  /* Últimos resultados reales, el más reciente primero */
  var ul=$("#ultimosHome");
