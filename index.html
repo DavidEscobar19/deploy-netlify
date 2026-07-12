@@ -136,7 +136,7 @@ nav.side a.on{background:linear-gradient(90deg,rgba(124,92,255,.18),rgba(124,92,
 nav.side a.on::before{content:"";position:absolute;left:-12px;top:8px;bottom:8px;width:3px;border-radius:3px;background:var(--vio)}
 nav.side .sep{font-size:.62rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.1em;padding:16px 12px 8px}
 .sFoot{margin-top:auto;padding:14px 10px 4px;font-size:.68rem;color:var(--tx3);line-height:1.6;border-top:1px solid var(--border)}
-main{margin-left:224px;padding:54px 32px 100px;max-width:1240px}
+main{margin-left:max(224px,calc((100vw - 1240px + 224px)/2));padding:54px 32px 100px;max-width:1240px}
 
 /* topbar */
 .topbar{display:flex;align-items:center;gap:16px;margin-bottom:24px;animation:fadeUp .4s ease}
@@ -646,7 +646,7 @@ nav.bott{display:none}
 <div id="app">
 
 <nav class="side" aria-label="Navegación principal">
-  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip" style="display:none" aria-hidden="true">V71</span></div>
+  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip" style="display:none" aria-hidden="true">V72</span></div>
   <a href="#p-inicio" data-p="inicio" class="on"><svg class="i" viewBox="0 0 24 24"><use href="#ic-home"/></svg>Inicio</a>
   <a href="#p-partidos" data-p="partidos"><svg class="i" viewBox="0 0 24 24"><use href="#ic-ball"/></svg>Partidos</a>
   <a href="#p-analisis" data-p="analisis"><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Análisis</a>
@@ -1132,7 +1132,7 @@ nav.bott{display:none}
 
 <script>
 "use strict";
-var VERSION="V71";
+var VERSION="V72";
 /* PIN: disuasión del lado del cliente (el código llega al navegador, no es seguridad real).
    Guardamos solo un hash del PIN y limitamos los intentos para frenar el tanteo casual. */
 function hpin(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);}return (h>>>0).toString(16);}
