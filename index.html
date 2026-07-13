@@ -646,7 +646,7 @@ nav.bott{display:none}
 <div id="app">
 
 <nav class="side" aria-label="Navegación principal">
-  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip" style="display:none" aria-hidden="true">V72</span></div>
+  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip" style="display:none" aria-hidden="true">V73</span></div>
   <a href="#p-inicio" data-p="inicio" class="on"><svg class="i" viewBox="0 0 24 24"><use href="#ic-home"/></svg>Inicio</a>
   <a href="#p-partidos" data-p="partidos"><svg class="i" viewBox="0 0 24 24"><use href="#ic-ball"/></svg>Partidos</a>
   <a href="#p-analisis" data-p="analisis"><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Análisis</a>
@@ -1132,7 +1132,7 @@ nav.bott{display:none}
 
 <script>
 "use strict";
-var VERSION="V72";
+var VERSION="V73";
 /* PIN: disuasión del lado del cliente (el código llega al navegador, no es seguridad real).
    Guardamos solo un hash del PIN y limitamos los intentos para frenar el tanteo casual. */
 function hpin(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);}return (h>>>0).toString(16);}
@@ -2720,6 +2720,79 @@ function mercadosDe(p,od,m){
  })});
  return G;
 }
+/* ===== Mercados por categoría (pestañas Popular/Partido/Goles/Córners/Tarjetas) =====
+   Córners y tarjetas: proyección Poisson sobre las medias reales por partido
+   (mismas medias que «Proyección de córners y tarjetas»); no existe cuota oficial
+   verificable de estos mercados, así que solo se muestra la probabilidad del modelo. */
+var MKT_TAB="pop";
+function mktTab(t){MKT_TAB=t;if(PAGINA==="analisis")safe(renderAnalisis);else safe(renderInicio);}
+function mktCatsHTML(p,od,m,sa,sb){
+ if(!m)return "";
+ var G=mercadosDe(p,od,m);
+ function pAtL(l,k){var a=0;for(var i=0;i<k;i++)a+=_poisP(i,l);return 1-a;}
+ function mk(t,pr){pr=Math.max(0,Math.min(1,pr));return {t:t,prob:pr,fair:pr>0?1/pr:null,real:null};}
+ var hayCT=!!(sa&&sb),corA=0,corB=0,corT=0,tarA=0,tarB=0,tarT=0;
+ if(hayCT){
+  corA=(media(sa.cf)+media(sb.cc))/2; corB=(media(sb.cf)+media(sa.cc))/2; corT=corA+corB;
+  tarA=media(sa.am); tarB=media(sb.am); tarT=tarA+tarB;
+ }
+ /* P(A>B) con dos Poisson independientes (quién saca más córners / ve más tarjetas) */
+ function pMas(lA,lB){
+  var win=0,draw=0;
+  for(var i=0;i<=15;i++)for(var j=0;j<=15;j++){
+   var q=_poisP(i,lA)*_poisP(j,lB);
+   if(i>j)win+=q; else if(i===j)draw+=q;
+  }
+  return {win:win,draw:draw};
+ }
+ var cats={};
+ cats.partido=[G[0],G[1]];
+ cats.goles=[G[2],G[3],G[4]];
+ if(hayCT){
+  var co={titulo:"Córners totales · proyección del modelo",items:[]};
+  [7.5,8.5,9.5,10.5].forEach(function(L){
+   co.items.push(mk("Más de "+coma(L,1)+" córners",pAtL(corT,Math.ceil(L))));
+   co.items.push(mk("Menos de "+coma(L,1)+" córners",1-pAtL(corT,Math.ceil(L))));
+  });
+  var duel=pMas(corA,corB);
+  var coE={titulo:"Córners por equipo (esp. "+coma(corA,1)+" – "+coma(corB,1)+")",items:[
+   mk(NOM[p.home]+" — más de 3,5 córners",pAtL(corA,4)),
+   mk(NOM[p.home]+" — más de 4,5 córners",pAtL(corA,5)),
+   mk(NOM[p.away]+" — más de 3,5 córners",pAtL(corB,4)),
+   mk(NOM[p.away]+" — más de 4,5 córners",pAtL(corB,5)),
+   mk("Más córners: "+NOM[p.home],duel.win),
+   mk("Más córners: "+NOM[p.away],1-duel.win-duel.draw),
+   mk("Empate a córners",duel.draw)
+  ]};
+  cats.corners=[co,coE];
+  var ta={titulo:"Tarjetas amarillas totales · proyección",items:[]};
+  [2.5,3.5,4.5,5.5].forEach(function(L){
+   ta.items.push(mk("Más de "+coma(L,1)+" tarjetas",pAtL(tarT,Math.ceil(L))));
+   ta.items.push(mk("Menos de "+coma(L,1)+" tarjetas",1-pAtL(tarT,Math.ceil(L))));
+  });
+  var duelT=pMas(tarA,tarB);
+  var taE={titulo:"Tarjetas por equipo (esp. "+coma(tarA,1)+" – "+coma(tarB,1)+")",items:[
+   mk(NOM[p.home]+" — más de 1,5 tarjetas",pAtL(tarA,2)),
+   mk(NOM[p.away]+" — más de 1,5 tarjetas",pAtL(tarB,2)),
+   mk("Más tarjetas: "+NOM[p.home],duelT.win),
+   mk("Más tarjetas: "+NOM[p.away],1-duelT.win-duelT.draw)
+  ]};
+  cats.tarjetas=[ta,taE];
+ }
+ cats.pop=[{titulo:"Lo más consultado",items:
+  [G[0].items[0],G[0].items[1],G[0].items[2],G[2].items[2],G[2].items[3],G[3].items[0]]
+  .concat(hayCT?[mk("Más de 8,5 córners",pAtL(corT,9)),mk("Más de 3,5 tarjetas",pAtL(tarT,4))]:[])}];
+ var defs=[["pop","Popular"],["partido","Partido"],["goles","Goles"]].concat(hayCT?[["corners","Córners"],["tarjetas","Tarjetas"]]:[]);
+ if(!cats[MKT_TAB])MKT_TAB="pop";
+ var h='<div class="tabs" style="margin:2px 0 12px">'+defs.map(function(d2){
+  return '<button class="'+(MKT_TAB===d2[0]?"on":"")+'" onclick="mktTab(\''+d2[0]+'\')">'+d2[1]+'</button>';
+ }).join("")+'</div>';
+ h+=mercadosHTML(cats[MKT_TAB]);
+ h+='<div class="src">'+((MKT_TAB==="corners"||MKT_TAB==="tarjetas")
+  ?'Proyección Poisson sobre las medias reales por partido de ambos equipos (córners a favor y concedidos, amarillas — SportRadar). Sin cuota oficial verificable: la «justa» es 1÷probabilidad, orientativa. Muestra pequeña en eliminatorias.'
+  :'Probabilidades del modelo; donde el feed publica cuota real, se muestra. La «justa» es 1÷probabilidad, sin margen.')+'</div>';
+ return h;
+}
 /* HTML de la lista de mercados: nombre · barra de prob · % · cuota (real o justa) */
 function mercadosHTML(G){
  var h="";
@@ -2889,10 +2962,9 @@ function analisisCards(p,opt){
  m.scores.slice(0,5).forEach(function(sc){h+='<div class="o" style="min-width:74px"><div class="l">'+esc(ca)+' '+sc.h+'–'+sc.a+' '+esc(cb)+'</div><div class="v">'+coma(sc.p*100,0)+'%</div></div>';});
  h+='</div><div class="src">Goles esperados y marcadores de un modelo Poisson anclado a la línea real del mercado y al 1X2 del modelo.</div></div>';
 
- /* Todos los mercados con probabilidades */
- var G=mercadosDe(p,od,m),nMkt=G.reduce(function(a,g){return a+g.items.length;},0);
- h+=sep()+'<div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-list"/></svg>Mercados y probabilidades<span class="tag">'+nMkt+' mercados</span></h3>'+mercadosHTML(G)+
-  '<div class="src">Compara la «cuota justa» del modelo con la de tu casa. Cuotas en directo completas en «Datos y cuotas».</div></div>';
+ /* Todos los mercados con probabilidades, organizados por categorías (pestañas) */
+ h+=sep()+'<div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-list"/></svg>Mercados y probabilidades<span class="tag">por categorías</span></h3>'+
+  mktCatsHTML(p,od,m,sa,sb)+'</div>';
 
  /* Jugadores a seguir */
  var jug=[];
