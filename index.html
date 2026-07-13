@@ -2745,44 +2745,147 @@ function mktCatsHTML(p,od,m,sa,sb){
   }
   return {win:win,draw:draw};
  }
+ /* matriz conjunta de marcadores del modelo (local × visitante) para mercados derivados */
+ var MX=[],_i,_j;
+ for(_i=0;_i<=10;_i++){MX[_i]=[];for(_j=0;_j<=10;_j++)MX[_i][_j]=_poisP(_i,m.lh)*_poisP(_j,m.la);}
+ function pSi(f){var s=0;for(var a=0;a<=10;a++)for(var b=0;b<=10;b++)if(f(a,b))s+=MX[a][b];return s;}
+ function pPar(l){var s=0;for(var k=0;k<=30;k+=2)s+=_poisP(k,l);return s;}
+ var nA=NOM[p.home],nB=NOM[p.away],dnb=m.pw+m.pl,p00=_poisP(0,m.L);
  var cats={};
- cats.partido=[G[0],G[1]];
- cats.goles=[G[2],G[3],G[4]];
+ cats.partido=[G[0],G[1],
+  {titulo:"Empate anula la apuesta (DNB)",items:[
+   mk(nA+" — empate anula",m.pw/dnb),
+   mk(nB+" — empate anula",m.pl/dnb)]},
+  {titulo:"Hándicap de goles",items:[
+   mk(nA+" −1,5 (gana por 2 o más)",pSi(function(a,b){return a-b>=2;})),
+   mk(nA+" +1,5 (no pierde por 2 o más)",pSi(function(a,b){return b-a<2;})),
+   mk(nB+" −1,5 (gana por 2 o más)",pSi(function(a,b){return b-a>=2;})),
+   mk(nB+" +1,5 (no pierde por 2 o más)",pSi(function(a,b){return a-b<2;}))]},
+  {titulo:"Margen de victoria",items:[
+   mk(nA+" gana por 1 gol",pSi(function(a,b){return a-b===1;})),
+   mk(nA+" gana por 2 goles",pSi(function(a,b){return a-b===2;})),
+   mk(nA+" gana por 3 o más",pSi(function(a,b){return a-b>=3;})),
+   mk("Empate (cualquier marcador)",m.pd),
+   mk(nB+" gana por 1 gol",pSi(function(a,b){return b-a===1;})),
+   mk(nB+" gana por 2 goles",pSi(function(a,b){return b-a===2;})),
+   mk(nB+" gana por 3 o más",pSi(function(a,b){return b-a>=3;}))]},
+  {titulo:"Gana sin recibir gol",items:[
+   mk(nA+" gana a cero",pSi(function(a,b){return a>b&&b===0;})),
+   mk(nB+" gana a cero",pSi(function(a,b){return b>a&&a===0;}))]}
+ ];
+ cats.goles=[G[2],
+  {titulo:"Más líneas de goles",items:[
+   mk("Más de 0,5 (hay goles)",1-p00),
+   mk("Menos de 0,5 (0–0)",p00),
+   mk("Más de 4,5",pAtL(m.L,5)),
+   mk("Menos de 4,5",1-pAtL(m.L,5)),
+   mk("Más de 5,5",pAtL(m.L,6)),
+   mk("Menos de 5,5",1-pAtL(m.L,6))]},
+  {titulo:"Goles exactos en el partido",items:[
+   mk("0 goles",_poisP(0,m.L)),mk("1 gol",_poisP(1,m.L)),mk("2 goles",_poisP(2,m.L)),
+   mk("3 goles",_poisP(3,m.L)),mk("4 goles",_poisP(4,m.L)),mk("5 goles o más",pAtL(m.L,5))]},
+  {titulo:"Par / Impar de goles",items:[
+   mk("Par (el 0 cuenta como par)",pPar(m.L)),
+   mk("Impar",1-pPar(m.L))]},
+  {titulo:"Primer gol del partido",items:[
+   mk("Marca primero "+nA,(m.lh/m.L)*(1-p00)),
+   mk("Marca primero "+nB,(m.la/m.L)*(1-p00)),
+   mk("Sin goles (0–0)",p00)]},
+  G[3],
+  {titulo:"Goles de "+nA+" (esperados: "+coma(m.lh,2)+")",items:[
+   mk(nA+" — más de 0,5",pAtL(m.lh,1)),
+   mk(nA+" — más de 1,5",pAtL(m.lh,2)),
+   mk(nA+" — más de 2,5",pAtL(m.lh,3)),
+   mk(nA+" — no marca",_poisP(0,m.lh))]},
+  {titulo:"Goles de "+nB+" (esperados: "+coma(m.la,2)+")",items:[
+   mk(nB+" — más de 0,5",pAtL(m.la,1)),
+   mk(nB+" — más de 1,5",pAtL(m.la,2)),
+   mk(nB+" — más de 2,5",pAtL(m.la,3)),
+   mk(nB+" — no marca",_poisP(0,m.la))]},
+  G[4]];
+ cats.combis=[
+  {titulo:"Resultado + goles",items:[
+   mk(nA+" y más de 1,5 goles",pSi(function(a,b){return a>b&&a+b>1;})),
+   mk(nA+" y más de 2,5 goles",pSi(function(a,b){return a>b&&a+b>2;})),
+   mk(nA+" y menos de 3,5 goles",pSi(function(a,b){return a>b&&a+b<4;})),
+   mk(nB+" y más de 1,5 goles",pSi(function(a,b){return b>a&&a+b>1;})),
+   mk(nB+" y más de 2,5 goles",pSi(function(a,b){return b>a&&a+b>2;})),
+   mk(nB+" y menos de 3,5 goles",pSi(function(a,b){return b>a&&a+b<4;})),
+   mk("Empate y menos de 2,5 goles",pSi(function(a,b){return a===b&&a+b<3;}))]},
+  {titulo:"Resultado + ambos marcan",items:[
+   mk(nA+" y ambos marcan",pSi(function(a,b){return a>b&&b>=1;})),
+   mk(nB+" y ambos marcan",pSi(function(a,b){return b>a&&a>=1;})),
+   mk("Empate y ambos marcan",pSi(function(a,b){return a===b&&a>=1;}))]},
+  {titulo:"Ambos marcan + goles",items:[
+   mk("Ambos marcan y más de 2,5",pSi(function(a,b){return a>=1&&b>=1&&a+b>2;})),
+   mk("Ambos marcan y menos de 2,5",pSi(function(a,b){return a>=1&&b>=1&&a+b<3;})),
+   mk("Ambos marcan y más de 3,5",pSi(function(a,b){return a>=1&&b>=1&&a+b>3;}))]},
+  {titulo:"Doble oportunidad + goles",items:[
+   mk("1X y más de 1,5 goles",pSi(function(a,b){return a>=b&&a+b>1;})),
+   mk("X2 y más de 1,5 goles",pSi(function(a,b){return b>=a&&a+b>1;})),
+   mk("12 y más de 2,5 goles",pSi(function(a,b){return a!==b&&a+b>2;}))]}
+ ];
  if(hayCT){
-  var co={titulo:"Córners totales · proyección del modelo",items:[]};
-  [7.5,8.5,9.5,10.5].forEach(function(L){
+  var co={titulo:"Córners totales · proyección del modelo (esp. "+coma(corT,1)+")",items:[]};
+  [6.5,7.5,8.5,9.5,10.5,11.5].forEach(function(L){
    co.items.push(mk("Más de "+coma(L,1)+" córners",pAtL(corT,Math.ceil(L))));
    co.items.push(mk("Menos de "+coma(L,1)+" córners",1-pAtL(corT,Math.ceil(L))));
   });
+  var coX={titulo:"Franjas y extras de córners",items:[
+   mk("Entre 0 y 7 córners",1-pAtL(corT,8)),
+   mk("Entre 8 y 10 córners",pAtL(corT,8)-pAtL(corT,11)),
+   mk("11 córners o más",pAtL(corT,11)),
+   mk("Córners pares",pPar(corT)),
+   mk("Córners impares",1-pPar(corT)),
+   mk("Primer córner: "+nA,corT>0?(corA/corT)*(1-_poisP(0,corT)):0),
+   mk("Primer córner: "+nB,corT>0?(corB/corT)*(1-_poisP(0,corT)):0)]};
   var duel=pMas(corA,corB);
   var coE={titulo:"Córners por equipo (esp. "+coma(corA,1)+" – "+coma(corB,1)+")",items:[
-   mk(NOM[p.home]+" — más de 3,5 córners",pAtL(corA,4)),
-   mk(NOM[p.home]+" — más de 4,5 córners",pAtL(corA,5)),
-   mk(NOM[p.away]+" — más de 3,5 córners",pAtL(corB,4)),
-   mk(NOM[p.away]+" — más de 4,5 córners",pAtL(corB,5)),
-   mk("Más córners: "+NOM[p.home],duel.win),
-   mk("Más córners: "+NOM[p.away],1-duel.win-duel.draw),
+   mk(nA+" — más de 2,5 córners",pAtL(corA,3)),
+   mk(nA+" — más de 3,5 córners",pAtL(corA,4)),
+   mk(nA+" — más de 4,5 córners",pAtL(corA,5)),
+   mk(nA+" — más de 5,5 córners",pAtL(corA,6)),
+   mk(nB+" — más de 2,5 córners",pAtL(corB,3)),
+   mk(nB+" — más de 3,5 córners",pAtL(corB,4)),
+   mk(nB+" — más de 4,5 córners",pAtL(corB,5)),
+   mk(nB+" — más de 5,5 córners",pAtL(corB,6)),
+   mk("Más córners: "+nA,duel.win),
+   mk("Más córners: "+nB,1-duel.win-duel.draw),
    mk("Empate a córners",duel.draw)
   ]};
-  cats.corners=[co,coE];
-  var ta={titulo:"Tarjetas amarillas totales · proyección",items:[]};
-  [2.5,3.5,4.5,5.5].forEach(function(L){
+  cats.corners=[co,coX,coE];
+  var ta={titulo:"Tarjetas amarillas totales · proyección (esp. "+coma(tarT,1)+")",items:[]};
+  [1.5,2.5,3.5,4.5,5.5,6.5].forEach(function(L){
    ta.items.push(mk("Más de "+coma(L,1)+" tarjetas",pAtL(tarT,Math.ceil(L))));
    ta.items.push(mk("Menos de "+coma(L,1)+" tarjetas",1-pAtL(tarT,Math.ceil(L))));
   });
+  var taX={titulo:"Franjas y extras de tarjetas",items:[
+   mk("Entre 0 y 2 tarjetas",1-pAtL(tarT,3)),
+   mk("Entre 3 y 5 tarjetas",pAtL(tarT,3)-pAtL(tarT,6)),
+   mk("6 tarjetas o más",pAtL(tarT,6)),
+   mk("Tarjetas pares",pPar(tarT)),
+   mk("Tarjetas impares",1-pPar(tarT))]};
   var duelT=pMas(tarA,tarB);
   var taE={titulo:"Tarjetas por equipo (esp. "+coma(tarA,1)+" – "+coma(tarB,1)+")",items:[
-   mk(NOM[p.home]+" — más de 1,5 tarjetas",pAtL(tarA,2)),
-   mk(NOM[p.away]+" — más de 1,5 tarjetas",pAtL(tarB,2)),
-   mk("Más tarjetas: "+NOM[p.home],duelT.win),
-   mk("Más tarjetas: "+NOM[p.away],1-duelT.win-duelT.draw)
+   mk(nA+" — más de 0,5 tarjetas",pAtL(tarA,1)),
+   mk(nA+" — más de 1,5 tarjetas",pAtL(tarA,2)),
+   mk(nA+" — más de 2,5 tarjetas",pAtL(tarA,3)),
+   mk(nB+" — más de 0,5 tarjetas",pAtL(tarB,1)),
+   mk(nB+" — más de 1,5 tarjetas",pAtL(tarB,2)),
+   mk(nB+" — más de 2,5 tarjetas",pAtL(tarB,3)),
+   mk("Más tarjetas: "+nA,duelT.win),
+   mk("Más tarjetas: "+nB,1-duelT.win-duelT.draw),
+   mk("Empate a tarjetas",duelT.draw)
   ]};
-  cats.tarjetas=[ta,taE];
+  cats.tarjetas=[ta,taX,taE];
  }
  cats.pop=[{titulo:"Lo más consultado",items:
-  [G[0].items[0],G[0].items[1],G[0].items[2],G[2].items[2],G[2].items[3],G[3].items[0]]
+  [G[0].items[0],G[0].items[1],G[0].items[2],G[2].items[2],G[2].items[3],G[3].items[0],
+   mk(nA+" — empate anula",m.pw/dnb),
+   mk(nA+" y más de 1,5 goles",pSi(function(a,b){return a>b&&a+b>1;})),
+   mk("Ambos marcan y más de 2,5",pSi(function(a,b){return a>=1&&b>=1&&a+b>2;}))]
   .concat(hayCT?[mk("Más de 8,5 córners",pAtL(corT,9)),mk("Más de 3,5 tarjetas",pAtL(tarT,4))]:[])}];
- var defs=[["pop","Popular"],["partido","Partido"],["goles","Goles"]].concat(hayCT?[["corners","Córners"],["tarjetas","Tarjetas"]]:[]);
+ var defs=[["pop","Popular"],["partido","Partido"],["goles","Goles"],["combis","Combinadas"]].concat(hayCT?[["corners","Córners"],["tarjetas","Tarjetas"]]:[]);
  if(!cats[MKT_TAB])MKT_TAB="pop";
  var h='<div class="tabs" style="margin:2px 0 12px">'+defs.map(function(d2){
   return '<button class="'+(MKT_TAB===d2[0]?"on":"")+'" onclick="mktTab(\''+d2[0]+'\')">'+d2[1]+'</button>';
@@ -2837,6 +2940,10 @@ function analisisCards(p,opt){
  opt=opt||{};
  var ca=p.home,cb=p.away,od=oddsPara(ca,cb),m=modeloPartido(p,od),h="";
  var _first=true; function sep(){var s=_first?"":'<div style="height:16px"></div>';_first=false;return s;}
+ var sa=STATS[ca],sb=STATS[cb];
+ var mktCard=m?'<div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-list"/></svg>Mercados y probabilidades<span class="tag">por categorías</span></h3>'+mktCatsHTML(p,od,m,sa,sb)+'</div>':"";
+ /* En la página de Análisis (full) los mercados van arriba del todo, justo bajo la pizarra de alineación */
+ if(opt.full&&mktCard){h+=mktCard;_first=false;}
  /* Sin cuotas publicadas no hay modelo. Enseñamos el cruce y lo decimos claro,
     en vez de rellenar el hueco con números que no tenemos. */
  if(!m){
@@ -2899,7 +3006,6 @@ function analisisCards(p,opt){
  }
 
  /* Careo estadístico */
- var sa=STATS[ca],sb=STATS[cb];
  if(sa&&sb){
   h+=sep()+'<div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Careo estadístico<span class="tag">medias por partido</span></h3>'+
    '<div style="display:flex;justify-content:space-between;font-size:.75rem;color:var(--tx3);margin-bottom:6px"><span>'+team(ca)+'</span><span>'+team(cb)+'</span></div>';
@@ -2962,9 +3068,8 @@ function analisisCards(p,opt){
  m.scores.slice(0,5).forEach(function(sc){h+='<div class="o" style="min-width:74px"><div class="l">'+esc(ca)+' '+sc.h+'–'+sc.a+' '+esc(cb)+'</div><div class="v">'+coma(sc.p*100,0)+'%</div></div>';});
  h+='</div><div class="src">Goles esperados y marcadores de un modelo Poisson anclado a la línea real del mercado y al 1X2 del modelo.</div></div>';
 
- /* Todos los mercados con probabilidades, organizados por categorías (pestañas) */
- h+=sep()+'<div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-list"/></svg>Mercados y probabilidades<span class="tag">por categorías</span></h3>'+
-  mktCatsHTML(p,od,m,sa,sb)+'</div>';
+ /* Mercados y probabilidades: en Inicio (resumen) se queda aquí; en Análisis ya se pintó arriba */
+ if(!opt.full&&mktCard)h+=sep()+mktCard;
 
  /* Jugadores a seguir */
  var jug=[];
