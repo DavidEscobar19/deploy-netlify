@@ -678,7 +678,7 @@ nav.bott{display:none}
 <div id="app">
 
 <nav class="side" aria-label="Navegación principal">
-  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip" style="display:none" aria-hidden="true">V75</span></div>
+  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip" style="display:none" aria-hidden="true">V76</span></div>
   <a href="#p-inicio" data-p="inicio" class="on"><svg class="i" viewBox="0 0 24 24"><use href="#ic-home"/></svg>Inicio</a>
   <a href="#p-partidos" data-p="partidos"><svg class="i" viewBox="0 0 24 24"><use href="#ic-ball"/></svg>Partidos</a>
   <a href="#p-analisis" data-p="analisis"><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Análisis</a>
@@ -1174,7 +1174,7 @@ nav.bott{display:none}
 
 <script>
 "use strict";
-var VERSION="V75";
+var VERSION="V76";
 /* PIN: disuasión del lado del cliente (el código llega al navegador, no es seguridad real).
    Guardamos solo un hash del PIN y limitamos los intentos para frenar el tanteo casual. */
 function hpin(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);}return (h>>>0).toString(16);}
@@ -2875,66 +2875,55 @@ function mktCatsHTML(p,od,m,sa,sb){
    mk("12 y más de 2,5 goles",pSi(function(a,b){return a!==b&&a+b>2;}))]}
  ];
  if(hayCT){
-  var co={titulo:"Córners totales · proyección del modelo (esp. "+coma(corT,1)+")",items:[]};
-  [6.5,7.5,8.5,9.5,10.5,11.5].forEach(function(L){
-   co.items.push(mk("Más de "+coma(L,1)+" córners",pAtL(corT,Math.ceil(L))));
-   co.items.push(mk("Menos de "+coma(L,1)+" córners",1-pAtL(corT,Math.ceil(L))));
-  });
-  var coX={titulo:"Franjas y extras de córners",items:[
-   mk("Entre 0 y 7 córners",1-pAtL(corT,8)),
-   mk("Entre 8 y 10 córners",pAtL(corT,8)-pAtL(corT,11)),
-   mk("11 córners o más",pAtL(corT,11)),
-   mk("Córners pares",pPar(corT)),
-   mk("Córners impares",1-pPar(corT)),
-   mk("Primer córner: "+nA,corT>0?(corA/corT)*(1-_poisP(0,corT)):0),
-   mk("Primer córner: "+nB,corT>0?(corB/corT)*(1-_poisP(0,corT)):0)]};
-  var duel=pMas(corA,corB);
-  var coE={titulo:"Córners por equipo (esp. "+coma(corA,1)+" – "+coma(corB,1)+")",items:[
-   mk(nA+" — más de 2,5 córners",pAtL(corA,3)),
-   mk(nA+" — más de 3,5 córners",pAtL(corA,4)),
-   mk(nA+" — más de 4,5 córners",pAtL(corA,5)),
-   mk(nA+" — más de 5,5 córners",pAtL(corA,6)),
-   mk(nB+" — más de 2,5 córners",pAtL(corB,3)),
-   mk(nB+" — más de 3,5 córners",pAtL(corB,4)),
-   mk(nB+" — más de 4,5 córners",pAtL(corB,5)),
-   mk(nB+" — más de 5,5 córners",pAtL(corB,6)),
-   mk("Más córners: "+nA,duel.win),
-   mk("Más córners: "+nB,1-duel.win-duel.draw),
-   mk("Empate a córners",duel.draw)
-  ]};
-  cats.corners=[co,coX,coE];
-  var ta={titulo:"Tarjetas amarillas totales · proyección (esp. "+coma(tarT,1)+")",items:[]};
-  [1.5,2.5,3.5,4.5,5.5,6.5].forEach(function(L){
-   ta.items.push(mk("Más de "+coma(L,1)+" tarjetas",pAtL(tarT,Math.ceil(L))));
-   ta.items.push(mk("Menos de "+coma(L,1)+" tarjetas",1-pAtL(tarT,Math.ceil(L))));
-  });
-  var taX={titulo:"Franjas y extras de tarjetas",items:[
-   mk("Entre 0 y 2 tarjetas",1-pAtL(tarT,3)),
-   mk("Entre 3 y 5 tarjetas",pAtL(tarT,3)-pAtL(tarT,6)),
-   mk("6 tarjetas o más",pAtL(tarT,6)),
-   mk("Tarjetas pares",pPar(tarT)),
-   mk("Tarjetas impares",1-pPar(tarT))]};
-  var duelT=pMas(tarA,tarB);
-  var taE={titulo:"Tarjetas por equipo (esp. "+coma(tarA,1)+" – "+coma(tarB,1)+")",items:[
-   mk(nA+" — más de 0,5 tarjetas",pAtL(tarA,1)),
-   mk(nA+" — más de 1,5 tarjetas",pAtL(tarA,2)),
-   mk(nA+" — más de 2,5 tarjetas",pAtL(tarA,3)),
-   mk(nB+" — más de 0,5 tarjetas",pAtL(tarB,1)),
-   mk(nB+" — más de 1,5 tarjetas",pAtL(tarB,2)),
-   mk(nB+" — más de 2,5 tarjetas",pAtL(tarB,3)),
-   mk("Más tarjetas: "+nA,duelT.win),
-   mk("Más tarjetas: "+nB,1-duelT.win-duelT.draw),
-   mk("Empate a tarjetas",duelT.draw)
-  ]};
-  cats.tarjetas=[ta,taX,taE];
+  /* helpers: solo líneas O/U con sentido para la esperanza (nada de "más de 6,5" si la esperanza es 0,8),
+     y por equipo solo si hay muestra (esperanza > 0,3); evita mercados degenerados al 0%/100% */
+  function ouLines(lam,label,lines){
+   var out=[];
+   lines.forEach(function(L){
+    var pO=pAtL(lam,Math.ceil(L)); if(pO<0.03||pO>0.97)return;
+    out.push(mk("Más de "+coma(L,1)+" "+label,pO));
+    out.push(mk("Menos de "+coma(L,1)+" "+label,1-pO));
+   });
+   return out;
+  }
+  function teamOver(lam,name,label,ks){
+   var out=[]; if(lam<=0.3)return out;
+   ks.forEach(function(k){var pv=pAtL(lam,k); if(pv>=0.03&&pv<=0.97)out.push(mk(name+" — más de "+coma(k-0.5,1)+" "+label,pv));});
+   return out;
+  }
+  function bandas(defs){var out=[];defs.forEach(function(x){if(x[1]>=0.02&&x[1]<=0.99)out.push(mk(x[0],x[1]));});return out;}
+  /* ---- Córners ---- */
+  var cCor=[],coI=ouLines(corT,"córners",[5.5,6.5,7.5,8.5,9.5,10.5,11.5,12.5]);
+  if(coI.length)cCor.push({titulo:"Córners totales · proyección del modelo (esp. "+coma(corT,1)+")",items:coI});
+  var coX=bandas([["Entre 0 y 7 córners",1-pAtL(corT,8)],["Entre 8 y 10 córners",pAtL(corT,8)-pAtL(corT,11)],["11 córners o más",pAtL(corT,11)]]);
+  coX.push(mk("Córners pares",pPar(corT)),mk("Córners impares",1-pPar(corT)));
+  if(corT>0)coX.push(mk("Primer córner: "+nA,(corA/corT)*(1-_poisP(0,corT))),mk("Primer córner: "+nB,(corB/corT)*(1-_poisP(0,corT))));
+  cCor.push({titulo:"Franjas y extras de córners",items:coX});
+  var duel=pMas(corA,corB),coE=teamOver(corA,nA,"córners",[3,4,5,6]).concat(teamOver(corB,nB,"córners",[3,4,5,6]));
+  if(corA>0.3&&corB>0.3)coE.push(mk("Más córners: "+nA,duel.win),mk("Más córners: "+nB,1-duel.win-duel.draw),mk("Empate a córners",duel.draw));
+  if(coE.length)cCor.push({titulo:"Córners por equipo (esp. "+coma(corA,1)+" – "+coma(corB,1)+")",items:coE});
+  if(cCor.length)cats.corners=cCor;
+  /* ---- Tarjetas ---- */
+  var cTar=[],taI=ouLines(tarT,"tarjetas",[1.5,2.5,3.5,4.5,5.5,6.5,7.5]);
+  if(taI.length)cTar.push({titulo:"Tarjetas amarillas totales · proyección (esp. "+coma(tarT,1)+")",items:taI});
+  var taX=bandas([["Entre 0 y 2 tarjetas",1-pAtL(tarT,3)],["Entre 3 y 5 tarjetas",pAtL(tarT,3)-pAtL(tarT,6)],["6 tarjetas o más",pAtL(tarT,6)]]);
+  taX.push(mk("Tarjetas pares",pPar(tarT)),mk("Tarjetas impares",1-pPar(tarT)));
+  cTar.push({titulo:"Franjas y extras de tarjetas",items:taX});
+  var duelT=pMas(tarA,tarB),taE=teamOver(tarA,nA,"tarjetas",[1,2,3]).concat(teamOver(tarB,nB,"tarjetas",[1,2,3]));
+  if(tarA>0.3&&tarB>0.3)taE.push(mk("Más tarjetas: "+nA,duelT.win),mk("Más tarjetas: "+nB,1-duelT.win-duelT.draw),mk("Empate a tarjetas",duelT.draw));
+  if(taE.length)cTar.push({titulo:"Tarjetas por equipo (esp. "+coma(tarA,1)+" – "+coma(tarB,1)+")",items:taE});
+  if(cTar.length)cats.tarjetas=cTar;
  }
  cats.pop=[{titulo:"Lo más consultado",items:
   [G[0].items[0],G[0].items[1],G[0].items[2],G[2].items[2],G[2].items[3],G[3].items[0],
    mk(nA+" — empate anula",m.pw/dnb),
    mk(nA+" y más de 1,5 goles",pSi(function(a,b){return a>b&&a+b>1;})),
    mk("Ambos marcan y más de 2,5",pSi(function(a,b){return a>=1&&b>=1&&a+b>2;}))]
-  .concat(hayCT?[mk("Más de 8,5 córners",pAtL(corT,9)),mk("Más de 3,5 tarjetas",pAtL(tarT,4))]:[])}];
- var defs=[["pop","Popular"],["partido","Partido"],["goles","Goles"],["combis","Combinadas"]].concat(hayCT?[["corners","Córners"],["tarjetas","Tarjetas"]]:[]);
+  .concat(cats.corners&&pAtL(corT,9)>0.05?[mk("Más de 8,5 córners",pAtL(corT,9))]:[])
+  .concat(cats.tarjetas&&pAtL(tarT,4)>0.05?[mk("Más de 3,5 tarjetas",pAtL(tarT,4))]:[])}];
+ var defs=[["pop","Popular"],["partido","Partido"],["goles","Goles"],["combis","Combinadas"]];
+ if(cats.corners)defs.push(["corners","Córners"]);
+ if(cats.tarjetas)defs.push(["tarjetas","Tarjetas"]);
  if(!cats[MKT_TAB])MKT_TAB="pop";
  var h='<div class="tabs" style="margin:2px 0 12px">'+defs.map(function(d2){
   return '<button class="'+(MKT_TAB===d2[0]?"on":"")+'" onclick="mktTab(\''+d2[0]+'\')">'+d2[1]+'</button>';
@@ -2955,7 +2944,9 @@ function mercadosHTML(G){
   h+='<div class="mktG"><div class="mktT">'+esc(g.titulo)+'</div>';
   g.items.forEach(function(it){
    var pct=Math.max(0,Math.min(100,it.prob*100));
-   var cuota=it.real?('<span class="mktReal">'+coma(it.real,2)+'</span>'):(it.fair?('<span class="mktFair">'+coma(it.fair,2)+'</span>'):'—');
+   /* la cuota justa (1÷prob) se dispara a miles cuando la prob≈0: por encima de 100 no es una cuota real, mostramos "—" */
+   var fairOk=it.fair&&it.fair<=100;
+   var cuota=it.real?('<span class="mktReal">'+coma(it.real,2)+'</span>'):(fairOk?('<span class="mktFair">'+coma(it.fair,2)+'</span>'):'—');
    h+='<div class="mktRow">'+
      '<span class="mktName">'+esc(it.t)+'</span>'+
      '<span class="mktBar"><i style="width:'+pct+'%"></i></span>'+
@@ -4909,15 +4900,17 @@ function rebuildLegs(){
   var corT=(media(sa.cf)+media(sb.cc))/2+(media(sb.cf)+media(sa.cc))/2;
   var tarT=media(sa.am)+media(sb.am);
   [[8.5,9],[9.5,10],[10.5,11]].forEach(function(x){
+   var pO=pAtL(corT,x[1]); if(pO<0.05||pO>0.95)return;
    var idO="CO"+(x[0]*10),idU="CU"+(x[0]*10);
-   legs.push({id:idO,t:"Más de "+coma(x[0],1)+" córners",c:fair(pAtL(corT,x[1])),grp:"cor"});
-   legs.push({id:idU,t:"Menos de "+coma(x[0],1)+" córners",c:fair(1-pAtL(corT,x[1])),grp:"cor"});
+   legs.push({id:idO,t:"Más de "+coma(x[0],1)+" córners",c:fair(pO),grp:"cor"});
+   legs.push({id:idU,t:"Menos de "+coma(x[0],1)+" córners",c:fair(1-pO),grp:"cor"});
    corLegs.push(idO,idU);
   });
   [[3.5,4],[4.5,5],[5.5,6]].forEach(function(x){
+   var pO=pAtL(tarT,x[1]); if(pO<0.05||pO>0.95)return;
    var idO="TO"+(x[0]*10),idU="TU"+(x[0]*10);
-   legs.push({id:idO,t:"Más de "+coma(x[0],1)+" tarjetas",c:fair(pAtL(tarT,x[1])),grp:"tar"});
-   legs.push({id:idU,t:"Menos de "+coma(x[0],1)+" tarjetas",c:fair(1-pAtL(tarT,x[1])),grp:"tar"});
+   legs.push({id:idO,t:"Más de "+coma(x[0],1)+" tarjetas",c:fair(pO),grp:"tar"});
+   legs.push({id:idU,t:"Menos de "+coma(x[0],1)+" tarjetas",c:fair(1-pO),grp:"tar"});
    tarLegs.push(idO,idU);
   });
  }
