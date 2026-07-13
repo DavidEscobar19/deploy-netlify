@@ -678,7 +678,7 @@ nav.bott{display:none}
 <div id="app">
 
 <nav class="side" aria-label="Navegación principal">
-  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip" style="display:none" aria-hidden="true">V74</span></div>
+  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip" style="display:none" aria-hidden="true">V75</span></div>
   <a href="#p-inicio" data-p="inicio" class="on"><svg class="i" viewBox="0 0 24 24"><use href="#ic-home"/></svg>Inicio</a>
   <a href="#p-partidos" data-p="partidos"><svg class="i" viewBox="0 0 24 24"><use href="#ic-ball"/></svg>Partidos</a>
   <a href="#p-analisis" data-p="analisis"><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Análisis</a>
@@ -1174,7 +1174,7 @@ nav.bott{display:none}
 
 <script>
 "use strict";
-var VERSION="V74";
+var VERSION="V75";
 /* PIN: disuasión del lado del cliente (el código llega al navegador, no es seguridad real).
    Guardamos solo un hash del PIN y limitamos los intentos para frenar el tanteo casual. */
 function hpin(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);}return (h>>>0).toString(16);}
@@ -2768,8 +2768,13 @@ function mercadosDe(p,od,m){
    (mismas medias que «Proyección de córners y tarjetas»); no existe cuota oficial
    verificable de estos mercados, así que solo se muestra la probabilidad del modelo. */
 var MKT_TAB="pop",MKT_SORT=false;
-function mktTab(t){MKT_TAB=t;if(PAGINA==="analisis")safe(renderAnalisis);else safe(renderInicio);}
-function mktSort(){MKT_SORT=!MKT_SORT;if(PAGINA==="analisis")safe(renderAnalisis);else safe(renderInicio);}
+function _mktRefresh(){
+ if(PAGINA==="analisis")safe(renderAnalisis);
+ else if(PAGINA==="valor")safe(renderValor);
+ else safe(renderInicio);
+}
+function mktTab(t){MKT_TAB=t;_mktRefresh();}
+function mktSort(){MKT_SORT=!MKT_SORT;_mktRefresh();}
 function mktCatsHTML(p,od,m,sa,sb){
  if(!m)return "";
  var G=mercadosDe(p,od,m);
@@ -3665,13 +3670,11 @@ function renderValorDinamico(p,e){
     '<div class="empty">'+(e.fin?"Partido finalizado.":"Aún no hay cuotas publicadas para este cruce en el feed en vivo.")+' En cuanto las casas abran mercado aparecerán aquí solas.</div></div>';
  }
 
- /* Mercados y probabilidades (motor de goles Poisson anclado a datos reales) */
- var model=modeloPartido(p,od),G=mercadosDe(p,od,model);
+ /* Mercados y probabilidades por categorías (mismas pestañas que Análisis, ~145 mercados en apartados) */
+ var model=modeloPartido(p,od);
  if(model){
-  var nMkt=G.reduce(function(a,g){return a+g.items.length;},0);
-  h+='<div style="height:16px"></div><div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-list"/></svg>Mercados y probabilidades<span class="tag">'+nMkt+' mercados</span></h3>'+
-    mercadosHTML(G)+
-    '<div class="src">Probabilidades de un modelo de goles (Poisson) anclado a dos datos reales: la línea de goles del mercado y el 1X2 del modelo. La «cuota justa» es 1÷probabilidad, sin margen — compárala con la de tu casa: si la de la casa es más alta, pagan de más; si es más baja, pagan de menos.</div></div>';
+  h+='<div style="height:16px"></div><div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-list"/></svg>Mercados y probabilidades<span class="tag">por categorías</span></h3>'+
+    mktCatsHTML(p,od,model,STATS[ca],STATS[cb])+'</div>';
  }else{
   h+='<div style="height:16px"></div><div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-list"/></svg>Mercados y probabilidades<span class="tag">sin cuotas</span></h3>'+
     '<div class="note">Todavía no hay cuotas publicadas para este cruce. Sin ellas el modelo no tiene a qué anclarse, y preferimos decírtelo a enseñarte números inventados.</div></div>';
@@ -4899,6 +4902,25 @@ function rebuildLegs(){
  var pPar=0;for(var k6=0;k6<=10;k6+=2)pPar+=_poisP(k6,m.L);
  legs.push({id:"PAR",t:"Goles totales: par",c:fair(pPar),grp:"par"});
  legs.push({id:"IMP",t:"Goles totales: impar",c:fair(1-pPar),grp:"par"});
+ /* Córners y tarjetas — proyección Poisson sobre las medias reales por partido (si hay STATS) */
+ var sa=STATS[ca],sb=STATS[cb],corLegs=[],tarLegs=[];
+ if(sa&&sb){
+  function pAtL(l,k){var s=0;for(var i=0;i<k;i++)s+=_poisP(i,l);return 1-s;}
+  var corT=(media(sa.cf)+media(sb.cc))/2+(media(sb.cf)+media(sa.cc))/2;
+  var tarT=media(sa.am)+media(sb.am);
+  [[8.5,9],[9.5,10],[10.5,11]].forEach(function(x){
+   var idO="CO"+(x[0]*10),idU="CU"+(x[0]*10);
+   legs.push({id:idO,t:"Más de "+coma(x[0],1)+" córners",c:fair(pAtL(corT,x[1])),grp:"cor"});
+   legs.push({id:idU,t:"Menos de "+coma(x[0],1)+" córners",c:fair(1-pAtL(corT,x[1])),grp:"cor"});
+   corLegs.push(idO,idU);
+  });
+  [[3.5,4],[4.5,5],[5.5,6]].forEach(function(x){
+   var idO="TO"+(x[0]*10),idU="TU"+(x[0]*10);
+   legs.push({id:idO,t:"Más de "+coma(x[0],1)+" tarjetas",c:fair(pAtL(tarT,x[1])),grp:"tar"});
+   legs.push({id:idU,t:"Menos de "+coma(x[0],1)+" tarjetas",c:fair(1-pAtL(tarT,x[1])),grp:"tar"});
+   tarLegs.push(idO,idU);
+  });
+ }
  LEGS=legs;
  /* conflictos: contradicciones + líneas O/U incompatibles + una sola por grupo */
  var C=[];function ad(a,b){C.push([a,b]);}
@@ -4910,6 +4932,9 @@ function rebuildLegs(){
  ad("O15","U15");ad("O25","U15");ad("O25","U25");ad("O35","U15");ad("O35","U25");ad("O35","U35");
  ad("O45","U45");ad("O45","U15");ad("O45","U25");ad("O45","U35");ad("O15","O45");ad("O25","O45");ad("O35","O45");ad("U15","U45");ad("U25","U45");ad("U35","U45");
  ad("BS","BN");ad("BS","U15");ad("PAR","IMP");
+ /* córners y tarjetas: una sola línea de cada (las demás son redundantes/contradictorias entre sí) */
+ function excl(ids){for(var i=0;i<ids.length;i++)for(var j=i+1;j<ids.length;j++)ad(ids[i],ids[j]);}
+ excl(corLegs);excl(tarLegs);
  LEG_CONF=C;
  LEG_CONFSET={};C.forEach(function(par){LEG_CONFSET[par[0]+"|"+par[1]]=1;LEG_CONFSET[par[1]+"|"+par[0]]=1;});
  if(typeof combiSel!=="undefined")combiSel=combiSel.filter(function(id){return legById(id);});
@@ -4993,7 +5018,7 @@ function renderCombiLegs(){
  var box=$("#combiLegs"); if(!box)return;
  if(!LEGS.length){box.innerHTML='<div class="empty">Sin cuotas publicadas todavía para el próximo cruce.</div>';var o0=$("#combiOut");if(o0)o0.innerHTML="";return;}
  var h="";
- var grupos=[["res","Resultado"],["dc","Doble oportunidad"],["gol","Goles"],["btts","Ambos marcan"],["tg","Equipo marca"],["par","Par / Impar"]];
+ var grupos=[["res","Resultado"],["dc","Doble oportunidad"],["gol","Goles"],["btts","Ambos marcan"],["tg","Equipo marca"],["par","Par / Impar"],["cor","Córners"],["tar","Tarjetas"]];
  grupos.forEach(function(gr){
   var enG=LEGS.filter(function(l){return l.grp===gr[0];});
   if(!enG.length)return;
