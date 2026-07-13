@@ -385,6 +385,24 @@ label.fl{display:block;font-size:.66rem;color:var(--tx3);text-transform:uppercas
 .hmC:hover{transform:scale(1.08)}
 .hmC.top{border-color:var(--vio2);font-weight:750}
 .hmAxis{font-size:.72rem;color:var(--tx3);margin-top:8px;line-height:1.5}
+/* Etiqueta "Nuevo" en el menú */
+.navNew{margin-left:auto;font-size:.6rem;font-weight:800;letter-spacing:.03em;text-transform:uppercase;background:linear-gradient(135deg,var(--vio),#5b3fe0);color:#fff;padding:2px 7px;border-radius:20px}
+/* Goles / vídeos oficiales (galería: miniatura oficial que abre el vídeo en YouTube) */
+.golGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px}
+.golCard{display:block;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;transition:border .2s,transform .2s,box-shadow .2s}
+.golCard:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+.golPlayer{position:relative;aspect-ratio:16/9;background:#000}
+.golThumb{position:absolute;inset:0;width:100%;height:100%;background-color:#0a0d18;background-size:cover;background-position:center}
+.golThumb::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,8,14,.05),rgba(7,8,14,.5))}
+.golPlayIco{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:1;width:56px;height:56px;border-radius:50%;background:rgba(124,92,255,.94);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 26px -6px rgba(124,92,255,.8);transition:transform .18s}
+.golCard:hover .golPlayIco{transform:translate(-50%,-50%) scale(1.1)}
+.golPlayIco svg{width:25px;height:25px;fill:#fff;margin-left:3px}
+.golCat{position:absolute;top:10px;left:10px;z-index:1;font-size:.64rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;background:rgba(7,8,14,.62);color:#fff;padding:4px 9px;border-radius:20px;backdrop-filter:blur(4px)}
+.golExt{position:absolute;right:10px;bottom:10px;z-index:1;font-size:.66rem;font-weight:600;color:#fff;background:rgba(7,8,14,.6);padding:4px 9px;border-radius:20px;backdrop-filter:blur(4px);opacity:0;transform:translateY(4px);transition:opacity .18s,transform .18s}
+.golCard:hover .golExt{opacity:1;transform:translateY(0)}
+.golMeta{padding:13px 15px;display:flex;flex-direction:column;gap:3px}
+.golMeta b{font-size:.9rem;line-height:1.32}
+.golMeta span{font-size:.75rem;color:var(--tx3)}
 input[type=range]{width:100%;accent-color:var(--vio);height:26px}
 input[type=checkbox].sw{appearance:none;width:38px;height:21px;border-radius:20px;background:var(--card2);border:1px solid var(--border);position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
 input[type=checkbox].sw::after{content:"";position:absolute;top:2px;left:2px;width:15px;height:15px;border-radius:50%;background:var(--tx3);transition:all .2s}
@@ -652,6 +670,7 @@ nav.bott{display:none}
   <g id="ic-send"><path d="M21 3 10.5 13.5M21 3l-7 18-3.5-7.5L3 10z"/></g>
   <g id="ic-shield"><path d="M12 3 4.5 6v6c0 5 3.5 8 7.5 9.5 4-1.5 7.5-4.5 7.5-9.5V6z"/></g>
   <g id="ic-stack"><path d="M12 3 3 8l9 5 9-5z"/><path d="m3 12.5 9 5 9-5M3 17l9 5 9-5"/></g>
+  <g id="ic-play"><circle cx="12" cy="12" r="9"/><path d="M10 8.2l6 3.8-6 3.8z" fill="currentColor" stroke="none"/></g>
  </defs>
 </svg>
 
@@ -667,6 +686,7 @@ nav.bott{display:none}
   <a href="#p-combinadas" data-p="combinadas"><svg class="i" viewBox="0 0 24 24"><use href="#ic-stack"/></svg>Combinadas</a>
   <a href="#p-cuadro" data-p="cuadro"><svg class="i" viewBox="0 0 24 24"><use href="#ic-trophy"/></svg>Cuadro</a>
   <a href="#p-alineaciones" data-p="alineaciones"><svg class="i" viewBox="0 0 24 24"><use href="#ic-shield"/></svg>Alineaciones</a>
+  <a href="#p-goles" data-p="goles"><svg class="i" viewBox="0 0 24 24"><use href="#ic-play"/></svg>Goles<span class="navNew">Nuevo</span></a>
   <div class="sep">Mi gestión</div>
   <a href="#p-simulador" data-p="simulador"><svg class="i" viewBox="0 0 24 24"><use href="#ic-slider"/></svg>Simulador</a>
   <a href="#p-bankroll" data-p="bankroll"><svg class="i" viewBox="0 0 24 24"><use href="#ic-wallet"/></svg>Bankroll</a>
@@ -686,6 +706,7 @@ nav.bott{display:none}
   <a href="#p-valor" data-p="valor"><svg viewBox="0 0 24 24"><use href="#ic-target"/></svg>Cuotas</a>
   <a href="#p-combinadas" data-p="combinadas"><svg viewBox="0 0 24 24"><use href="#ic-stack"/></svg>Combi</a>
   <a href="#p-cuadro" data-p="cuadro"><svg viewBox="0 0 24 24"><use href="#ic-trophy"/></svg>Cuadro</a>
+  <a href="#p-goles" data-p="goles"><svg viewBox="0 0 24 24"><use href="#ic-play"/></svg>Goles</a>
   <a href="#p-apuestas" data-p="apuestas"><svg viewBox="0 0 24 24"><use href="#ic-list"/></svg>Apuestas</a>
   <a href="#p-asistente" data-p="asistente"><svg viewBox="0 0 24 24"><use href="#ic-bot"/></svg>Bot</a>
   <a href="#p-bankroll" data-p="bankroll"><svg viewBox="0 0 24 24"><use href="#ic-wallet"/></svg>Bank</a>
@@ -820,6 +841,14 @@ nav.bott{display:none}
     <div class="card" style="padding:14px" id="alineaCampoCard"><div id="alineaCampo"></div></div>
     <div class="card" id="alineaInfo"></div>
   </div>
+  <div class="adSlot" data-slot=""></div>
+</section>
+
+<!-- ---------- GOLES / VÍDEOS ---------- -->
+<section class="page" id="p-goles">
+  <h2 class="pageT">Goles y resúmenes</h2>
+  <div class="pageSub">Los mejores goles y resúmenes del Mundial 2026 — vídeos <b>oficiales de la FIFA</b>. Pulsa cualquiera para verlo en YouTube.</div>
+  <div id="golesBox"></div>
   <div class="adSlot" data-slot=""></div>
 </section>
 
@@ -1539,6 +1568,7 @@ function nav(p){
  else if(p==="combinadas"){safe(rebuildLegs);safe(renderCombiTop);safe(renderCombiLegs);}
  else if(p==="cuadro")safe(renderCuadro);
  else if(p==="alineaciones")safe(renderAlinea);
+ else if(p==="goles")safe(renderVideos);
  window.scrollTo(0,0);
 }
 document.addEventListener("click",function(e){
@@ -3178,6 +3208,46 @@ function analisisCards(p,opt){
 function renderDestAnalisis(p){
  var el=$("#destAnalisis"); if(!el)return;
  el.innerHTML=analisisCards(p,{full:false});
+}
+/* ================= GOLES / RESÚMENES OFICIALES =================
+   Highlights del canal OFICIAL de la FIFA en YouTube (@fifa). La FIFA tiene DESACTIVADA
+   la reproducción incrustada de sus vídeos (no se pueden ver dentro de otra web), así
+   que la sección es una GALERÍA: se muestra la miniatura oficial y, al pulsar, el vídeo
+   se abre en YouTube (nueva pestaña). Así no cargamos ningún reproductor ni cookie de
+   terceros (mejor RGPD y rendimiento) y se respeta lo que la FIFA permite. Criterio no
+   aloja ni recorta vídeos: solo enlaza los oficiales, así no se infringe copyright.
+   PARA AÑADIR O CAMBIAR VÍDEOS: pega el ID del vídeo (lo que va detrás de "watch?v=")
+   de un vídeo del canal OFICIAL de la FIFA. No pongas vídeos de otros canales.
+   Estos IDs están verificados uno a uno: autor = FIFA (youtube.com/@fifa). */
+var GOLAZOS=[
+ {yt:"c3AHf5gSyiA",tit:"Los mejores goles de octavos",sub:"FIFA · Mundial 2026",cat:"Top goles"},
+ {yt:"hTES44U0fTs",tit:"Los mejores goles de la fase de grupos",sub:"FIFA · Mundial 2026",cat:"Top goles"},
+ {yt:"VHoctq0AOg8",tit:"España 2 – 1 Bélgica · resumen",sub:"FIFA · Cuartos de final",cat:"Resúmenes"}
+];
+function golThumb(id){return "https://i.ytimg.com/vi/"+id+"/hqdefault.jpg";}
+function golCardHTML(g){
+ return '<a class="golCard" href="https://www.youtube.com/watch?v='+encodeURIComponent(g.yt)+'" target="_blank" rel="noopener nofollow" aria-label="Ver en YouTube: '+esc(g.tit)+'">'+
+   '<div class="golPlayer"><div class="golThumb" style="background-image:url('+golThumb(g.yt)+')">'+
+     '<span class="golCat">'+esc(g.cat)+'</span>'+
+     '<span class="golPlayIco"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>'+
+     '<span class="golExt">Ver en YouTube ↗</span></div></div>'+
+   '<div class="golMeta"><b>'+esc(g.tit)+'</b><span>'+esc(g.sub)+'</span></div></a>';
+}
+function renderVideos(){
+ var box=$("#golesBox");if(!box)return;
+ var h='';
+ if(!GOLAZOS.length){
+  h='<div class="card"><div class="note">Todavía no hay vídeos publicados. En cuanto la FIFA suba los resúmenes oficiales aparecerán aquí.</div></div>';
+ }else{
+  h='<div class="golGrid">';
+  GOLAZOS.forEach(function(g){h+=golCardHTML(g);});
+  h+='</div>';
+  h+='<div class="card" style="margin-top:16px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap">'+
+     '<div><b>¿Quieres más goles?</b><div style="font-size:.8rem;color:var(--tx2);margin-top:3px">Todos los resúmenes, goles y momentazos, en el canal oficial de la FIFA.</div></div>'+
+     '<a class="btn sec sm" href="https://www.youtube.com/@fifa" target="_blank" rel="noopener nofollow">Canal oficial FIFA ↗</a></div>';
+  h+='<div class="src" style="margin-top:12px">Miniaturas y enlaces a los vídeos oficiales de la <b>FIFA</b> en YouTube. Criterio no aloja ni edita los vídeos: al pulsar se abren en YouTube.</div>';
+ }
+ box.innerHTML=h;
 }
 function renderInicio(){
  var hoy=new Date();
