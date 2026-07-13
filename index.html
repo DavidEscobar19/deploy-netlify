@@ -372,6 +372,19 @@ label.fl{display:block;font-size:.66rem;color:var(--tx3);text-transform:uppercas
 .tabs button{background:transparent;border:1px solid var(--border);color:var(--tx2);padding:6px 15px;border-radius:20px;font-size:.77rem;font-weight:500;transition:all .18s}
 .tabs button:hover{color:var(--tx);border-color:var(--border2)}
 .tabs button.on{background:var(--vio);border-color:var(--vio);color:#fff}
+/* Selector de partido en Análisis */
+.anSel{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 10px;margin-bottom:12px;scrollbar-width:thin}
+.anSel button{flex-shrink:0;display:inline-flex;align-items:center;gap:7px;background:var(--card);border:1px solid var(--border);color:var(--tx2);padding:8px 13px;border-radius:12px;font-size:.78rem;font-weight:550;transition:all .18s;white-space:nowrap}
+.anSel button:hover{border-color:var(--border2);color:var(--tx);transform:translateY(-1px)}
+.anSel button.on{background:linear-gradient(135deg,var(--vio),#5b3fe0);border-color:var(--vio);color:#fff;box-shadow:0 6px 18px -8px rgba(124,92,255,.6)}
+.anSel .d{font-size:.68rem;opacity:.72}
+/* Mapa de calor de marcadores */
+.hmGrid{display:grid;grid-template-columns:auto repeat(6,minmax(0,1fr));gap:4px;max-width:460px}
+.hmH{font-size:.68rem;color:var(--tx3);display:flex;align-items:center;justify-content:center;padding:2px;font-variant-numeric:tabular-nums}
+.hmC{border-radius:7px;padding:8px 0;text-align:center;font-size:.68rem;font-variant-numeric:tabular-nums;color:var(--tx);border:1px solid transparent;transition:transform .15s}
+.hmC:hover{transform:scale(1.08)}
+.hmC.top{border-color:var(--vio2);font-weight:750}
+.hmAxis{font-size:.72rem;color:var(--tx3);margin-top:8px;line-height:1.5}
 input[type=range]{width:100%;accent-color:var(--vio);height:26px}
 input[type=checkbox].sw{appearance:none;width:38px;height:21px;border-radius:20px;background:var(--card2);border:1px solid var(--border);position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
 input[type=checkbox].sw::after{content:"";position:absolute;top:2px;left:2px;width:15px;height:15px;border-radius:50%;background:var(--tx3);transition:all .2s}
@@ -755,7 +768,7 @@ nav.bott{display:none}
 <!-- ---------- ANALISIS ---------- -->
 <section class="page" id="p-analisis">
   <h2 class="pageT">Análisis del partido</h2>
-  <div class="pageSub">Todo sobre el próximo cruce a jugarse: histórico, forma, careo, modelo, mercados y datos — se actualiza solo</div>
+  <div class="pageSub">Elige el partido que quieras del cuadro: histórico, forma, careo, modelo, mercados y datos — se actualiza solo</div>
   <div id="analisisHero"></div>
   <div style="height:16px"></div>
   <div id="analisisAlinea"></div>
@@ -2215,7 +2228,7 @@ function _anAlinPaint(){
 function anAlinPick(id){ if(!AN.data)return; AN.pick=id; _pickPaint("#anAlinCampo","#anAlinInfo",AN.data,id,"anAlinPick"); }
 function renderAnalisisAlinea(){
  var box=$("#analisisAlinea"); if(!box)return;
- var p=partidoDestacado(); if(!p){box.innerHTML="";return;}
+ var p=partidoAnalisis(); if(!p){box.innerHTML="";return;}
  var fx=afFixtureDe(p.home,p.away);
  var fixtureId=p.fixtureId||(fx&&fx.id), homeId=p.homeId||(fx&&fx.home&&fx.home.id), awayId=p.awayId||(fx&&fx.away&&fx.away.id);
  var key=p.home+"-"+p.away+"-"+(fixtureId||"");
@@ -2724,8 +2737,9 @@ function mercadosDe(p,od,m){
    Córners y tarjetas: proyección Poisson sobre las medias reales por partido
    (mismas medias que «Proyección de córners y tarjetas»); no existe cuota oficial
    verificable de estos mercados, así que solo se muestra la probabilidad del modelo. */
-var MKT_TAB="pop";
+var MKT_TAB="pop",MKT_SORT=false;
 function mktTab(t){MKT_TAB=t;if(PAGINA==="analisis")safe(renderAnalisis);else safe(renderInicio);}
+function mktSort(){MKT_SORT=!MKT_SORT;if(PAGINA==="analisis")safe(renderAnalisis);else safe(renderInicio);}
 function mktCatsHTML(p,od,m,sa,sb){
  if(!m)return "";
  var G=mercadosDe(p,od,m);
@@ -2889,8 +2903,11 @@ function mktCatsHTML(p,od,m,sa,sb){
  if(!cats[MKT_TAB])MKT_TAB="pop";
  var h='<div class="tabs" style="margin:2px 0 12px">'+defs.map(function(d2){
   return '<button class="'+(MKT_TAB===d2[0]?"on":"")+'" onclick="mktTab(\''+d2[0]+'\')">'+d2[1]+'</button>';
- }).join("")+'</div>';
- h+=mercadosHTML(cats[MKT_TAB]);
+ }).join("")+
+ '<button class="'+(MKT_SORT?"on":"")+'" style="margin-left:auto" onclick="mktSort()" title="Ordenar los mercados de cada grupo de mayor a menor probabilidad">⇅ Por probabilidad</button></div>';
+ var grupos=cats[MKT_TAB];
+ if(MKT_SORT)grupos=grupos.map(function(g2){return {titulo:g2.titulo,items:g2.items.slice().sort(function(x,y){return y.prob-x.prob;})};});
+ h+=mercadosHTML(grupos);
  h+='<div class="src">'+((MKT_TAB==="corners"||MKT_TAB==="tarjetas")
   ?'Proyección Poisson sobre las medias reales por partido de ambos equipos (córners a favor y concedidos, amarillas — SportRadar). Sin cuota oficial verificable: la «justa» es 1÷probabilidad, orientativa. Muestra pequeña en eliminatorias.'
   :'Probabilidades del modelo; donde el feed publica cuota real, se muestra. La «justa» es 1÷probabilidad, sin margen.')+'</div>';
@@ -2923,6 +2940,32 @@ function partidoDestacado(){
  for(var i=0;i<lista.length;i++){if(!estadoPartido(lista[i]).fin)return lista[i];}
  return lista[lista.length-1];
 }
+/* ===== Selector de partido en Análisis: el usuario analiza el cruce que quiera =====
+   Si no ha elegido (o el elegido ya terminó), se usa el destacado de siempre. */
+var AN_SEL=null;
+function anSel(k){AN_SEL=k;AN.key=null;safe(renderAnalisis);}
+function partidoAnalisis(){
+ if(AN_SEL){var l=agendaOrden();for(var i=0;i<l.length;i++){var m2=l[i];if(m2.home+m2.away===AN_SEL&&!estadoPartido(m2).fin)return m2;}}
+ return partidoDestacado();
+}
+function anSelHTML(act){
+ var l=agendaOrden().filter(function(m2){return !estadoPartido(m2).fin;}).slice(0,10);
+ if(l.length<2)return "";
+ var h='<div class="anSel" aria-label="Elige el partido a analizar">';
+ l.forEach(function(m2){
+  var on=(m2.home===act.home&&m2.away===act.away),e2=estadoPartido(m2);
+  h+='<button class="'+(on?"on":"")+'" onclick="anSel(\''+m2.home+m2.away+'\')">'+FLAGS[m2.home]+' '+m2.home+' – '+m2.away+' '+FLAGS[m2.away]+
+     (e2.live?' <span class="live"></span>':' <span class="d">'+esc((m2.dt||"").split(",")[0])+'</span>')+'</button>';
+ });
+ return h+'</div>';
+}
+/* Compartir el análisis (menú nativo del móvil; en escritorio copia el enlace) */
+function compartir(){
+ var p=partidoAnalisis(),txt="Análisis "+NOM[p.home]+" – "+NOM[p.away]+" del Mundial 2026: probabilidades del modelo, cuotas reales y alineaciones, gratis en Criterio.";
+ var url="https://criteriofootball.es/";
+ if(navigator.share){navigator.share({title:"Criterio — Mundial 2026",text:txt,url:url}).catch(function(){});}
+ else if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt+" "+url).then(function(){toast("Enlace copiado: pégalo donde quieras");});}
+}
 function esFull(p){return p&&p.home===ELPARTIDO.home&&p.away===ELPARTIDO.away&&p.ts===ELPARTIDO.ts;}
 /* ===== ANÁLISIS COMPLETO DEL PRÓXIMO PARTIDO (Inicio) =====
    Reúne todo lo que ayuda a anticipar el partido: forma y bajas, careo estadístico,
@@ -2944,6 +2987,23 @@ function analisisCards(p,opt){
  var mktCard=m?'<div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-list"/></svg>Mercados y probabilidades<span class="tag">por categorías</span></h3>'+mktCatsHTML(p,od,m,sa,sb)+'</div>':"";
  /* En la página de Análisis (full) los mercados van arriba del todo, justo bajo la pizarra de alineación */
  if(opt.full&&mktCard){h+=mktCard;_first=false;}
+ /* (full) Mapa de calor de marcadores: matriz 0–5 del modelo */
+ if(opt.full&&m){
+  var _pm=[],_px=0,_ti=0,_tj=0,_yi,_xj,_pv;
+  for(_yi=0;_yi<=5;_yi++){_pm[_yi]=[];for(_xj=0;_xj<=5;_xj++){_pv=_poisP(_yi,m.lh)*_poisP(_xj,m.la);_pm[_yi][_xj]=_pv;if(_pv>_px){_px=_pv;_ti=_yi;_tj=_xj;}}}
+  var hm='<div class="hmGrid"><div class="hmH"></div>';
+  for(_xj=0;_xj<=5;_xj++)hm+='<div class="hmH">'+_xj+'</div>';
+  for(_yi=0;_yi<=5;_yi++){
+   hm+='<div class="hmH">'+_yi+'</div>';
+   for(_xj=0;_xj<=5;_xj++){
+    _pv=_pm[_yi][_xj];
+    hm+='<div class="hmC'+(_yi===_ti&&_xj===_tj?" top":"")+'" style="background:rgba(124,92,255,'+(0.05+0.75*(_px>0?_pv/_px:0)).toFixed(2)+')" title="'+esc(NOM[ca])+' '+_yi+'–'+_xj+' '+esc(NOM[cb])+': '+coma(_pv*100,1)+'%">'+coma(_pv*100,_pv*100>=9.5?0:1)+'</div>';
+   }
+  }
+  hm+='</div><div class="hmAxis">Filas: goles de <b>'+esc(NOM[ca])+'</b> · Columnas: goles de <b>'+esc(NOM[cb])+'</b>. Los números son el % de probabilidad; el marcador más probable va marcado en violeta.</div>';
+  h+=sep()+'<div class="card"><h3><svg class="i" viewBox="0 0 24 24"><use href="#ic-target"/></svg>Mapa de marcadores<span class="tag">probabilidad de cada resultado</span></h3>'+hm+
+   '<div class="src">Probabilidad de cada marcador exacto según el modelo Poisson anclado a la línea real del mercado y al 1X2. Cuanto más intenso el color, más probable el resultado.</div></div>';
+ }
  /* Sin cuotas publicadas no hay modelo. Enseñamos el cruce y lo decimos claro,
     en vez de rellenar el hueco con números que no tenemos. */
  if(!m){
@@ -3157,7 +3217,7 @@ function renderInicio(){
   }else{
    cuerpo+='<div class="src">'+(p.sede?esc(p.sede)+' · ':'')+'Probabilidades: '+fuenteProb(p)+'. Cuotas reales al minuto y previa detallada en «Datos y cuotas».</div>';
   }
-  cuerpo+='<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm" onclick="nav(\'valor\')">Ver cuotas y análisis</button><button class="btn ghost sm" onclick="openMatch(\''+p.home+p.away+'\')">Careo de datos</button></div>';
+  cuerpo+='<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm" onclick="nav(\'valor\')">Ver cuotas y análisis</button><button class="btn ghost sm" onclick="openMatch(\''+p.home+p.away+'\')">Careo de datos</button><button class="btn ghost sm" onclick="compartir()">Compartir</button></div>';
  }
  $("#destCard").innerHTML=cuerpo;
  safe(function(){renderDestAnalisis(p);});
@@ -3456,7 +3516,7 @@ function renderDuelos(){
 /* La página Análisis es un dossier de analítica completa dedicado al próximo partido a jugarse */
 function renderAnalisis(){
  var box=$("#analisisBox"); if(!box)return;
- var p=partidoDestacado(),e=estadoPartido(p),od=oddsPara(p.home,p.away),ca=p.home,cb=p.away;
+ var p=partidoAnalisis(),e=estadoPartido(p),od=oddsPara(p.home,p.away),ca=p.home,cb=p.away;
  var estadoTag=e.live
    ?'<span class="tag" style="color:#ff7b7b"><span class="live" style="margin-right:5px"></span>En juego'+(e.score?" · "+esc(e.score):"")+'</span>'
    :e.fin?'<span class="tag chip g" style="border:none">Finalizado'+(e.score?" · "+esc(e.score):"")+'</span>'
@@ -3477,8 +3537,8 @@ function renderAnalisis(){
   if(tt)hero+='<div class="oddsRow" style="margin-top:8px"><div class="o"><div class="l">Más de '+coma(tt.punto)+'</div><div class="v">'+coma(tt.over,2)+'</div></div><div class="o"><div class="l">Menos de '+coma(tt.punto)+'</div><div class="v">'+coma(tt.under,2)+'</div></div></div>';
  }
  hero+='<div class="src">'+(p.sede?esc(p.sede)+' · ':'')+rondaTxt(p)+' · '+esc(p.dt)+'. Cuotas reales en directo (API-Football) · '+fuenteProb(p)+'.</div>'+
-  '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm" onclick="nav(\'valor\')">Cuotas y combinadas</button><button class="btn ghost sm" onclick="openMatch(\''+ca+cb+'\')">Careo rápido</button></div>';
- var heroEl=$("#analisisHero"); if(heroEl)heroEl.innerHTML=hero;
+  '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm" onclick="nav(\'valor\')">Cuotas y combinadas</button><button class="btn ghost sm" onclick="openMatch(\''+ca+cb+'\')">Careo rápido</button><button class="btn ghost sm" onclick="compartir()">Compartir</button></div>';
+ var heroEl=$("#analisisHero"); if(heroEl)heroEl.innerHTML=anSelHTML(p)+hero;
  box.innerHTML=analisisCards(p,{full:true});
  safe(renderAnalisisAlinea);
 }
