@@ -678,7 +678,7 @@ nav.bott{display:none}
 <div id="app">
 
 <nav class="side" aria-label="Navegación principal">
-  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip" style="display:none" aria-hidden="true">V76</span></div>
+  <div class="sLogo"><span class="sMark"><svg viewBox="0 0 24 24"><use href="#ic-logo"/></svg></span><b>Criterio<em>.</em></b><span class="ver" id="verChip" style="display:none" aria-hidden="true">V77</span></div>
   <a href="#p-inicio" data-p="inicio" class="on"><svg class="i" viewBox="0 0 24 24"><use href="#ic-home"/></svg>Inicio</a>
   <a href="#p-partidos" data-p="partidos"><svg class="i" viewBox="0 0 24 24"><use href="#ic-ball"/></svg>Partidos</a>
   <a href="#p-analisis" data-p="analisis"><svg class="i" viewBox="0 0 24 24"><use href="#ic-chart"/></svg>Análisis</a>
@@ -1174,7 +1174,7 @@ nav.bott{display:none}
 
 <script>
 "use strict";
-var VERSION="V76";
+var VERSION="V77";
 /* PIN: disuasión del lado del cliente (el código llega al navegador, no es seguridad real).
    Guardamos solo un hash del PIN y limitamos los intentos para frenar el tanteo casual. */
 function hpin(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);}return (h>>>0).toString(16);}
@@ -2820,7 +2820,17 @@ function mktCatsHTML(p,od,m,sa,sb){
    mk(nB+" gana por 3 o más",pSi(function(a,b){return b-a>=3;}))]},
   {titulo:"Gana sin recibir gol",items:[
    mk(nA+" gana a cero",pSi(function(a,b){return a>b&&b===0;})),
-   mk(nB+" gana a cero",pSi(function(a,b){return b>a&&a===0;}))]}
+   mk(nB+" gana a cero",pSi(function(a,b){return b>a&&a===0;}))]},
+  {titulo:"Hándicap −2,5 / +2,5",items:[
+   mk(nA+" −2,5 (gana por 3 o más)",pSi(function(a,b){return a-b>=3;})),
+   mk(nA+" +2,5 (no pierde por 3 o más)",pSi(function(a,b){return b-a<3;})),
+   mk(nB+" −2,5 (gana por 3 o más)",pSi(function(a,b){return b-a>=3;})),
+   mk(nB+" +2,5 (no pierde por 3 o más)",pSi(function(a,b){return a-b<3;}))]},
+  {titulo:"Empate con marcador exacto",items:[
+   mk("Empate 0–0",MX[0][0]),
+   mk("Empate 1–1",MX[1][1]),
+   mk("Empate 2–2",MX[2][2]),
+   mk("Empate 3–3 o más",pSi(function(a,b){return a===b&&a>=3;}))]}
  ];
  cats.goles=[G[2],
   {titulo:"Más líneas de goles",items:[
@@ -2851,6 +2861,21 @@ function mktCatsHTML(p,od,m,sa,sb){
    mk(nB+" — más de 1,5",pAtL(m.la,2)),
    mk(nB+" — más de 2,5",pAtL(m.la,3)),
    mk(nB+" — no marca",_poisP(0,m.la))]},
+  {titulo:"Rango de goles del partido",items:[
+   mk("0–1 goles en total",_poisP(0,m.L)+_poisP(1,m.L)),
+   mk("2–3 goles en total",_poisP(2,m.L)+_poisP(3,m.L)),
+   mk("4–6 goles en total",_poisP(4,m.L)+_poisP(5,m.L)+_poisP(6,m.L)),
+   mk("7 o más goles",pAtL(m.L,7))]},
+  {titulo:"Goles exactos de "+nA,items:[
+   mk(nA+" no marca",_poisP(0,m.lh)),
+   mk(nA+" marca 1",_poisP(1,m.lh)),
+   mk(nA+" marca 2",_poisP(2,m.lh)),
+   mk(nA+" marca 3 o más",pAtL(m.lh,3))]},
+  {titulo:"Goles exactos de "+nB,items:[
+   mk(nB+" no marca",_poisP(0,m.la)),
+   mk(nB+" marca 1",_poisP(1,m.la)),
+   mk(nB+" marca 2",_poisP(2,m.la)),
+   mk(nB+" marca 3 o más",pAtL(m.la,3))]},
   G[4]];
  cats.combis=[
   {titulo:"Resultado + goles",items:[
@@ -2872,7 +2897,16 @@ function mktCatsHTML(p,od,m,sa,sb){
   {titulo:"Doble oportunidad + goles",items:[
    mk("1X y más de 1,5 goles",pSi(function(a,b){return a>=b&&a+b>1;})),
    mk("X2 y más de 1,5 goles",pSi(function(a,b){return b>=a&&a+b>1;})),
-   mk("12 y más de 2,5 goles",pSi(function(a,b){return a!==b&&a+b>2;}))]}
+   mk("12 y más de 2,5 goles",pSi(function(a,b){return a!==b&&a+b>2;}))]},
+  {titulo:"Doble oportunidad + ambos marcan",items:[
+   mk("1X y ambos marcan",pSi(function(a,b){return a>=b&&a>=1&&b>=1;})),
+   mk("X2 y ambos marcan",pSi(function(a,b){return b>=a&&a>=1&&b>=1;})),
+   mk("12 y ambos marcan",pSi(function(a,b){return a!==b&&a>=1&&b>=1;}))]},
+  {titulo:"Ganador + rango de goles",items:[
+   mk(nA+" gana y 2–3 goles",pSi(function(a,b){return a>b&&(a+b===2||a+b===3);})),
+   mk(nB+" gana y 2–3 goles",pSi(function(a,b){return b>a&&(a+b===2||a+b===3);})),
+   mk(nA+" gana y 4 o más goles",pSi(function(a,b){return a>b&&a+b>=4;})),
+   mk(nB+" gana y 4 o más goles",pSi(function(a,b){return b>a&&a+b>=4;}))]}
  ];
  if(hayCT){
   /* helpers: solo líneas O/U con sentido para la esperanza (nada de "más de 6,5" si la esperanza es 0,8),
@@ -4889,6 +4923,15 @@ function rebuildLegs(){
  /* Cada equipo marca — Poisson sobre sus goles esperados */
  legs.push({id:"GH",t:NOM[ca]+" marca",c:fair(1-Math.exp(-m.lh)),grp:"tg"});
  legs.push({id:"GA",t:NOM[cb]+" marca",c:fair(1-Math.exp(-m.la)),grp:"tg"});
+ /* Equipo marca 2 o más (Poisson sobre sus goles esperados) */
+ var p2H=1-_poisP(0,m.lh)-_poisP(1,m.lh), p2A=1-_poisP(0,m.la)-_poisP(1,m.la);
+ if(p2H>0.05)legs.push({id:"GH2",t:NOM[ca]+" marca 2 o más",c:fair(p2H),grp:"tg"});
+ if(p2A>0.05)legs.push({id:"GA2",t:NOM[cb]+" marca 2 o más",c:fair(p2A),grp:"tg"});
+ /* Hándicap: gana por 2 o más (Poisson conjunto local×visitante) */
+ var wH2=0,wA2=0;
+ for(var hi=0;hi<=10;hi++)for(var hj=0;hj<=10;hj++){var pq=_poisP(hi,m.lh)*_poisP(hj,m.la);if(hi-hj>=2)wH2+=pq;else if(hj-hi>=2)wA2+=pq;}
+ if(wH2>0.05)legs.push({id:"HH",t:NOM[ca]+" gana por 2 o más",c:fair(wH2),grp:"hcp"});
+ if(wA2>0.05)legs.push({id:"HA",t:NOM[cb]+" gana por 2 o más",c:fair(wA2),grp:"hcp"});
  /* Par/Impar de goles — Poisson sobre el total */
  var pPar=0;for(var k6=0;k6<=10;k6+=2)pPar+=_poisP(k6,m.L);
  legs.push({id:"PAR",t:"Goles totales: par",c:fair(pPar),grp:"par"});
@@ -4928,6 +4971,11 @@ function rebuildLegs(){
  /* córners y tarjetas: una sola línea de cada (las demás son redundantes/contradictorias entre sí) */
  function excl(ids){for(var i=0;i<ids.length;i++)for(var j=i+1;j<ids.length;j++)ad(ids[i],ids[j]);}
  excl(corLegs);excl(tarLegs);
+ /* equipo marca 2+ y hándicap: evitar redundancias/contradicciones con el 1X2 y las líneas de goles */
+ ad("GH2","GH");ad("GA2","GA");ad("GH2","U15");ad("GA2","U15");
+ ["1","X","2","1X","12","X2","HA","U15"].forEach(function(id){ad("HH",id);});
+ ["1","X","2","1X","12","X2","U15"].forEach(function(id){ad("HA",id);});
+ ad("HH","GH");ad("HH","GH2");ad("HA","GA");ad("HA","GA2"); /* ganar por 2+ ya implica marcar: no sumarlos */
  LEG_CONF=C;
  LEG_CONFSET={};C.forEach(function(par){LEG_CONFSET[par[0]+"|"+par[1]]=1;LEG_CONFSET[par[1]+"|"+par[0]]=1;});
  if(typeof combiSel!=="undefined")combiSel=combiSel.filter(function(id){return legById(id);});
@@ -5011,7 +5059,7 @@ function renderCombiLegs(){
  var box=$("#combiLegs"); if(!box)return;
  if(!LEGS.length){box.innerHTML='<div class="empty">Sin cuotas publicadas todavía para el próximo cruce.</div>';var o0=$("#combiOut");if(o0)o0.innerHTML="";return;}
  var h="";
- var grupos=[["res","Resultado"],["dc","Doble oportunidad"],["gol","Goles"],["btts","Ambos marcan"],["tg","Equipo marca"],["par","Par / Impar"],["cor","Córners"],["tar","Tarjetas"]];
+ var grupos=[["res","Resultado"],["dc","Doble oportunidad"],["hcp","Hándicap"],["gol","Goles"],["btts","Ambos marcan"],["tg","Equipo marca"],["par","Par / Impar"],["cor","Córners"],["tar","Tarjetas"]];
  grupos.forEach(function(gr){
   var enG=LEGS.filter(function(l){return l.grp===gr[0];});
   if(!enG.length)return;
